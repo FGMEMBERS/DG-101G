@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<PropertyList> 
+
+  <path>wollfaden.ac</path>
+  <texture-path>Textures</texture-path>
+
+  <animation> 
+    <type>rotate</type>
+    <object-name>faden</object-name>
+    <property>fdm/jsbsim/aero/beta-deg</property>
+    <factor>1</factor>
+    <axis> 
+      <x>0</x>
+      <y>0</y>
+      <z>1</z>
+    </axis>
+    <center>
+      <x-m>0.0</x-m>
+      <y-m>0.0</y-m>
+      <z-m>0.0</z-m>
+    </center>
+  </animation>
+
+</PropertyList>

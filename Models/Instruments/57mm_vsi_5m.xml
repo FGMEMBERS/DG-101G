@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!-- climb/sink indicator -->
+
+<PropertyList>
+
+  <path>57mm_vsi_5m.ac</path>
+  <texture-path>Textures</texture-path>
+
+  <animation>
+    <type>rotate</type>
+    <object-name>needle</object-name>
+    <property>instrumentation/vertical-speed-indicator/indicated-speed-fpm</property>
+    <!-- conversion from feet/min to m/sec 
+         1 foot = 0.3048 m
+         1 f/m  = 0.00508 m/s -->
+    <interpolation>
+      <entry><ind> -984.25</ind><dep>-150</dep></entry> <!-- - 5m/s -->
+      <entry><ind>    0   </ind><dep>   0</dep></entry> <!--   0    -->
+      <entry><ind>  984.25</ind><dep> 150</dep></entry> <!--   5m/s -->
+    </interpolation>
+    <center>
+      <x-m>0</x-m>
+      <y-m>0</y-m>
+      <z-m>0</z-m>
+    </center>
+    <axis>
+      <x>-1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+</PropertyList>

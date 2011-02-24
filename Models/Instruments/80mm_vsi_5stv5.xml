@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<!-- climb/sink indicator -->
+
+<PropertyList>
+
+  <path>80mm_vsi_5stv5.ac</path>
+  <texture-path>Textures</texture-path>
+
+  <animation>
+    <type>rotate</type>
+    <object-name>needle</object-name>
+    <!-- old property without Total Energy compensation
+      <property>instrumentation/vertical-speed-indicator/indicated-speed-fpm</property>  
+    -->
+    <property>instrumentation/te-vario/te-reading-mps</property>
+    <interpolation>
+      <entry><ind> -5.00</ind><dep>-125</dep></entry> <!-- - 5m/s -->
+      <entry><ind>  0   </ind><dep>   0</dep></entry> <!--   0    -->
+      <entry><ind>  5.00</ind><dep> 125</dep></entry> <!--   5m/s -->
+    </interpolation>
+    <center>
+      <x-m>0</x-m>
+      <y-m>0</y-m>
+      <z-m>0</z-m>
+    </center>
+    <axis>
+      <x>-1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+
+
+</PropertyList>
