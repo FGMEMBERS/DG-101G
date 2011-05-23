@@ -1,7 +1,7 @@
 AC3Db
 MATERIAL "DefaultWhite" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0.5 0.5 0.5  shi 64  trans 0
-MATERIAL "black-ring" rgb 0.25 0.25 0.25 amb 0.25 0.25 0.25 emis 0 0 0 spec 0.25 0.25 0.25 shi 32 trans 0
-MATERIAL "tex-ring"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "black-ring"   rgb 0.25 0.25 0.25 amb 0.25 0.25 0.25 emis 0 0 0 spec 0.25 0.25 0.25 shi 32 trans 0
+MATERIAL "tex-ring"     rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
 OBJECT world
 kids 1
 OBJECT group

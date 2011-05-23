@@ -18,9 +18,9 @@
       <z>0</z>
     </axis>
     <center>
-      <x-m>0.0</x-m>
-      <y-m>0.0</y-m>
-      <z-m>-0.0052</z-m>
+      <x-m> 0.000</x-m>
+      <y-m> 0.000</y-m>
+      <z-m>-0.008</z-m>
     </center>
   </animation>
 
@@ -28,19 +28,18 @@
     <type>rotate</type>
     <object-name>ball</object-name>
     <property>instrumentation/slip-skid-ball/indicated-slip-skid</property>
-    <interpolation>
-      <entry>  <ind>-1</ind>  <dep>-0.6</dep>  </entry>
-      <entry>  <ind> 1</ind>  <dep> 0.6</dep>  </entry>
-    </interpolation>
+    <factor>5.729</factor>
+    <min-deg>-10</min-deg>
+    <max-deg> 10</max-deg>
     <axis> 
       <x>-1</x>
       <y>0</y>
       <z>0</z>
     </axis>
     <center>
-      <x-m>0.0</x-m>
-      <y-m>0.0</y-m>
-      <z-m>0.6</z-m>
+      <x-m>0.000</x-m>
+      <y-m>0.000</y-m>
+      <z-m>0.082</z-m>
     </center>
   </animation>
 

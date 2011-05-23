@@ -919,7 +919,7 @@ OBJECT poly
 name "front"
 data 5
 front
-texture "80mm_vsi_5stv5_front.sgi"
+texture "80mm_vsi_5stv5_front.png"
 texrep 1 1
 crease 30.000000
 numvert 47
@@ -1606,7 +1606,7 @@ OBJECT poly
 name "scala"
 data 5
 scala
-texture "80mm_vsi_5stv5_5m.sgi"
+texture "80mm_vsi_5stv5_5m.png"
 texrep 1 1
 crease 30.000000
 numvert 37

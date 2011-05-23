@@ -1651,7 +1651,7 @@ OBJECT poly
 name "maccready_1"
 data 9
 maccready
-texture "80mm_maccready.sgi"
+texture "80mm_maccready.png"
 texrep 1 1
 crease 30.000000
 numvert 192

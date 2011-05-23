@@ -3603,7 +3603,7 @@ OBJECT poly
 name "scale"
 data 5
 scale
-texture "80mm-alti_4fgh10_scala.sgi"
+texture "80mm-alti_4fgh10_scala.png"
 texrep 1 1
 crease 30.000000
 numvert 53
@@ -3945,7 +3945,7 @@ OBJECT poly
 name "scaleadjust"
 data 11
 scaleadjust
-texture "80mm-alti_4fgh10_adjust.sgi"
+texture "80mm-alti_4fgh10_adjust.png"
 texrep 1 1
 crease 30.000000
 numvert 37

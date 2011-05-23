@@ -4,7 +4,7 @@
 #
 ##############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-02-01
+# Version: 2011-03-23
 #
 ##############################################################################################
 # Concepts:
@@ -58,7 +58,7 @@
 ##############################################################################################
 ##############################################################################################
 # global variables in this module
-var timeincrement = 0.1;                        # timer increment
+var towing_timeincrement = 0;                        # timer increment
 
 
 
@@ -358,7 +358,7 @@ var runDragger = func {
     }
   }
   
-  settimer(runDragger, timeincrement);
+  settimer(runDragger, towing_timeincrement);
   
   
 } # End Function runDragger

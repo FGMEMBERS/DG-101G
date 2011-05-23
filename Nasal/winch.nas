@@ -4,7 +4,7 @@
 #
 ##############################################################################################
 # Author: Klaus Kerner
-# Version: 2010-03-31
+# Version: 2011-03-29
 #
 ##############################################################################################
 # Concepts:
@@ -56,7 +56,14 @@
 ##############################################################################################
 ##############################################################################################
 # global variables for this script
-var timeincrement = 0.1;                                       # timer increment
+  var winch_timeincrement_s = 0.1;                                       # timer increment
+  
+  if ( winch_timeincrement_s == 0 ) {
+    var deltatime_s = getprop("sim/time/delta-sec");
+  }
+  else {
+    var deltatime_s = winch_timeincrement_s;
+  }
 
 
 
@@ -263,7 +270,7 @@ var runWinch = func {
     var pt_deg = getprop("/orientation/pitch-deg");      # pitch of aircraft
     var rt_deg = getprop("/orientation/roll-deg");       # roll of aircraft
     var dd_old_m = getprop("/sim/glider/winch/rope_m");  # rope length from last step
-    var ropespeed = (dd_m - dd_old_m)/timeincrement;     # the speed of the rope
+    var ropespeed = (dd_m - dd_old_m)/deltatime_s;       # the speed of the rope
     
     if (dp_m > dd_m) { dp_m = dd_m;}                     # correct a failure, if the projected
                                                          # length is larger than direct length
@@ -320,7 +327,7 @@ var runWinch = func {
   }
 
 
-  settimer(runWinch, timeincrement);
+  settimer(runWinch, winch_timeincrement_s);
 
 } # End Function runWinch
 

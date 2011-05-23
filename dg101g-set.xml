@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-02-01
+Current 2011-03-23
 ************************************************************************
 -->
 
@@ -48,9 +48,10 @@ Current 2011-02-01
     <help>
       <title>Glaser Dirks DG-101G</title>
       <line>- Start with winch</line>
-      <line>- no airotowing</line>
+      <line>- Start with drag robot</line>
       <line>implemented in the DG-101G</line>
       <line> Ctrl-b: toggle speedbrake</line>
+      <line>         (or use throttle)</line>
       <line> B     : toggle parking brake</line>
       <line> b     : apply all brakes</line>
       <line> G     : Gear down</line>
@@ -59,21 +60,19 @@ Current 2011-02-01
       <line> Ctrl-w: place winch</line>
       <line> w     : run winch</line>
       <line> W     : release winch</line>
-      <line>experimental aerotowing support</line>
+      <line>experimental AI aerotowing support</line>
       <line> Ctrl-o: find a dragger</line>
       <line> o     : hook in </line>
       <line> O     : release tow </line>
       <line>experimental drag robot support</line>
-      <line> d       start/stop drag roboter</line>
-      <line> D       create drag roboter</line>
+      <line> d     : start/stop drag roboter</line>
+      <line> D     : create drag roboter</line>
+      <line> Ctrl-d: update presets from property tree</line>
       <line>experimental water ballast support</line>
-      <line> T       load water ballast</line>
-      <line> t       toggle dumping ballast</line>
+      <line> T     : load water ballast</line>
+      <line> t     : toggle dumping ballast</line>
       <line>experimental thermal support</line>
       <line> Ctrl-t: arrange thermals around local position</line>
-      <line>not implemented in the DG-101G</line>
-      <line> [     : decrease flaps</line>
-      <line> ]     : increase flaps</line>
     </help>
 
 
@@ -274,6 +273,15 @@ Current 2011-02-01
         <binding>
           <command>nasal</command>
           <script>dg101g.releaseDragger()</script>
+        </binding>
+      </key>
+      
+      <key n="4">
+        <name>Ctrl-d</name>
+        <desc>update presets drag robot</desc>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.presetsRobot()</script>
         </binding>
       </key>
       

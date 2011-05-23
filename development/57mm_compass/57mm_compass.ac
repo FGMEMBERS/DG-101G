@@ -1,8 +1,8 @@
 AC3Db
 MATERIAL "DefaultWhite" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0.5 0.5 0.5  shi 64  trans 0
-MATERIAL "front"   rgb 0.21 0.21 0.21  amb 0.21 0.21 0.21 emis 0 0 0 spec 0.21 0.21 0.21 shi 32 trans 0
-MATERIAL "lubber"  rgb 0.99 0.21 0.21  amb 0.99 0.21 0.21 emis 0 0 0 spec 0.99 0.21 0.21 shi 32 trans 0
-MATERIAL "scala"   rgb 1    1    1     amb 1    1    1    emis 0 0 0 spec 1    1    1    shi 32 trans 0
+MATERIAL "front"        rgb 0.21 0.21 0.21 amb 0.21 0.21 0.21 emis 0 0 0 spec 0.21 0.21 0.21 shi 32 trans 0
+MATERIAL "lubber"       rgb 0.99 0.21 0.21 amb 0.99 0.21 0.21 emis 0 0 0 spec 0.99 0.21 0.21 shi 32 trans 0
+MATERIAL "scala"        rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
 OBJECT world
 kids 2
 OBJECT poly
@@ -843,7 +843,7 @@ OBJECT poly
 name "scala"
 data 5
 scala
-texture "57mm_compass-scala.sgi"
+texture "57mm_compass-scala.png"
 texrep 1 1
 crease 30.000000
 numvert 72

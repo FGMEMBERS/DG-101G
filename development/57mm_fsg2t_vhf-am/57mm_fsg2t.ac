@@ -1,28 +1,28 @@
 AC3Db
 MATERIAL "DefaultWhite" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0.5 0.5 0.5  shi 64  trans 0
-MATERIAL "white"          rgb 0.95 0.95 0.95 amb 0.95 0.95 0.95  emis 0 0 0 spec 0.95 0.95 0.95 shi 32 trans 0
-MATERIAL "green"          rgb 0.01 0.81 0.01 amb 0.01 0.81 0.01  emis 0 0 0 spec 0.01 0.81 0.01 shi 32 trans 0
-MATERIAL "light-grey"     rgb 0.51 0.51 0.51 amb 0.51 0.51 0.51  emis 0 0 0 spec 0.51 0.51 0.51 shi 32 trans 0
-MATERIAL "tex-body2"      rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-body"       rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-010"  rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-011"  rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-012"  rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-013"  rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-014"  rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-1"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-2"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-3"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-4"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-5"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-6"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-7"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-8"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "tex-digit-9"    rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99  emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
-MATERIAL "display"        rgb 0.83 0.99 0.81 amb 0.83 0.99 0.81  emis 0 0 0 spec 0.83 0.99 0.81 shi 32 trans 0
-MATERIAL "led-green"      rgb 0.05 0.95 0.05 amb 0.05 0.95 0.05  emis 0 0 0 spec 0.05 0.95 0.05 shi 32 trans 0
-MATERIAL "led-off"        rgb 0.35 0.35 0.05 amb 0.35 0.35 0.05  emis 0 0 0 spec 0.35 0.35 0.05 shi 32 trans 0
-MATERIAL "led-yellow"     rgb 0.95 0.95 0.05 amb 0.95 0.95 0.05  emis 0 0 0 spec 0.95 0.95 0.05 shi 32 trans 0
+MATERIAL "white"         rgb 0.95 0.95 0.95 amb 0.95 0.95 0.95 emis 0 0 0 spec 0.95 0.95 0.95 shi 32 trans 0
+MATERIAL "green"         rgb 0.01 0.81 0.01 amb 0.01 0.81 0.01 emis 0 0 0 spec 0.01 0.81 0.01 shi 32 trans 0
+MATERIAL "light-grey"    rgb 0.51 0.51 0.51 amb 0.51 0.51 0.51 emis 0 0 0 spec 0.51 0.51 0.51 shi 32 trans 0
+MATERIAL "tex-body2"     rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-body"      rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-010" rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-011" rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-012" rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-013" rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-014" rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-1"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-2"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-3"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-4"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-5"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-6"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-7"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-8"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "tex-digit-9"   rgb 0.99 0.99 0.99 amb 0.99 0.99 0.99 emis 0 0 0 spec 0.99 0.99 0.99 shi 32 trans 0
+MATERIAL "display"       rgb 0.83 0.99 0.81 amb 0.83 0.99 0.81 emis 0 0 0 spec 0.83 0.99 0.81 shi 32 trans 0
+MATERIAL "led-green"     rgb 0.05 0.95 0.05 amb 0.05 0.95 0.05 emis 0 0 0 spec 0.05 0.95 0.05 shi 32 trans 0
+MATERIAL "led-off"       rgb 0.35 0.35 0.05 amb 0.35 0.35 0.05 emis 0 0 0 spec 0.35 0.35 0.05 shi 32 trans 0
+MATERIAL "led-yellow"    rgb 0.95 0.95 0.05 amb 0.95 0.95 0.05 emis 0 0 0 spec 0.95 0.95 0.05 shi 32 trans 0
 OBJECT world
 kids 25
 OBJECT poly
@@ -5345,7 +5345,7 @@ OBJECT poly
 name "body"
 data 4
 body
-texture "57mm_fsg2t_base.sgi"
+texture "57mm_fsg2t_base.png"
 texrep 1 1
 crease 30.000000
 numvert 68
@@ -5793,7 +5793,7 @@ OBJECT poly
 name "digit-010"
 data 9
 digit-010
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5814,7 +5814,7 @@ OBJECT poly
 name "digit-011"
 data 9
 digit-011
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5835,7 +5835,7 @@ OBJECT poly
 name "digit-012"
 data 9
 digit-012
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5856,7 +5856,7 @@ OBJECT poly
 name "digit-013"
 data 9
 digit-013
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5877,7 +5877,7 @@ OBJECT poly
 name "digit-014"
 data 9
 digit-014
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5898,7 +5898,7 @@ OBJECT poly
 name "digit-1"
 data 7
 digit-1
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5919,7 +5919,7 @@ OBJECT poly
 name "digit-2"
 data 7
 digit-2
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5940,7 +5940,7 @@ OBJECT poly
 name "digit-3"
 data 7
 digit-3
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5961,7 +5961,7 @@ OBJECT poly
 name "digit-4"
 data 7
 digit-4
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -5982,7 +5982,7 @@ OBJECT poly
 name "digit-5"
 data 7
 digit-5
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -6003,7 +6003,7 @@ OBJECT poly
 name "digit-6"
 data 7
 digit-6
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -6024,7 +6024,7 @@ OBJECT poly
 name "digit-7"
 data 7
 digit-7
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -6045,7 +6045,7 @@ OBJECT poly
 name "digit-8"
 data 7
 digit-8
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
@@ -6066,7 +6066,7 @@ OBJECT poly
 name "digit-9"
 data 7
 digit-9
-texture "57mm_fsg2t_digits.sgi"
+texture "57mm_fsg2t_digits.png"
 texrep 1 1
 crease 30.000000
 numvert 4
