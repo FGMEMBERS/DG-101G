@@ -5,7 +5,7 @@
 <!-- - from the ASK13 by Patrice Poly -->
 
 <!-- author:  Nikolaus Kerner -->
-<!-- version: 2011-02-01      -->
+<!-- version: 2011-06-07      -->
 
 <PropertyList>
 
@@ -77,7 +77,7 @@
       <mode>once</mode>
       <path>Aircraft/DG-101G/Sounds/winch_release.wav</path>
       <condition>
-        <property>sim/glider/winch/pull</property>
+        <property>sim/glider/winch/flag/pull</property>
       </condition>
     </cable_release>
     
@@ -141,7 +141,7 @@
       <path>Aircraft/DG-101G/Sounds/winch_tow.wav</path>
       <condition>
         <equals>
-          <property>sim/glider/winch/pull</property>
+          <property>sim/glider/winch/flag/pull</property>
           <value>1</value>
         </equals>
       </condition>

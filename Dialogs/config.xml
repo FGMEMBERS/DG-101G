@@ -1,0 +1,294 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+  <name>config_dialog</name>
+  <layout>vbox</layout>
+  <default-padding>1</default-padding>
+  <modal>false</modal>
+  <width>500</width>
+
+    <group>
+      <layout>hbox</layout>
+      <default-padding>1</default-padding>
+      
+      <empty>
+        <stretch>true</stretch>
+      </empty>
+      
+      
+      <text>
+        <label>DG101-G Configuration</label>
+      </text>
+      
+      <empty>
+        <stretch>true</stretch>
+      </empty>
+      
+      <button>
+        <legend>X</legend>
+        <key>Esc</key>
+        <pref-width>16</pref-width>
+        <pref-height>16</pref-height>
+        <border>2</border>
+        <binding>
+          <command>dialog-close</command>
+        </binding>
+      </button>
+
+    </group>
+
+
+    <hrule/>
+
+<!-- pilots weight configuration -->
+    <group>
+      <layout>hbox</layout>
+      
+      <text>
+        <halign>left</halign>
+        <label>Pilots Weight (176lb == 80kg)</label>
+      </text>
+      
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        
+        <text>
+          <label>999.9  </label>
+          <live>true</live>
+          <format>%0.1f lb </format>
+          <property>/fdm/jsbsim/inertia/pointmass-weight-lbs</property>
+        </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        
+        <vrule/>
+        
+        <text>
+          <label>50kg</label>
+        </text>
+        
+        <slider>
+          <name>pilots_weight</name>
+          <property>/fdm/jsbsim/inertia/pointmass-weight-lbs</property>
+          <min>110.0</min>
+          <max>220.0</max>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        
+        <text>
+          <label>100kg</label>
+        </text>
+      </group>
+    </group>
+
+    <hrule/>
+
+<!-- water ballast configuration -->
+    <group>
+      <layout>hbox</layout>
+      
+      <text>
+        <halign>left</halign>
+        <label>Water Ballast per Tank (0kg)</label>
+      </text>
+      
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        
+        <text>
+          <label>999.9  </label>
+          <live>true</live>
+          <format>%0.1f lb </format>
+          <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[1]</property>
+        </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        
+        <vrule/>
+        
+        <text>
+          <label>0kg</label>
+        </text>
+        
+        <slider>
+          <name>ballastpertank_weight</name>
+          <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[1]</property>
+          <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[2]</property>
+          <min>0.0</min>
+          <max>110.0</max>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        
+        <text>
+          <label>50kg</label>
+        </text>
+      </group>
+    </group>
+
+    <hrule/>
+
+<!-- winch configuration -->
+    <group>
+      <layout>hbox</layout>
+      
+      <text>
+        <halign>left</halign>
+        <label>Winch Tow Length (1000m)</label>
+      </text>
+      
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        
+        <text>
+          <label>999.9  </label>
+          <live>true</live>
+          <format>%0.1f m </format>
+          <property>/sim/glider/winch/conf/rope_initial_length_m</property>
+        </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        
+        <vrule/>
+        
+        <text>
+          <label>600m</label>
+        </text>
+        
+        <slider>
+          <name>winchtow_length</name>
+          <property>/sim/glider/winch/conf/rope_initial_length_m</property>
+          <min>600.0</min>
+          <max>1200.0</max>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        
+        <text>
+          <label>1200m</label>
+        </text>
+      </group>
+    </group>
+
+    <hrule/>
+
+<!-- aerotowing configuration -->
+    <group>
+      <layout>vbox</layout>
+      <group>
+        <layout>hbox</layout>
+        
+        <text>
+          <halign>left</halign>
+          <label>Aerotowing Tow Length (60m)</label>
+        </text>
+        
+        <group>
+          <layout>hbox</layout>
+          <halign>right</halign>
+          
+          <text>
+            <label>999.9  </label>
+            <live>true</live>
+            <format>%0.1f m </format>
+            <property>/sim/glider/dragger/rope_length_m</property>
+          </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+          
+          <vrule/>
+          
+          <text>
+            <label>50m</label>
+          </text>
+          
+          <slider>
+            <name>aerotow_length</name>
+            <property>/sim/glider/dragger/rope_length_m</property>
+            <min>50.0</min>
+            <max>100.0</max>
+            <binding>
+              <command>dialog-apply</command>
+            </binding>
+          </slider>
+          
+          <text>
+            <label>100m</label>
+          </text>
+        </group>
+      </group>
+      <group>
+        <layout>hbox</layout>
+        
+        <text>
+          <halign>left</halign>
+          <label>Aerotowing max. Height (800m)</label>
+        </text>
+        
+        <group>
+          <layout>hbox</layout>
+          <halign>right</halign>
+          
+          <text>
+            <label>9999.9  </label>
+            <live>true</live>
+            <format>%0.1f m </format>
+            <property>/sim/glider/dragger/robot/exit_height_m</property>
+          </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+          
+          <vrule/>
+          
+          <text>
+            <label>100m</label>
+          </text>
+          
+          <slider>
+            <name>robotexit_height</name>
+            <property>/sim/glider/dragger/robot/exit_height_m</property>
+            <min>100.0</min>
+            <max>5000.0</max>
+            <binding>
+              <command>dialog-apply</command>
+            </binding>
+          </slider>
+          
+          <text>
+            <label>5000m</label>
+          </text>
+        </group>
+      </group>
+    </group>
+
+    <hrule/>
+
+    <button>
+      <legend>Close</legend>
+      <binding>
+        <command>dialog-close</command>
+      </binding>
+    </button>
+
+    <empty>
+      <pref-height>6</pref-height>
+    </empty>
+
+</PropertyList>

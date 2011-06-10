@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-03-23
+Current 2011-06-10
 ************************************************************************
 -->
 
@@ -159,6 +159,13 @@ Current 2011-03-23
               <script>aircraft.livery.dialog.toggle()</script>
             </binding>
           </item>
+          <item>
+            <label>Configure</label>
+            <binding>
+              <command>nasal</command>
+              <script>dg101g.config_dialog.toggle()</script>.
+            </binding>
+          </item>
         </menu>
       </default>
     </menubar>
@@ -172,8 +179,10 @@ Current 2011-03-23
         <mass_per_second>3.0</mass_per_second>
       </ballast>
       <winch>
-        <rope_initial_length_m>1000.0</rope_initial_length_m>
-        <pull_max>600.0</pull_max>
+        <conf>
+          <rope_initial_length_m>1000.0</rope_initial_length_m>
+          <pull_max_lbs>600.0</pull_max_lbs>
+        </conf>
       </winch>
       <dragger>
         <rope_length_m>60.0</rope_length_m>
@@ -184,6 +193,9 @@ Current 2011-03-23
     </glider>
 
   </sim>
+
+
+
 
   <instrumentation>
     <comm>
@@ -340,6 +352,7 @@ Current 2011-03-23
 
   <nasal>
     <dg101g>
+      <file>Aircraft/DG-101G/Nasal/dialogs.nas</file>
       <file>Aircraft/DG-101G/Nasal/dragger.nas</file>
       <file>Aircraft/DG-101G/Nasal/liveries.nas</file>
       <file>Aircraft/DG-101G/Nasal/messages.nas</file>
