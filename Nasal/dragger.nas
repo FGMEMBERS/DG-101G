@@ -1,12 +1,12 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script to handle drag robot, in case there is no other dragger
 #
-##############################################################################################
+# ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-03-29
+# Version: 2011-07-01
 #
-##############################################################################################
+# ############################################################################################
 # Concepts:
 # 1. search for allready existing dragger in the property tree                  done
 # 2. if an dragger does not exist, create a new one                             done
@@ -18,8 +18,8 @@
 
 
 
-##############################################################################################
-#### new properties in the property tree
+# ############################################################################################
+# ## new properties in the property tree
 # ai/models/dragger
 # ai/models/dragger/id
 # ai/models/dragger/callsign
@@ -37,7 +37,7 @@
 # models/model[id_model]/latitude-deg-prop
 # models/model[id_model]/elevation-ft-prop
 # models/model[id_model]/heading-deg-prop
-# sim/glider/dragger/robot/exist........................flag for existence of robot
+# sim/glider/dragger/robot/exist                        flag for existence of robot
 # sim/glider/dragger/robot/run                          flag for triggering operation
 # sim/glider/dragger/robot/id_AI
 # sim/glider/dragger/robot/id_model
@@ -63,19 +63,19 @@
 #                                                                    2 roll in 
 #                                                                    3 keep roll angle
 #                                                                    4 roll out
-# sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps
-# sim/glider/dragger/robot/presets/glob_max_speed_mps
-# sim/glider/dragger/robot/presets/glob_max_speed_lift_mps
-# sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps
-# sim/glider/dragger/robot/presets/glob_min_acceleration_mpss
-# sim/glider/dragger/robot/presets/glob_max_acceleration_mpss
-# sim/glider/dragger/robot/presets/glob_max_roll_deg
-# sim/glider/dragger/robot/presets/glob_max_rollrate_degs
-# sim/glider/dragger/robot/presets/glob_max_turnrate_degs
-# sim/glider/dragger/robot/presets/glob_max_lift_height_m
-# sim/glider/dragger/robot/presets/glob_max_tautendist_m
+# sim/glider/dragger/conf/glob_min_speed_takeoff_mps
+# sim/glider/dragger/conf/glob_max_speed_mps
+# sim/glider/dragger/conf/glob_max_speed_lift_mps
+# sim/glider/dragger/conf/glob_max_speed_tauten_mps
+# sim/glider/dragger/conf/glob_min_acceleration_mpss
+# sim/glider/dragger/conf/glob_max_acceleration_mpss
+# sim/glider/dragger/conf/glob_max_roll_deg
+# sim/glider/dragger/conf/glob_max_rollrate_degs
+# sim/glider/dragger/conf/glob_max_turnrate_degs
+# sim/glider/dragger/conf/glob_max_lift_height_m
+# sim/glider/dragger/conf/glob_max_tautendist_m
 
-#### used properties from the property tree
+# ## used properties from the property tree
 # environment/wind-from-north-fps
 # environment/wind-from-east-fps
 # environment/wind-from-down-fps
@@ -84,7 +84,7 @@
 
 
 
-##############################################################################################
+# ############################################################################################
 # global variables:
   var dragrobot_timeincrement_s = 0;                     # timer increment
   
@@ -101,86 +101,86 @@
   var glob_max_lift_height_m      = 800;      # maximum lifht height over start point
   var glob_max_tautendist_m       = 50;       # maximum distance for tauten the rope
   
-  if ( getprop("sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps", 
+  if ( getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
              glob_min_speed_takeoff_mps);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_speed_mps") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_speed_mps", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_speed_mps") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_speed_mps", 
              glob_max_speed_mps);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_speed_lift_mps") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_speed_lift_mps", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_speed_lift_mps", 
              glob_max_speed_lift_mps);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps", 
              glob_max_speed_tauten_mps);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_min_acceleration_mpss") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_min_acceleration_mpss", 
+  if ( getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_min_acceleration_mpss", 
              glob_min_acceleration_mpss);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_acceleration_mpss") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_acceleration_mpss", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_acceleration_mpss", 
              glob_max_acceleration_mpss);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_roll_deg") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_roll_deg", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_roll_deg") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_roll_deg", 
              glob_max_roll_deg);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_rollrate_degs") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_rollrate_degs", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_rollrate_degs") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_rollrate_degs", 
              glob_max_rollrate_degs);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_turnrate_degs") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_turnrate_degs", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_turnrate_degs") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_turnrate_degs", 
              glob_max_turnrate_degs);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_lift_height_m") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_lift_height_m", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_lift_height_m") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_lift_height_m", 
              glob_max_lift_height_m);
   }
-  if ( getprop("sim/glider/dragger/robot/presets/glob_max_tautendist_m") == nil ) {
-    setprop("sim/glider/dragger/robot/presets/glob_max_tautendist_m", 
+  if ( getprop("sim/glider/dragger/conf/glob_max_tautendist_m") == nil ) {
+    setprop("sim/glider/dragger/conf/glob_max_tautendist_m", 
              glob_max_tautendist_m);
   }
 
 
 
 
-##############################################################################################
+# ############################################################################################
 # re-initialize presets
 var presetsRobot = func {
   # reading all global variables in case they has been changed in the property tree
   glob_min_speed_takeoff_mps = 
-    getprop("sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps");
+    getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps");
   glob_max_speed_mps         = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_speed_mps");
+    getprop("sim/glider/dragger/conf/glob_max_speed_mps");
   glob_max_speed_lift_mps    = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_speed_lift_mps");
+    getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps");
   glob_max_speed_tauten_mps  = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps");
+    getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps");
   glob_min_acceleration_mpss = 
-    getprop("sim/glider/dragger/robot/presets/glob_min_acceleration_mpss");
+    getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss");
   glob_max_acceleration_mpss = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_acceleration_mpss");
+    getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss");
   glob_max_roll_deg          = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_roll_deg");
+    getprop("sim/glider/dragger/conf/glob_max_roll_deg");
   glob_max_rollrate_degs     = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_rollrate_degs");
+    getprop("sim/glider/dragger/conf/glob_max_rollrate_degs");
   glob_max_turnrate_degs     = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_turnrate_degs");
+    getprop("sim/glider/dragger/conf/glob_max_turnrate_degs");
   glob_max_lift_height_m     = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_lift_height_m");
+    getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
   glob_max_tautendist_m     = 
-    getprop("sim/glider/dragger/robot/presets/glob_max_lift_height_m");
+    getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
 }
 
 
 
 
-##############################################################################################
+# ############################################################################################
 # check for allready available dragger
 var checkDragger = func {
   
@@ -204,7 +204,7 @@ var checkDragger = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # get the next free id of ai/models members
 var getFreeAIID = func {
   
@@ -228,7 +228,7 @@ var getFreeAIID = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # get the next free id of models/model members
 var getFreeModelID = func {
   
@@ -252,7 +252,7 @@ var getFreeModelID = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # create the drag robot in the ai property tree
 var createDragRobot = func {
   
@@ -319,7 +319,7 @@ var createDragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # main function to initialize the drag roboter
 var setupDragRobot = func {
   
@@ -334,6 +334,47 @@ var setupDragRobot = func {
     createDragRobot();
     dragger_msg(" I will lift you up into the sky.");
   }
+}
+
+
+
+
+# ############################################################################################
+# dummy function to delete the drag roboter
+var removeDragRobot = func {
+  
+  # look for allready existing ai object with callsign "dragger"
+  # will be filled in the next future
+  
+  # in any case, first stop the dragger
+  setprop("sim/glider/dragger/robot/run", 0);
+  
+  # next check for the dragger is still existent
+  # if yes, 
+  #   remove the dragger from the property tree ai/models
+  #   remove the dragger from the property tree models/
+  #   remove the dragger working properties
+  # if no, 
+  #   do nothing
+  
+  # local variables
+  var modelsNode = {};
+  
+  if ( getprop("/sim/glider/dragger/robot/exist") == 1 ) {         # does the dragger exist?
+    # remove 3d model from scenery
+    # identification is /models/model[x] with x=id_model
+    var id_model = getprop("sim/glider/dragger/robot/id_model");
+    modelsNode = "models/model[" ~ id_model ~ "]";
+    props.globals.getNode(modelsNode).remove();
+    props.globals.getNode("ai/models/dragger").remove();
+    props.globals.getNode("sim/glider/dragger/robot").remove();
+    atc_msg("dragger removed");
+    
+  }
+  else {                                                         # do nothing
+    atc_msg("dragger does not exist");
+  }
+  
 }
 
 

@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+  <name>dragger_list</name>
+  <layout>vbox</layout>
+  <default-padding>5</default-padding>
+  <modal>false</modal>
+  <width>500</width>
+
+<!-- the title bar -->
+  <group>
+    <layout>hbox</layout>
+    <empty><stretch>true</stretch></empty>
+    <text>
+      <label>DG101-G Dragger Selection</label>
+    </text>
+    <empty><stretch>true</stretch></empty>
+  </group>
+
+  <hrule/>
+
+<!-- the list (table) with the candidates -->
+  <group>
+    <layout>vbox</layout>
+    <group>
+      <layout>hbox</layout>
+      <text><label>5 closest candidates</label></text>
+      <empty><stretch>true</stretch></empty>
+    </group>
+<!-- the real data as table -->
+<!-- the first candidate -->
+    <group>
+      <layout>hbox</layout>
+      <checkbox>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[0]/selected</property>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.selectCandidates(0)</script>
+        </binding>
+      </checkbox>
+      <text>
+        <label>M</label>
+        <format>id: %03d  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[0]/id</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>type: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[0]/type</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>callsign: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[0]/callsign</property>
+      </text>
+      <empty><stretch>true</stretch></empty>
+      <text>
+        <label>MMM</label>
+        <format>distance: %5.1fm  </format>
+        <halign>right</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[0]/distance_m</property>
+      </text>
+      <empty><pref-width>60</pref-width></empty>
+    </group>
+<!-- the second candidate -->
+    <group>
+      <layout>hbox</layout>
+      <checkbox>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[1]/selected</property>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.selectCandidates(1)</script>
+        </binding>
+      </checkbox>
+      <text>
+        <label>M</label>
+        <format>id: %03d  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[1]/id</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>type: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[1]/type</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>callsign: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[1]/callsign</property>
+      </text>
+      <empty><stretch>true</stretch></empty>
+      <text>
+        <label>MMM</label>
+        <format>distance: %5.1fm  </format>
+        <halign>right</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[1]/distance_m</property>
+      </text>
+      <empty><pref-width>60</pref-width></empty>
+    </group>
+<!-- the third candidate -->
+    <group>
+      <layout>hbox</layout>
+      <checkbox>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[2]/selected</property>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.selectCandidates(2)</script>
+        </binding>
+      </checkbox>
+      <text>
+        <label>M</label>
+        <format>id: %03d  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[2]/id</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>type: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[2]/type</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>callsign: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[2]/callsign</property>
+      </text>
+      <empty><stretch>true</stretch></empty>
+      <text>
+        <label>MMM</label>
+        <format>distance: %5.1fm  </format>
+        <halign>right</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[2]/distance_m</property>
+      </text>
+      <empty><pref-width>60</pref-width></empty>
+    </group>
+<!-- the fourth candidate -->
+    <group>
+      <layout>hbox</layout>
+      <checkbox>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[3]/selected</property>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.selectCandidates(3)</script>
+        </binding>
+      </checkbox>
+      <text>
+        <label>M</label>
+        <format>id: %03d  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[3]/id</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>type: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[3]/type</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>callsign: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[3]/callsign</property>
+      </text>
+      <empty><stretch>true</stretch></empty>
+      <text>
+        <label>MMM</label>
+        <format>distance: %5.1fm  </format>
+        <halign>right</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[3]/distance_m</property>
+      </text>
+      <empty><pref-width>60</pref-width></empty>
+    </group>
+<!-- the fifth candidate -->
+    <group>
+      <layout>hbox</layout>
+      <checkbox>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[4]/selected</property>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.selectCandidates(4)</script>
+        </binding>
+      </checkbox>
+      <text>
+        <label>M</label>
+        <format>id: %03d  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[4]/id</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>type: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[4]/type</property>
+      </text>
+      <empty><pref-width>30</pref-width></empty>
+      <text>
+        <label>M</label>
+        <format>callsign: %s  </format>
+        <halign>left</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[4]/callsign</property>
+      </text>
+      <empty><stretch>true</stretch></empty>
+      <text>
+        <label>MMM</label>
+        <format>distance: %5.1fm  </format>
+        <halign>right</halign>
+        <live>true</live>
+        <property>/sim/glider/towing/list/candidate[4]/distance_m</property>
+      </text>
+      <empty><pref-width>60</pref-width></empty>
+    </group>
+  </group>
+
+  <hrule/>
+
+  <group>
+    <layout>hbox</layout>
+    <text>
+      <label>if you got a redout</label>
+    </text>
+    <empty><stretch>true</stretch></empty>
+    <button>
+      <legend>Clear</legend>
+      <binding>
+        <command>property-assign</command>
+        <property>/sim/rendering/redout/enabled</property>
+        <value type="bool">false</value>
+      </binding>
+    </button>
+  </group>
+
+  <hrule/>
+
+  <group>
+    <layout>hbox</layout>
+    <text><label>X</label></text>
+    <empty><stretch>true</stretch></empty>
+    <button>
+      <legend>Close</legend>
+      <binding>
+        <command>dialog-close</command>
+      </binding>
+    </button>
+    <empty><pref-height>6</pref-height></empty>
+  </group>
+
+  <!-- possible draggers listing -->
+    <nasal>
+      <open>
+        dg101g.releaseDragger();
+        dg101g.listCandidates();
+      </open>
+      <close>
+        dg101g.hookDragger();
+        dg101g.removeCandidates();
+      </close>
+    </nasal>
+
+</PropertyList>

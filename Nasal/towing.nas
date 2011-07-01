@@ -1,12 +1,12 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script to handle aerotowing, with AI-dragger
 #
-##############################################################################################
+# ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-03-23
+# Version: 2011-07-01
 #
-##############################################################################################
+# ############################################################################################
 # Concepts:
 # 1. search for allready existing dragger in the property tree
 # 2. if an existing dragger is too far away or no dragger is available create a new one
@@ -27,12 +27,12 @@
 #  ./orientation/roll-deg                                     roll
 #  ./velocities/true-airspeed-kt                              speed
 #
-#### existing properties to get glider orientation
+# ## existing properties to get glider orientation
 # /orientation/heading-deg
 # /orientation/pitch-deg
 # /orientation/roll-deg
 
-#### existing proterties from jsbsim config file, that are used to handle the towing forces
+# ## existing proterties from jsbsim config file, that are used to handle the towing forces
 # /fdm/jsbsim/fcs/dragger-cmd-norm                            created by jsbsim config file
 #                                                               1: dragger engaged
 #                                                               0: drager not engaged
@@ -41,30 +41,315 @@
 # /fdm/jsbsim/external_reactions/dragz/magnitude              created by jsbsim config file
 
 # new properties to handle the dragger
-# /sim/glider/dragger/dragid                 the ID of /ai/models/xyz[x]/id
-# /sim/glider/dragger/rope_length_m          length of rope, set by config file or default
-# /sim/glider/dragger/nominal_towforce_lbs   nominal force at nominal distance
-# /sim/glider/dragger/breaking_towforce_lbs  max. force of tow
-# /sim/glider/dragger/hooked                 flag to control engaged tow
+# /sim/glider/towing/dragid                  the ID of /ai/models/xyz[x]/id
+# /sim/glider/towing/rope_length_m           length of rope, set by config file or default
+# /sim/glider/towing/nominal_towforce_lbs    nominal force at nominal distance
+# /sim/glider/towing/breaking_towforce_lbs   max. force of tow
+# /sim/glider/towing/hooked                 flag to control engaged tow
 #                                              1: rope hooked in
 #                                              0: rope not hooked in
-# /sim/glider/dragger/robot/exist            flag to control existence of robot
-#                                              1: robot exists
-#                                              0: robot does not exist
+# /sim/glider/towing/list/candidate[x]        keeps possible draggers
+# /sim/glider/towing/list/candidate[x]/type        MP=multiplayer, AI=ai-plane, DR=drag roboter
+# /sim/glider/towing/list/candidate[x]/id          the id from /ai/models/xyz[x]/id
+# /sim/glider/towing/list/candidate[x]/callsign    the according callsign
+# /sim/glider/towing/list/candidate[x]/distance    the distance to the glider
+# /sim/glider/towing/list/candidate[x]/selected    boolean for choosen candidate
 
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # global variables in this module
 var towing_timeincrement = 0;                        # timer increment
 
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
+# listCandidates
+
+var listCandidates = func {
+  
+  # first check for available multiplayer, ai-planes and drag roboter
+  # if ai-objects are available 
+  #   store them in an array
+  #   get the glider position
+  #   for every ai-object
+  #     calculate the distance to the glider
+  #     if the distance is lower than max. tow length
+  #       get id
+  #       get callsign
+  #       print details to the console
+  
+  # local variables
+  var aiobjects = [];                            # keeps the ai-objects from the property tree
+  var candidates_id = [];                        # keeps all found candidates
+  var candidates_dst_m = [];                     # keeps the distance to the glider
+  var candidates_callsign = [];                  # keeps the callsigns
+  var candidates_type = [];                      # keeps the type of candidate MP, AI, DR
+  var dragid = 0;                                # id of dragger
+  var callsign = 0;                              # callsign of dragger
+  var cur = geo.Coord.new();                     # current processed ai-object
+  var lat_deg = 0;                               # latitude of current processed aiobject
+  var lon_deg = 0;                               # longitude of current processed aiobject
+  var alt_m = 0;                                 # altitude of current processed aiobject
+  var glider = geo.Coord.new();                  # coordinates of glider
+  var distance_m = 0;                            # distance to ai-plane
+  var counter = 0;                               # temporary counter
+  var listbasis = "/sim/glider/towing/list/";    # string keeping basis of drag candidates list
+  
+  
+  glider = geo.aircraft_position(); 
+  
+  # first scan for multiplayers
+  aiobjects = props.globals.getNode("ai/models").getChildren("multiplayer"); 
+  
+  print("found MP: ", size(aiobjects));
+  
+  if (size(aiobjects) > 0 ) {
+    foreach (var aimember; aiobjects) { 
+      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
+      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
+      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
+      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
+      distance_m = (glider.distance_to(cur)); 
+      
+      append( candidates_id, aimember.getNode("id").getValue() );
+      append( candidates_callsign, aimember.getNode("callsign").getValue() );
+      append( candidates_dst_m, distance_m );
+      append( candidates_type, "MP" );
+    }
+  }
+  
+  # second scan for ai-planes
+  aiobjects = props.globals.getNode("ai/models").getChildren("aircraft"); 
+  
+  print("found AI: ", size(aiobjects));
+  
+  if (size(aiobjects) > 0 ) {
+    foreach (var aimember; aiobjects) { 
+      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
+      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
+      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
+      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
+      distance_m = (glider.distance_to(cur)); 
+      
+      append( candidates_id, aimember.getNode("id").getValue() );
+      append( candidates_callsign, aimember.getNode("callsign").getValue() );
+      append( candidates_dst_m, distance_m );
+      append( candidates_type, "AI" );
+    }
+  }
+  
+  # third scan for drag roboter
+  aiobjects = props.globals.getNode("ai/models").getChildren("dragger"); 
+  
+  print("found robot: ", size(aiobjects));
+  
+  if (size(aiobjects) > 0 ) {
+    foreach (var aimember; aiobjects) { 
+      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
+      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
+      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
+      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
+      distance_m = (glider.distance_to(cur)); 
+      
+      append( candidates_id, aimember.getNode("id").getValue() );
+      append( candidates_callsign, aimember.getNode("callsign").getValue() );
+      append( candidates_dst_m, distance_m );
+      append( candidates_type, "DR" );
+    }
+  }
+  
+  # some kind of sorting, criteria is distance, 
+  # but only if there are more than 1 candidate
+  if (size(candidates_id) > 1) {
+    # first push the closest candidate on the first position
+    for (var index = 1; index < size(candidates_id); index += 1 ) {
+      if ( candidates_dst_m[0] > candidates_dst_m[index] ) {
+        var tmp_id = candidates_id[index];
+        var tmp_cs = candidates_callsign[index];
+        var tmp_dm = candidates_dst_m[index];
+        var tmp_tp = candidates_type[index];
+        candidates_id[index] = candidates_id[0];
+        candidates_callsign[index] = candidates_callsign[0];
+        candidates_dst_m[index] = candidates_dst_m[0];
+        candidates_type[index] = candidates_type[0];
+        candidates_id[0] = tmp_id;
+        candidates_callsign[0] = tmp_cs;
+        candidates_dst_m[0] = tmp_dm;
+        candidates_type[0] = tmp_tp;
+      }
+    }
+    # then sort all the remaining candidates, if there are more than 2
+    if (size(candidates_id) > 2) {
+      # do all other sorting
+      for (var index = 2; index < size(candidates_id); index += 1) {
+        # compare and change
+        var bubble = index;
+        while (( candidates_dst_m[bubble] < candidates_dst_m[bubble - 1] ) and (bubble >1)) {
+          # exchange elements
+          var tmp_id = candidates_id[bubble];
+          var tmp_cs = candidates_callsign[bubble];
+          var tmp_dm = candidates_dst_m[bubble];
+          var tmp_tp = candidates_type[bubble];
+          candidates_id[bubble] = candidates_id[bubble - 1];
+          candidates_callsign[bubble] = candidates_callsign[bubble - 1];
+          candidates_dst_m[bubble] = candidates_dst_m[bubble - 1];
+          candidates_type[bubble] = candidates_type[bubble - 1];
+          candidates_id[bubble - 1] = tmp_id;
+          candidates_callsign[bubble - 1] = tmp_cs;
+          candidates_dst_m[bubble - 1] = tmp_dm;
+          candidates_type[bubble - 1] = tmp_tp;
+          bubble = bubble - 1;
+        }
+      }
+    }
+  }
+  
+  # print sorted results for debugging reasons
+  if (size(candidates_id) > 0) {
+    print("sorted candidates: ", size(candidates_id));
+    for (var index = 0; index < size(candidates_id); index += 1 ) {
+      print("member: ", index, 
+            "  ID: ", candidates_id[index], 
+            "  type: ", candidates_type[index], 
+            "  distance: ", candidates_dst_m[index],
+            "  callsign: ", candidates_callsign[index] );
+    } 
+  }
+  
+  # now, finally write the five closest candidates to the property tree
+  # if there are less than five, fill up with empty objects
+  for (var index = 0; index < 5; index += 1 ) {
+    if (index >= size(candidates_id)) {
+      var candidate_x_id_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/id";
+      var candidate_x_cs_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/callsign";
+      var candidate_x_dm_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/distance_m";
+      var candidate_x_tp_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/type";
+      var candidate_x_sl_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/selected";
+      setprop(candidate_x_id_prop, -1);
+      setprop(candidate_x_cs_prop, "undef");
+      setprop(candidate_x_dm_prop, -9999);
+      setprop(candidate_x_tp_prop, "XX");
+      setprop(candidate_x_sl_prop, 0);
+    }
+    else {
+      var candidate_x_id_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/id";
+      var candidate_x_cs_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/callsign";
+      var candidate_x_dm_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/distance_m";
+      var candidate_x_tp_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/type";
+      var candidate_x_sl_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/selected";
+      setprop(candidate_x_id_prop, candidates_id[index]);
+      setprop(candidate_x_cs_prop, candidates_callsign[index]);
+      setprop(candidate_x_dm_prop, candidates_dst_m[index]);
+      setprop(candidate_x_tp_prop, candidates_type[index]);
+      setprop(candidate_x_sl_prop, 0);
+    }
+  }
+} # End Function listCandidates
+
+
+
+
+# ############################################################################################
+# ############################################################################################
+# selectCandidates
+
+var selectCandidates = func (select) {
+  var candidates = [];
+  var aiobjects = [];
+  var initpos_geo = geo.Coord.new();
+  var dragpos_geo = geo.Coord.new();
+  
+  # first reset all candidate selections and then set selected
+  candidates = props.globals.getNode("sim/glider/towing/list").getChildren("candidate");
+  foreach (var camember; candidates) { 
+    camember.getNode("selected").setValue(0); 
+  }
+  var candidate_x_sl_prop = "sim/glider/towing/list/candidate[" ~ select ~ "]/selected";
+  var candidate_x_id_prop = "sim/glider/towing/list/candidate[" ~ select ~ "]/id";
+  var candidate_x_tp_prop = "sim/glider/towing/list/candidate[" ~ select ~ "]/type";
+  setprop(candidate_x_sl_prop, 1);
+  
+  # next set properties for dragid
+  setprop("sim/glider/towing/dragid", getprop(candidate_x_id_prop));
+  
+  # next hook in tow, will most probably switch to a separate fucntion or so to simplify 
+  # connection wenn menu is closed
+#  hookDragger();
+  
+  # and finally place the glider a few meters behind chosen dragger
+  aiobjects = props.globals.getNode("ai/models").getChildren(); 
+  foreach (var aimember; aiobjects) { 
+    if ( (var c = aimember.getNode("id") ) != nil ) { 
+      var testprop = c.getValue();
+      if ( testprop == getprop(candidate_x_id_prop)) {
+        # get coordinates
+        drlat = aimember.getNode("position/latitude-deg").getValue(); 
+        drlon = aimember.getNode("position/longitude-deg").getValue(); 
+        dralt = (aimember.getNode("position/altitude-ft").getValue()) * FT2M; 
+        drhed = aimember.getNode("orientation/true-heading-deg").getValue();
+      }
+    }
+  }
+  dragpos_geo.set_latlon(drlat, drlon, dralt);
+  initpos_geo.set_latlon(drlat, drlon, dralt);
+  if (drhed > 180) {
+    initpos_geo.apply_course_distance( (drhed - 180), 35 );
+  }
+  else {
+    initpos_geo.apply_course_distance( (drhed + 180), 35 );
+  }
+  var initelevation_m = geo.elevation( initpos_geo.lat(), initpos_geo.lon() );
+  setprop("position/latitude-deg", initpos_geo.lat());
+  setprop("position/longitude-deg", initpos_geo.lon());
+  setprop("position/altitude-ft", initelevation_m * M2FT);
+  setprop("orientation/heading-deg", drhed);
+  setprop("/orientation/roll-deg", 0);
+  
+  # and really finally, take care that redout and blackout are cleared in case you connect
+  # to a really huge plane, drop off the tail and get a redout/blackout
+  # could require some kind of settimer functionality to do it a few seconds after
+  # dropping off the tail - must be tested
+  # setprop("/sim/rendering/redout/alpha",0);
+
+} # End Function selectCandidates
+
+
+
+
+# ############################################################################################
+# ############################################################################################
+# clearredoutCandidates
+
+var clearredoutCandidates = func {
+  # remove redout blackout caused by selectCandidates()
+  setprop("/sim/rendering/redout/enabled", "false");
+  setprop("/sim/rendering/redout/alpha",0);
+  
+} # End Function clearredoutCandidates
+
+
+
+
+# ############################################################################################
+# ############################################################################################
+# removeCandidates
+
+var removeCandidates = func {
+  # and finally remove the list of candidates
+  props.globals.getNode("/sim/glider/towing/list").remove();
+  
+} # End Function removeCandidates
+
+
+
+
+# ############################################################################################
+# ############################################################################################
 # findDragger
 
 var findDragger = func {
@@ -96,12 +381,12 @@ var findDragger = func {
   
   
   # set rope length if not defined from settings-file
-  if ( getprop("/sim/glider/dragger/rope_length_m") == nil ) {
+  if ( getprop("/sim/glider/towing/rope_length_m") == nil ) {
     atc_msg("rope length not defined by plane");
     atc_msg(" use default setting of 100m");
-    setprop("/sim/glider/dragger/rope_length_m", 100.0);
+    setprop("/sim/glider/towing/rope_length_m", 100.0);
   }
-  var towlength_m = getprop("/sim/glider/dragger/rope_length_m");
+  var towlength_m = getprop("/sim/glider/towing/rope_length_m");
   
   
   aiobjects = props.globals.getNode("ai/models").getChildren(); 
@@ -121,7 +406,7 @@ var findDragger = func {
         
         if ( distance_m < towlength_m ) { 
           atc_msg("callsign %s with id %s nearby in %s m", callsign, dragid, distance_m);
-          setprop("/sim/glider/dragger/dragid", dragid); 
+          setprop("/sim/glider/towing/dragid", dragid); 
           break; 
         }
         else {
@@ -139,8 +424,8 @@ var findDragger = func {
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # hookDragger
 
 var hookDragger = func {
@@ -149,9 +434,9 @@ var hookDragger = func {
   #  set property /fdm/jsbsim/fcs/dragger-cmd-norm
   #  level plane
   
-  if ( getprop("/sim/glider/dragger/dragid") != nil ) { 
+  if ( getprop("/sim/glider/towing/dragid") != nil ) { 
     setprop("/fdm/jsbsim/fcs/dragger-cmd-norm", 1);                # closes the hook
-    setprop("/sim/glider/dragger/hooked", 1); 
+    setprop("/sim/glider/towing/hooked", 1); 
     atc_msg("hook closed"); 
     setprop("/orientation/roll-deg", 0); 
     atc_msg("glider leveled"); 
@@ -165,8 +450,8 @@ var hookDragger = func {
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # releaseDragger
 
 var releaseDragger = func {
@@ -180,16 +465,12 @@ var releaseDragger = func {
   #   print a message
   # exit
   
-  if ( getprop ("/sim/glider/dragger/hooked") ) {
+  if ( getprop ("/sim/glider/towing/hooked") ) {
     setprop  ("/fdm/jsbsim/fcs/dragger-cmd-norm",0);                 # opens the hook
     setprop("/fdm/jsbsim/external_reactions/dragx/magnitude", 0);    # set the forces to zero
     setprop("/fdm/jsbsim/external_reactions/dragy/magnitude", 0);    # set the forces to zero
     setprop("/fdm/jsbsim/external_reactions/dragz/magnitude", 0);    # set the forces to zero
-    setprop("/sim/glider/dragger/hooked",0);                         # dragger is not pulling
-    if ( getprop("sim/glider/dragger/robot/exist") == 1 ) {
-      setprop("sim/glider/dragger/robot/run", 0);
-      print("release from drag robot");
-    }
+    setprop("/sim/glider/towing/hooked",0);                         # dragger is not pulling
     atc_msg("Hook opened, tow released");
   }
   else {                                                       # failure: winch not working
@@ -200,8 +481,8 @@ var releaseDragger = func {
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # let the dragger pull the plane up into the sky
 
 var runDragger = func {
@@ -236,53 +517,51 @@ var runDragger = func {
   var planeid = 0;                     # id of current processed plane
   
   # set nominal tow force if not defined from settings-file
-  if ( getprop("/sim/glider/dragger/nominal_towforce_lbs") == nil ) {
+  if ( getprop("/sim/glider/towing/nominal_towforce_lbs") == nil ) {
     atc_msg("nominal tow force not defined by plane, use default setting of 1000lbs");
-    setprop("/sim/glider/dragger/nominal_towforce_lbs", 1000.0);
+    setprop("/sim/glider/towing/nominal_towforce_lbs", 1000.0);
   }
-  var nominaltowforce = getprop("/sim/glider/dragger/nominal_towforce_lbs");
+  var nominaltowforce = getprop("/sim/glider/towing/nominal_towforce_lbs");
   
   # set max tow force if not defined from settings-file
-  if ( getprop("/sim/glider/dragger/breaking_towforce_lbs") == nil ) {
+  if ( getprop("/sim/glider/towing/breaking_towforce_lbs") == nil ) {
     atc_msg("breaking tow force not defined by plane, use default setting of 2000lbs");
-    setprop("/sim/glider/dragger/breaking_towforce_lbs", 2000.0);
+    setprop("/sim/glider/towing/breaking_towforce_lbs", 2000.0);
   }
-  var breakingtowforce = getprop("/sim/glider/dragger/breaking_towforce_lbs");
+  var breakingtowforce = getprop("/sim/glider/towing/breaking_towforce_lbs");
   
   # set tow length if not defined from settings-file
-  if ( getprop("/sim/glider/dragger/rope_length_m") == nil ) {
+  if ( getprop("/sim/glider/towing/rope_length_m") == nil ) {
     atc_msg("tow length not defined by plane, use default setting of 100m");
-    setprop("/sim/glider/dragger/rope_length_m", 100.0);
+    setprop("/sim/glider/towing/rope_length_m", 100.0);
   }
-  var towlength_m = getprop("/sim/glider/dragger/rope_length_m");
+  var towlength_m = getprop("/sim/glider/towing/rope_length_m");
   
   # do all the stuff
   
   
-  if ( getprop("/sim/glider/dragger/hooked") == 1 ) {                   # is a dragger engaged
-    
-    if (getprop("/sim/glider/dragger/robot/exist") == 1 ) {     # store the robots in an array
-      aiobjects = props.globals.getNode("ai/models").getChildren("dragger");  
-    }
-    else {                                                      # store the planes in an array
-      aiobjects = props.globals.getNode("ai/models").getChildren("aircraft"); 
-    }
+  if ( getprop("/sim/glider/towing/hooked") == 1 ) {                   # is a dragger engaged
     
     glider = geo.aircraft_position();                                # current glider position
     gliderpitch = getprop("/orientation/pitch-deg");
     gliderroll = getprop("/orientation/roll-deg");
     gliderhead = getprop("/orientation/heading-deg");
     
-    dragid = getprop("/sim/glider/dragger/dragid");               # id of former found dragger
+    dragid = getprop("/sim/glider/towing/dragid");               # id of former found dragger
     
-    foreach (var aimember; aiobjects) {                                  #go through the array
-      id = aimember.getNode("id").getValue(); 
-      if ( id == dragid ) { 
-        drlat = aimember.getNode("position/latitude-deg").getValue(); 
-        drlon = aimember.getNode("position/longitude-deg").getValue(); 
-        dralt = (aimember.getNode("position/altitude-ft").getValue()) * FT2M; 
+    aiobjects = props.globals.getNode("ai/models").getChildren(); 
+    foreach (var aimember; aiobjects) { 
+      if ( (var c = aimember.getNode("id") ) != nil ) { 
+        var testprop = c.getValue();
+        if ( testprop == dragid ) {
+          # get coordinates
+          drlat = aimember.getNode("position/latitude-deg").getValue(); 
+          drlon = aimember.getNode("position/longitude-deg").getValue(); 
+          dralt = (aimember.getNode("position/altitude-ft").getValue()) * FT2M; 
+        }
       }
     }
+    
     dragger = geo.Coord.set_latlon( drlat, drlon, dralt );         # position of current plane
     
     distance = (glider.direct_distance_to(dragger));              # distance to plane in meter
@@ -363,4 +642,4 @@ var runDragger = func {
   
 } # End Function runDragger
 
-var dragging = setlistener("/sim/glider/dragger/hooked", runDragger); 
+var dragging = setlistener("/sim/glider/towing/hooked", runDragger); 

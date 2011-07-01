@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-06-10
+Current 2011-07-01
 ************************************************************************
 -->
 
@@ -14,8 +14,14 @@ Current 2011-06-10
 
     <description>Glaser-Dirks DG-101G glider (JSBSIM)</description>
     <author>Nikolaus Kerner</author>
-    <status>development (alpha)</status>
-    <aircraft-version>2011-02-01</aircraft-version>
+    <status>early production</status>
+    <rating>
+      <FDM     type="int">3</FDM>
+      <systems type="int">4</systems>
+      <cockpit type="int">3</cockpit>
+      <model   type="int">4</model>
+    </rating>
+    <aircraft-version>2011-06-15</aircraft-version>
     <startup>
       <splash-texture>Aircraft/DG-101G/splash.png</splash-texture>
     </startup>
@@ -166,6 +172,20 @@ Current 2011-06-10
               <script>dg101g.config_dialog.toggle()</script>.
             </binding>
           </item>
+          <item>
+            <label>Draggers</label>
+            <binding>
+              <command>nasal</command>
+              <script>dg101g.dragger_list.toggle()</script>.
+            </binding>
+          </item>
+          <item>
+            <label>Drag Roboter</label>
+            <binding>
+              <command>nasal</command>
+              <script>dg101g.robot_dialog.toggle()</script>.
+            </binding>
+          </item>
         </menu>
       </default>
     </menubar>
@@ -176,7 +196,7 @@ Current 2011-06-10
     <glider>
       <ballast>
         <mass_per_tank_lbs>110.0</mass_per_tank_lbs>
-        <mass_per_second>3.0</mass_per_second>
+        <mass_lbs_per_second>3.0</mass_lbs_per_second>
       </ballast>
       <winch>
         <conf>
@@ -184,12 +204,12 @@ Current 2011-06-10
           <pull_max_lbs>600.0</pull_max_lbs>
         </conf>
       </winch>
-      <dragger>
+      <towing>
         <rope_length_m>60.0</rope_length_m>
         <nominal_towforce_lbs>1000.0</nominal_towforce_lbs>
         <breaking_towforce_lbs>10000.0</breaking_towforce_lbs>
         <hooked>0</hooked>
-      </dragger>
+      </towing>
     </glider>
 
   </sim>
