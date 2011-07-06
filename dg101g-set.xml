@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-07-01
+Current 2011-07-06
 ************************************************************************
 -->
 
@@ -173,7 +173,7 @@ Current 2011-07-01
             </binding>
           </item>
           <item>
-            <label>Draggers</label>
+            <label>Aerotowing</label>
             <binding>
               <command>nasal</command>
               <script>dg101g.dragger_list.toggle()</script>.
@@ -184,6 +184,13 @@ Current 2011-07-01
             <binding>
               <command>nasal</command>
               <script>dg101g.robot_dialog.toggle()</script>.
+            </binding>
+          </item>
+          <item>
+            <label>Winch</label>
+            <binding>
+              <command>nasal</command>
+              <script>dg101g.winch_dialog.toggle()</script>.
             </binding>
           </item>
         </menu>

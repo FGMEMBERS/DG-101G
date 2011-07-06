@@ -1,10 +1,10 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script to manage winch-launch for the DG-101G
 #
-##############################################################################################
+# ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-06-10
+# Version: 2011-07-06
 #
 ##############################################################################################
 # Concepts:
@@ -43,6 +43,8 @@
 # /sim/glider/winch/conf/pull_max_lbs                          max. pulling force
 #                                                                will be used in the future for
 #                                                                a more realistic winch model
+# /sim/glider/winch/glob/rope_initial_length_m                 global rope length
+# /sim/glider/winch/glob/pull_max_lbs                          global max. pulling force
 # /sim/glider/winch/work/wp-lat-deg                                 storing winch position
 # /sim/glider/winch/work/wp-lon-deg                                 storing winch position
 # /sim/glider/winch/work/wp-alti-m                                  storing winch position
@@ -59,16 +61,64 @@
 
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # global variables for this script
   var winch_timeincrement_s = 0.1;                                       # timer increment
   
+  var glob_rope_initial_length_m = 800;
+  var glob_pull_max_lbs = 600;
+  
 
 
+# ############################################################################################
+# ############################################################################################
+# set winch parameters to global values, if not properly defined or to reset
+var globalsWinch = func {
+  # set initial rope length if not defined from "plane"-set.xml 
+  if ( getprop("/sim/glider/winch/conf/rope_initial_length_m") == nil ) {
+    atc_msg("initial rope length not defined by plane");
+    atc_msg(" use default setting of ", glob_rope_initial_length_m, "m");
+    setprop("/sim/glider/winch/conf/rope_initial_length_m", glob_rope_initial_length_m);
+    setprop("/sim/glider/winch/glob/rope_initial_length_m", glob_rope_initial_length_m);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/winch/glob/rope_initial_length_m", 
+            getprop("/sim/glider/winch/conf/rope_initial_length_m"));
+  }
+  
+  # set max force for pulling, if not defined from "plane"-set.xml
+  if ( getprop("/sim/glider/winch/conf/pull_max_lbs") == nil ) {
+    atc_msg("initial max force winch not defined by plane");
+    atc_msg(" use default setting of ", glob_pull_max_lbs, "lbs");
+    setprop("/sim/glider/winch/conf/pull_max_lbs", glob_pull_max_lbs);
+    setprop("/sim/glider/winch/glob/pull_max_lbs", glob_pull_max_lbs);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/winch/glob/pull_max_lbs", 
+            getprop("/sim/glider/winch/conf/pull_max_lbs"));
+  }
+  
+} # End Function globalsWinch
 
-##############################################################################################
-##############################################################################################
+
+# ############################################################################################
+# ############################################################################################
+# reset winch parameters to global values
+var resetWinch = func {
+  # set rope length to global
+  setprop("/sim/glider/winch/conf/rope_initial_length_m", 
+            getprop("/sim/glider/winch/glob/rope_initial_length_m"));
+  
+  # set max force for pulling to global
+  setprop("/sim/glider/winch/conf/pull_max_lbs", 
+            getprop("/sim/glider/winch/glob/pull_max_lbs"));
+  
+} # End Function resetWinch
+
+
+# ############################################################################################
+# ############################################################################################
 # Place winch model in correct location 
 
 var placeWinch = func {
@@ -90,19 +140,19 @@ var placeWinch = func {
   #     print message and exit
 
   # set initial rope length if not defined from "plane"-set.xml 
-  if ( getprop("/sim/glider/winch/conf/rope_initial_length_m") == nil ) {
-    atc_msg("initial rope length not defined by plane");
-    atc_msg(" use default setting of 800m");
-    setprop("/sim/glider/winch/conf/rope_initial_length_m", 800.0);
-  }
+#  if ( getprop("/sim/glider/winch/conf/rope_initial_length_m") == nil ) {
+#    atc_msg("initial rope length not defined by plane");
+#    atc_msg(" use default setting of 800m");
+#    setprop("/sim/glider/winch/conf/rope_initial_length_m", 800.0);
+#  }
   var rope_initial_length_m = getprop("/sim/glider/winch/conf/rope_initial_length_m");
 
   # set max force for pulling, if not defined from "plane"-set.xml
-  if ( getprop("/sim/glider/winch/conf/pull_max_lbs") == nil ) {
-    atc_msg("initial max force winch not set");
-    atc_msg(" use default setting of 600");
-    setprop("/sim/glider/winch/conf/pull_max_lbs", 600.0);
-  }
+#  if ( getprop("/sim/glider/winch/conf/pull_max_lbs") == nil ) {
+#    atc_msg("initial max force winch not set");
+#    atc_msg(" use default setting of 600");
+#    setprop("/sim/glider/winch/conf/pull_max_lbs", 600.0);
+#  }
 
   
   if ( getprop("/sim/glider/winch/work/placed") == 1 ) {
@@ -151,8 +201,8 @@ var placeWinch = func {
 } # End Function placeWinch
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # starts the winch
 
 var startWinch = func {
@@ -189,8 +239,8 @@ var startWinch = func {
 } # End Function startWinch
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # release the winch
 var releaseWinch = func {
   
@@ -221,8 +271,8 @@ var releaseWinch = func {
 } # End Function releaseWinch
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # remove the winch
 var removeWinch = func {
   
@@ -262,8 +312,8 @@ var removeWinch = func {
 } # End Function removeWinch
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # let the winch pull the plane up into the sky
 
 var runWinch = func {
@@ -381,3 +431,4 @@ var runWinch = func {
 } # End Function runWinch
 
 var pulling = setlistener("/sim/glider/winch/flag/pull", runWinch);
+var initializing_winch = setlistener("/sim/signals/fdm-initialized", globalsWinch);

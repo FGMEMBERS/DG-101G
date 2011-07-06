@@ -18,13 +18,99 @@
   </group>
 
   <hrule/>
+  <hrule/>
 
-<!-- the list (table) with the candidates -->
+<!-- aerotowing parameters -->
   <group>
     <layout>vbox</layout>
     <group>
       <layout>hbox</layout>
-      <text><label>5 closest candidates</label></text>
+      <text>
+        <label>Aerotowing parameter settings</label>
+      </text>
+    </group>
+    <!-- tow length -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Aerotowing Tow Length (60m)</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>999.9  </label>
+          <live>true</live>
+          <format>%0.1f m </format>
+          <property>/sim/glider/towing/rope_length_m</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>50m</label>
+        </text>
+        <slider>
+          <name>aerotow_length</name>
+          <property>/sim/glider/towing/rope_length_m</property>
+          <min>50.0</min>
+          <max>100.0</max>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>100m</label>
+        </text>
+      </group>
+    </group>
+    <!-- nominal tow force -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Nominal Tow Force (1000lbs)</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>999.9  </label>
+          <live>true</live>
+          <format>%0.1f lbs </format>
+          <property>/sim/glider/towing/nominal_towforce_lbs</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>200lbs</label>
+        </text>
+        <slider>
+          <name>aerotow_length</name>
+          <property>/sim/glider/towing/nominal_towforce_lbs</property>
+          <min>200.0</min>
+          <max>2000.0</max>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>2000lbs</label>
+        </text>
+      </group>
+    </group>
+  </group>
+
+  <!-- the list (table) with the candidates -->
+  <group>
+    <layout>vbox</layout>
+    <group>
+      <layout>hbox</layout>
+      <text><label>5 closest candidates, selecting one connects automatically to it</label></text>
       <empty><stretch>true</stretch></empty>
     </group>
 <!-- the real data as table -->

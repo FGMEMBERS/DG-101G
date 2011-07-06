@@ -13,3 +13,5 @@ var config_dialog = gui.Dialog.new("/sim/gui/dialogs/dg101g/config/dialog", "Air
 var dragger_list = gui.Dialog.new("/sim/gui/dialogs/dg101g/dragger/dialog", "Aircraft/DG-101G/Dialogs/draggerlist.xml");
 
 var robot_dialog = gui.Dialog.new("/sim/gui/dialogs/dg101g/robot/dialog", "Aircraft/DG-101G/Dialogs/robot.xml");
+
+var winch_dialog = gui.Dialog.new("/sim/gui/dialogs/dg101g/winch/dialog", "Aircraft/DG-101G/Dialogs/winch.xml");

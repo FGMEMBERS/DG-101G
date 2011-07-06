@@ -49,7 +49,7 @@
           <label>999.9  </label>
           <live>true</live>
           <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps</property>
+          <property>sim/glider/dragger/conf/glob_min_speed_takeoff_mps</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -60,7 +60,7 @@
         </text>
         <slider>
           <name>min_takeoff_mps</name>
-          <property>sim/glider/dragger/robot/presets/glob_min_speed_takeoff_mps</property>
+          <property>sim/glider/dragger/conf/glob_min_speed_takeoff_mps</property>
           <min>15.0</min>
           <max>25.0</max>
           <binding>
@@ -87,7 +87,7 @@
           <label>999.9  </label>
           <live>true</live>
           <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_mps</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -98,7 +98,7 @@
         </text>
         <slider>
           <name>max_speed_mps</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_mps</property>
           <min>28.0</min>
           <max>55.0</max>
           <binding>
@@ -125,7 +125,7 @@
           <label>999.9  </label>
           <live>true</live>
           <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_lift_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_lift_mps</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -136,7 +136,7 @@
         </text>
         <slider>
           <name>max_speed_lift_mps</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_lift_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_lift_mps</property>
           <min>2.0</min>
           <max>5.0</max>
           <binding>
@@ -165,7 +165,7 @@
           <label>999.9  </label>
           <live>true</live>
           <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_tauten_mps</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -176,7 +176,7 @@
         </text>
         <slider>
           <name>max_speed_tauten_mps</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_speed_tauten_mps</property>
+          <property>sim/glider/dragger/conf/glob_max_speed_tauten_mps</property>
           <min>2.0</min>
           <max>5.0</max>
           <binding>
@@ -202,8 +202,8 @@
         <text>
           <label>999.9  </label>
           <live>true</live>
-          <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_min_acceleration_mpss</property>
+          <format>%0.1f m/ss </format>
+          <property>sim/glider/dragger/conf/glob_min_acceleration_mpss</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -214,7 +214,7 @@
         </text>
         <slider>
           <name>min_acceleration_mpss</name>
-          <property>sim/glider/dragger/robot/presets/glob_min_acceleration_mpss</property>
+          <property>sim/glider/dragger/conf/glob_min_acceleration_mpss</property>
           <min>0.2</min>
           <max>1.0</max>
           <binding>
@@ -240,8 +240,8 @@
         <text>
           <label>999.9  </label>
           <live>true</live>
-          <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_acceleration_mpss</property>
+          <format>%0.1f m/ss </format>
+          <property>sim/glider/dragger/conf/glob_max_acceleration_mpss</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -252,7 +252,7 @@
         </text>
         <slider>
           <name>max_acceleration_mpss</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_acceleration_mpss</property>
+          <property>sim/glider/dragger/conf/glob_max_acceleration_mpss</property>
           <min>1.0</min>
           <max>5.0</max>
           <binding>
@@ -280,8 +280,8 @@
         <text>
           <label>999.9  </label>
           <live>true</live>
-          <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_tautendist_m</property>
+          <format>%0.1f m </format>
+          <property>sim/glider/dragger/conf/glob_max_tautendist_m</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -292,7 +292,7 @@
         </text>
         <slider>
           <name>max_tautendist_m</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_tautendist_m</property>
+          <property>sim/glider/dragger/conf/glob_max_tautendist_m</property>
           <min>10.0</min>
           <max>100.0</max>
           <binding>
@@ -304,6 +304,61 @@
         </text>
       </group>
     </group>
+
+    <hrule/>
+    <empty/>
+    <hrule/>
+
+<!-- aerotowing configuration -->
+    <group>
+      <layout>vbox</layout>
+      <group>
+        <layout>hbox</layout>
+        
+        <text>
+          <halign>left</halign>
+          <label>Aerotowing max. Height (800m)</label>
+        </text>
+        
+        <group>
+          <layout>hbox</layout>
+          <halign>right</halign>
+          
+          <text>
+            <label>9999.9  </label>
+            <live>true</live>
+            <format>%0.1f m </format>
+            <property>/sim/glider/dragger/robot/exit_height_m</property>
+          </text>
+        
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+          
+          <vrule/>
+          
+          <text>
+            <label>100m</label>
+          </text>
+          
+          <slider>
+            <name>robotexit_height</name>
+            <property>/sim/glider/dragger/robot/exit_height_m</property>
+            <min>100.0</min>
+            <max>5000.0</max>
+            <binding>
+              <command>dialog-apply</command>
+            </binding>
+          </slider>
+          
+          <text>
+            <label>5000m</label>
+          </text>
+        </group>
+      </group>
+    </group>
+
+
 
     <hrule/>
     <empty/>
@@ -323,7 +378,7 @@
           <label>999.9  </label>
           <live>true</live>
           <format>%0.1f m/s </format>
-          <property>sim/glider/dragger/robot/presets/glob_max_lift_height_m</property>
+          <property>sim/glider/dragger/conf/glob_max_lift_height_m</property>
         </text>
         <empty>
           <stretch>true</stretch>
@@ -334,7 +389,7 @@
         </text>
         <slider>
           <name>max_lift_height_m</name>
-          <property>sim/glider/dragger/robot/presets/glob_max_lift_height_m</property>
+          <property>sim/glider/dragger/conf/glob_max_lift_height_m</property>
           <min>100.0</min>
           <max>5000.0</max>
           <binding>
