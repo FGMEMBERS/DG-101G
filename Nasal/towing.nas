@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-07-01
+# Version: 2011-07-11
 #
 # ############################################################################################
 # Concepts:
@@ -41,9 +41,12 @@
 # /fdm/jsbsim/external_reactions/dragz/magnitude              created by jsbsim config file
 
 # new properties to handle the dragger
+# /sim/glider/towing/conf/rope_length_m         length of rope, set by config file or default
+# /sim/glider/towing/conf/nominal_towforce_lbs    nominal force at nominal distance
+# /sim/glider/towing/glob/rope_length_m         length of rope, set by config file or default
+# /sim/glider/towing/glob/nominal_towforce_lbs    nominal force at nominal distance
+
 # /sim/glider/towing/dragid                  the ID of /ai/models/xyz[x]/id
-# /sim/glider/towing/rope_length_m           length of rope, set by config file or default
-# /sim/glider/towing/nominal_towforce_lbs    nominal force at nominal distance
 # /sim/glider/towing/breaking_towforce_lbs   max. force of tow
 # /sim/glider/towing/hooked                 flag to control engaged tow
 #                                              1: rope hooked in
@@ -65,11 +68,92 @@ var towing_timeincrement = 0;                        # timer increment
 
 
 
+# ############################################################################################
+# ############################################################################################
+# set aerotowing parameters to global values, if not properly defined by plane setup-file
+# store global values or plane-specific values to prepare for reset option
+var globalsTowing = func {
+  var glob_rope_length_m = 80;
+  var glob_nominal_towforce_lbs = 1000;
+  var glob_breaking_towforce_lbs = 9999;
+  
+  # set rope length if not defined from "plane"-set.xml 
+  if ( getprop("/sim/glider/towing/conf/rope_length_m") == nil ) {
+    atc_msg("rope length not defined by plane");
+    atc_msg(" use default setting of ", glob_rope_length_m, "m");
+    setprop("/sim/glider/towing/conf/rope_initial_length_m", glob_rope_length_m);
+    setprop("/sim/glider/towing/glob/rope_initial_length_m", glob_rope_length_m);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/towing/glob/rope_length_m", 
+            getprop("/sim/glider/towing/conf/rope_length_m"));
+  }
+  
+  # set nominal force for pulling, if not defined from "plane"-set.xml
+  if ( getprop("/sim/glider/towing/conf/nominal_towforce_lbs") == nil ) {
+    atc_msg("nominal tow force not defined by plane");
+    atc_msg(" use default setting of ", glob_nominal_towforce_lbs, "lbs");
+    setprop("/sim/glider/towing/conf/nominal_towforce_lbs", glob_nominal_towforce_lbs);
+    setprop("/sim/glider/towing/glob/nominal_towforce_lbs", glob_nominal_towforce_lbs);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/towing/glob/nominal_towforce_lbs", 
+            getprop("/sim/glider/towing/conf/nominal_towforce_lbs"));
+  }
+  
+  # set breaking force for pulling, if not defined from "plane"-set.xml
+  if ( getprop("/sim/glider/towing/conf/breaking_towforce_lbs") == nil ) {
+    atc_msg("breaking tow force not defined by plane");
+    atc_msg(" use default setting of ", glob_breaking_towforce_lbs, "lbs");
+    setprop("/sim/glider/towing/conf/breaking_towforce_lbs", glob_breaking_towforce_lbs);
+    setprop("/sim/glider/towing/glob/breaking_towforce_lbs", glob_breaking_towforce_lbs);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/towing/glob/breaking_towforce_lbs", 
+            getprop("/sim/glider/towing/conf/breaking_towforce_lbs"));
+  }
+  
+} # End Function globalsWinch
+
+
+# ############################################################################################
+# ############################################################################################
+# reset aerotowing parameters to global values
+var resetTowing = func {
+  # set rope length to global
+  setprop("/sim/glider/towing/conf/rope_length_m", 
+            getprop("/sim/glider/towing/glob/rope_length_m"));
+  
+  # set nominal force for pulling to global
+  setprop("/sim/glider/towing/conf/nominal_towforce_lbs", 
+            getprop("/sim/glider/towing/glob/nominal_towforce_lbs"));
+  
+  # set breaking force for pulling to global
+  setprop("/sim/glider/towing/conf/breaking_towforce_lbs", 
+            getprop("/sim/glider/towing/glob/breaking_towforce_lbs"));
+  
+} # End Function resetWinch
+
+
+
+# ############################################################################################
+# ############################################################################################
+# restore position to location before towing dialog
+var restorePosition = func {
+  # set rope length to global
+  setprop("position/latitude-deg", getprop("sim/glider/towing/list/init_lat_deg"));
+  setprop("position/longitude-deg", getprop("sim/glider/towing/list/init_lon_deg"));
+  setprop("position/altitude-ft", getprop("sim/glider/towing/list/init_alt_ft"));
+  setprop("orientation/heading-deg", getprop("sim/glider/towing/list/init_head_deg"));
+  setprop("orientation/pitch-deg", 0);
+  setprop("orientation/roll-deg", 0);
+} # End Function resetWinch
+
+
 
 # ############################################################################################
 # ############################################################################################
 # listCandidates
-
 var listCandidates = func {
   
   # first check for available multiplayer, ai-planes and drag roboter
@@ -209,18 +293,6 @@ var listCandidates = func {
     }
   }
   
-  # print sorted results for debugging reasons
-  if (size(candidates_id) > 0) {
-    print("sorted candidates: ", size(candidates_id));
-    for (var index = 0; index < size(candidates_id); index += 1 ) {
-      print("member: ", index, 
-            "  ID: ", candidates_id[index], 
-            "  type: ", candidates_type[index], 
-            "  distance: ", candidates_dst_m[index],
-            "  callsign: ", candidates_callsign[index] );
-    } 
-  }
-  
   # now, finally write the five closest candidates to the property tree
   # if there are less than five, fill up with empty objects
   for (var index = 0; index < 5; index += 1 ) {
@@ -249,6 +321,17 @@ var listCandidates = func {
       setprop(candidate_x_sl_prop, 0);
     }
   }
+  # and write the initial position of the glider to the property tree for cancel posibility
+  setprop("sim/glider/towing/list/init_lat_deg", 
+           getprop("position/latitude-deg"));
+  setprop("sim/glider/towing/list/init_lon_deg", 
+           getprop("position/longitude-deg"));
+  setprop("sim/glider/towing/list/init_alt_ft", 
+           getprop("position/altitude-ft"));
+  setprop("sim/glider/towing/list/init_head_deg", 
+           getprop("orientation/heading-deg"));
+
+  
 } # End Function listCandidates
 
 
@@ -257,7 +340,6 @@ var listCandidates = func {
 # ############################################################################################
 # ############################################################################################
 # selectCandidates
-
 var selectCandidates = func (select) {
   var candidates = [];
   var aiobjects = [];
@@ -276,10 +358,6 @@ var selectCandidates = func (select) {
   
   # next set properties for dragid
   setprop("sim/glider/towing/dragid", getprop(candidate_x_id_prop));
-  
-  # next hook in tow, will most probably switch to a separate fucntion or so to simplify 
-  # connection wenn menu is closed
-#  hookDragger();
   
   # and finally place the glider a few meters behind chosen dragger
   aiobjects = props.globals.getNode("ai/models").getChildren(); 
@@ -310,12 +388,6 @@ var selectCandidates = func (select) {
   setprop("orientation/heading-deg", drhed);
   setprop("/orientation/roll-deg", 0);
   
-  # and really finally, take care that redout and blackout are cleared in case you connect
-  # to a really huge plane, drop off the tail and get a redout/blackout
-  # could require some kind of settimer functionality to do it a few seconds after
-  # dropping off the tail - must be tested
-  # setprop("/sim/rendering/redout/alpha",0);
-
 } # End Function selectCandidates
 
 
@@ -324,7 +396,6 @@ var selectCandidates = func (select) {
 # ############################################################################################
 # ############################################################################################
 # clearredoutCandidates
-
 var clearredoutCandidates = func {
   # remove redout blackout caused by selectCandidates()
   setprop("/sim/rendering/redout/enabled", "false");
@@ -338,7 +409,6 @@ var clearredoutCandidates = func {
 # ############################################################################################
 # ############################################################################################
 # removeCandidates
-
 var removeCandidates = func {
   # and finally remove the list of candidates
   props.globals.getNode("/sim/glider/towing/list").remove();
@@ -351,7 +421,6 @@ var removeCandidates = func {
 # ############################################################################################
 # ############################################################################################
 # findDragger
-
 var findDragger = func {
   
   # first check for available ai-planes
@@ -381,12 +450,13 @@ var findDragger = func {
   
   
   # set rope length if not defined from settings-file
-  if ( getprop("/sim/glider/towing/rope_length_m") == nil ) {
-    atc_msg("rope length not defined by plane");
-    atc_msg(" use default setting of 100m");
-    setprop("/sim/glider/towing/rope_length_m", 100.0);
-  }
-  var towlength_m = getprop("/sim/glider/towing/rope_length_m");
+#  if ( getprop("/sim/glider/towing/conf/rope_length_m") == nil ) {
+#    atc_msg("rope length not defined by plane");
+#    atc_msg(" use default setting of 100m");
+#    setprop("/sim/glider/towing/conf/rope_length_m", 80.0);
+#  }
+
+  var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
   
   
   aiobjects = props.globals.getNode("ai/models").getChildren(); 
@@ -427,7 +497,6 @@ var findDragger = func {
 # ############################################################################################
 # ############################################################################################
 # hookDragger
-
 var hookDragger = func {
   
   # if dragid > 0
@@ -453,7 +522,6 @@ var hookDragger = func {
 # ############################################################################################
 # ############################################################################################
 # releaseDragger
-
 var releaseDragger = func {
   
   # first check for dragger is pulling
@@ -484,7 +552,6 @@ var releaseDragger = func {
 # ############################################################################################
 # ############################################################################################
 # let the dragger pull the plane up into the sky
-
 var runDragger = func {
   
   # strategy:
@@ -516,26 +583,9 @@ var runDragger = func {
   var dragid = 0;                      # id of dragger
   var planeid = 0;                     # id of current processed plane
   
-  # set nominal tow force if not defined from settings-file
-  if ( getprop("/sim/glider/towing/nominal_towforce_lbs") == nil ) {
-    atc_msg("nominal tow force not defined by plane, use default setting of 1000lbs");
-    setprop("/sim/glider/towing/nominal_towforce_lbs", 1000.0);
-  }
   var nominaltowforce = getprop("/sim/glider/towing/nominal_towforce_lbs");
-  
-  # set max tow force if not defined from settings-file
-  if ( getprop("/sim/glider/towing/breaking_towforce_lbs") == nil ) {
-    atc_msg("breaking tow force not defined by plane, use default setting of 2000lbs");
-    setprop("/sim/glider/towing/breaking_towforce_lbs", 2000.0);
-  }
   var breakingtowforce = getprop("/sim/glider/towing/breaking_towforce_lbs");
-  
-  # set tow length if not defined from settings-file
-  if ( getprop("/sim/glider/towing/rope_length_m") == nil ) {
-    atc_msg("tow length not defined by plane, use default setting of 100m");
-    setprop("/sim/glider/towing/rope_length_m", 100.0);
-  }
-  var towlength_m = getprop("/sim/glider/towing/rope_length_m");
+  var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
   
   # do all the stuff
   
@@ -643,3 +693,4 @@ var runDragger = func {
 } # End Function runDragger
 
 var dragging = setlistener("/sim/glider/towing/hooked", runDragger); 
+var initializing_towing = setlistener("/sim/signals/fdm-initialized", globalsTowing);

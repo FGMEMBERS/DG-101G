@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-07-06
+Current 2011-07-12
 ************************************************************************
 -->
 
@@ -212,9 +212,11 @@ Current 2011-07-06
         </conf>
       </winch>
       <towing>
-        <rope_length_m>60.0</rope_length_m>
-        <nominal_towforce_lbs>1000.0</nominal_towforce_lbs>
-        <breaking_towforce_lbs>10000.0</breaking_towforce_lbs>
+        <conf>
+          <rope_length_m>60.0</rope_length_m>
+          <nominal_towforce_lbs>1000.0</nominal_towforce_lbs>
+          <breaking_towforce_lbs>9999.0</breaking_towforce_lbs>
+        </conf>
         <hooked>0</hooked>
       </towing>
     </glider>
@@ -388,19 +390,8 @@ Current 2011-07-06
       <file>Aircraft/DG-101G/Nasal/towing.nas</file>
       <file>Aircraft/DG-101G/Nasal/waterballast.nas</file>
       <file>Aircraft/DG-101G/Nasal/winch.nas</file>
-      
       <!-- This binds the joystick's throttle slider to the spoilers. -->
-      <script>
-       var speedbrake = props.globals.getNode("/controls/flight/speedbrake", 1);
-       controls.throttleAxis = func {
-           val = cmdarg().getNode("setting").getValue();
-           if (size(arg) > 0) {
-               val = -val;
-           }
-           speedbrake.setValue((1 - val) / 2);
-       }
-      
-      </script>
+      <file>Aircraft/DG-101G/Nasal/speedbrakes_throttle.nas</file>
     </dg101g>
   </nasal>
 

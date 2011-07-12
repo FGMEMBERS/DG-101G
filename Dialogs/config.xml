@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-
+<!-- version: 2011-07-11 -->
 <PropertyList>
   <name>config_dialog</name>
   <layout>vbox</layout>
@@ -24,17 +24,6 @@
         <stretch>true</stretch>
       </empty>
       
-      <button>
-        <legend>X</legend>
-        <key>Esc</key>
-        <pref-width>16</pref-width>
-        <pref-height>16</pref-height>
-        <border>2</border>
-        <binding>
-          <command>dialog-close</command>
-        </binding>
-      </button>
-
     </group>
 
 
@@ -46,7 +35,7 @@
       
       <text>
         <halign>left</halign>
-        <label>Pilots Weight (176lb == 80kg)</label>
+        <label>Pilots Weight</label>
       </text>
       
       <group>
@@ -54,9 +43,9 @@
         <halign>right</halign>
         
         <text>
-          <label>999.9  </label>
+          <label>999  </label>
           <live>true</live>
-          <format>%0.1f lb </format>
+          <format>%0.0f lb </format>
           <property>/fdm/jsbsim/inertia/pointmass-weight-lbs</property>
         </text>
         
@@ -94,7 +83,7 @@
       
       <text>
         <halign>left</halign>
-        <label>Water Ballast per Tank (0kg)</label>
+        <label>Water Ballast per Tank</label>
       </text>
       
       <group>
@@ -102,9 +91,9 @@
         <halign>right</halign>
         
         <text>
-          <label>999.9  </label>
+          <label>999  </label>
           <live>true</live>
-          <format>%0.1f lb </format>
+          <format>%0.0f lb </format>
           <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[1]</property>
         </text>
         
