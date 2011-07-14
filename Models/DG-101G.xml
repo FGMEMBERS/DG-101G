@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 
 <!-- author:  Nikolaus Kerner -->
-<!-- version: 2011-02-01      -->
+<!-- version: 2011-07-14      -->
+
 <PropertyList>
 
  <path>dg101g.ac</path>
@@ -500,6 +501,38 @@
   
   <!-- Stick Speedbrake -->
    <animation>
+     <type>pick</type>
+     <object-name>27stick_brakeflaps</object-name>
+     <action>
+       <button>0</button>
+       <repeatable>true</repeatable>
+       <binding>
+         <command>property-adjust</command>
+         <property>controls/engines/engine/throttle</property>
+         <step>-0.05</step>
+         <min>0</min>
+         <max> 1</max>
+         <wrap>false</wrap>
+       </binding>
+     </action>
+   </animation>
+   <animation>
+     <type>pick</type>
+     <object-name>27stick_brakeflaps</object-name>
+     <action>
+       <button>1</button>
+       <repeatable>true</repeatable>
+       <binding>
+         <command>property-adjust</command>
+         <property>controls/engines/engine/throttle</property>
+         <step> 0.05</step>
+         <min>0</min>
+         <max> 1</max>
+         <wrap>false</wrap>
+       </binding>
+     </action>
+   </animation>
+   <animation>
      <type>translate</type>
      <object-name>27stick_brakeflaps</object-name>
      <property>/surface-positions/speedbrake-pos-norm</property>
@@ -530,6 +563,38 @@
   
   <!-- Stick Trimming -->
    <animation>
+     <type>pick</type>
+     <object-name>30stick_trim</object-name>
+     <action>
+       <button>0</button>
+       <repeatable>true</repeatable>
+       <binding>
+         <command>property-adjust</command>
+         <property>/controls/flight/elevator-trim</property>
+         <step>-0.05</step>
+         <min>-1</min>
+         <max> 1</max>
+         <wrap>false</wrap>
+       </binding>
+     </action>
+   </animation>
+   <animation>
+     <type>pick</type>
+     <object-name>30stick_trim</object-name>
+     <action>
+       <button>1</button>
+       <repeatable>true</repeatable>
+       <binding>
+         <command>property-adjust</command>
+         <property>/controls/flight/elevator-trim</property>
+         <step> 0.05</step>
+         <min>-1</min>
+         <max> 1</max>
+         <wrap>false</wrap>
+       </binding>
+     </action>
+   </animation>
+   <animation>
      <type>translate</type>
      <object-name>30stick_trim</object-name>
      <property>controls/flight/elevator-trim</property>
@@ -546,6 +611,18 @@
   <!-- Landing Gear -->
   
   <!-- Stick Gear-->
+   <animation>
+     <type>pick</type>
+     <object-name>29stick_gear</object-name>
+     <action>
+       <button>0</button>
+       <repeatable>false</repeatable>
+       <binding>
+         <command>property-toggle</command>
+         <property>/controls/gear/gear-down</property>
+       </binding>
+     </action>
+   </animation>
    <animation>
      <type>translate</type>
      <object-name>29stick_gear</object-name>
@@ -657,6 +734,18 @@
 
 
   <!-- Valve Balast -->
+   <animation>
+     <type>pick</type>
+     <object-name>31ballast-valve</object-name>
+     <action>
+       <button>0</button>
+       <repeatable>false</repeatable>
+       <binding>
+         <command>nasal</command>
+         <script>dg101g.toggleBallastDump()</script>
+       </binding>
+     </action>
+   </animation>
    <animation>
      <type>rotate</type>
      <object-name>31ballast-valve</object-name>

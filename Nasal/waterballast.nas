@@ -1,12 +1,12 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script to manage waterballast for the DG-101G
 #
-##############################################################################################
+# ############################################################################################
 # Author: Klaus Kerner
-# Version: 2010-04-01
+# Version: 2010-07-14
 #
-##############################################################################################
+# ############################################################################################
 # Concepts:
 # 1. check water level
 # 2. toggle dumping water
@@ -15,33 +15,55 @@
 
 # existing proterties, that are used to handle the waterballast
 
-#### required properties from the jsbsim config file,point masses
+# ## required properties from the jsbsim config file,point masses
 # /fdm/jsbsim/inertia/pointmass-weight-lbs[1]        tank 1, created by jsbsim config file
 # /fdm/jsbsim/inertia/pointmass-weight-lbs[2]        tank 2, created by jsbsim config file
 
-#### new properties to handle the balast and animations
+# ## new properties to handle the balast and animations
 # /sim/glider/ballast/mass_per_tank_lbs              initial ballast per tank
 # /sim/glider/ballast/mass_lbs_per_second            amount of water for dropping
 # /sim/glider/ballast/drop                           flag for dropping water balast
 #                                                      1: drop water 
 #                                                      0: do not drop water
 
-##############################################################################################
-##############################################################################################
-# load water ballast
 
 
-var loadBallast = func {
-  
+# ############################################################################################
+# ############################################################################################
+# initialise water ballast system
+var initBallast = func {
   # close the valve
   setprop("/sim/glider/ballast/drop", 0);
-  
   # check for defined max amount of water per tank by config file
   # if not set a default value of 50kg (110lbs) per tank
   if ( getprop("/sim/glider/ballast/mass_per_tank_lbs") == nil ) {
     atc_msg("amount of ballast not defined by plane, use default setting of 110lbs");
     setprop("/sim/glider/ballast/mass_per_tank_lbs", 110);
   }
+  # check for defined water flow at dropping ballast, 
+  # if not set a default value
+  if ( getprop("/sim/glider/ballast/mass_lbs_per_second") == nil ) {
+    atc_msg(" ballast drop not defined by plane, use default setting of 2lbs per second");
+    setprop("/sim/glider/ballast/mass_lbs_per_second", 2);
+  }
+}
+
+
+
+# ############################################################################################
+# ############################################################################################
+# load water ballast
+var loadBallast = func {
+  
+  # close the valve
+#  setprop("/sim/glider/ballast/drop", 0);
+  
+  # check for defined max amount of water per tank by config file
+  # if not set a default value of 50kg (110lbs) per tank
+#  if ( getprop("/sim/glider/ballast/mass_per_tank_lbs") == nil ) {
+#    atc_msg("amount of ballast not defined by plane, use default setting of 110lbs");
+#    setprop("/sim/glider/ballast/mass_per_tank_lbs", 110);
+#  }
   
   # fill the tanks
   setprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[1]", 
@@ -54,21 +76,17 @@ var loadBallast = func {
 }
 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # dump water ballast
-
-
 var toggleBallastDump = func {
-  
-  
   
   # check for defined water flow at dropping ballast, 
   # if not set a default value
-  if ( getprop("/sim/glider/ballast/mass_lbs_per_second") == nil ) {
-    atc_msg(" ballast drop not defined by plane, use default setting of 2lbs per second");
-    setprop("/sim/glider/ballast/mass_lbs_per_second", 2);
-  }
+#  if ( getprop("/sim/glider/ballast/mass_lbs_per_second") == nil ) {
+#    atc_msg(" ballast drop not defined by plane, use default setting of 2lbs per second");
+#    setprop("/sim/glider/ballast/mass_lbs_per_second", 2);
+#  }
 
   var deltaballast = getprop("/sim/glider/ballast/mass_lbs_per_second");
   var tank1 = getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[1]");
@@ -103,3 +121,5 @@ var toggleBallastDump = func {
   }
   
 }
+
+var initializing_ballast = setlistener("/sim/signals/fdm-initialized", initBallast);

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Version: 2011-07-11 -->
+<!-- Version: 2011-07-14 -->
 
 <PropertyList>
   <name>dragger_list</name>
@@ -423,11 +423,11 @@
     <button>
       <legend>Close</legend>
       <binding>
-        <command>dialog-close</command>
-      </binding>
-      <binding>
         <command>nasal</command>
         <script>dg101g.hookDragger()</script>
+      </binding>
+      <binding>
+        <command>dialog-close</command>
       </binding>
     </button>
     <empty><pref-height>6</pref-height></empty>

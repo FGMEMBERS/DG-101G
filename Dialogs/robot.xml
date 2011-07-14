@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-07-11 -->
+<!-- version: 2011-07-14 -->
 
 <PropertyList>
   <name>robot_dialog</name>
@@ -350,6 +350,10 @@
       <layout>hbox</layout>
       <button>
         <legend>Apply</legend>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.presetsRobot()</script>
+        </binding>
         <binding>
           <command>nasal</command>
           <script>dg101g.setupDragRobot()</script>
