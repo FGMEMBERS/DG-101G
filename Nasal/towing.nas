@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-07-11
+# Version: 2011-07-18
 #
 # ############################################################################################
 # Concepts:
@@ -583,8 +583,8 @@ var runDragger = func {
   var dragid = 0;                      # id of dragger
   var planeid = 0;                     # id of current processed plane
   
-  var nominaltowforce = getprop("/sim/glider/towing/nominal_towforce_lbs");
-  var breakingtowforce = getprop("/sim/glider/towing/breaking_towforce_lbs");
+  var nominaltowforce = getprop("/sim/glider/towing/conf/nominal_towforce_lbs");
+  var breakingtowforce = getprop("/sim/glider/towing/conf/breaking_towforce_lbs");
   var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
   
   # do all the stuff

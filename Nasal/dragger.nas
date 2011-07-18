@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-07-01
+# Version: 2011-07-18
 #
 # ############################################################################################
 # Concepts:
@@ -74,6 +74,17 @@
 # sim/glider/dragger/conf/glob_max_turnrate_degs
 # sim/glider/dragger/conf/glob_max_lift_height_m
 # sim/glider/dragger/conf/glob_max_tautendist_m
+# sim/glider/dragger/glob/glob_min_speed_takeoff_mps
+# sim/glider/dragger/glob/glob_max_speed_mps
+# sim/glider/dragger/glob/glob_max_speed_lift_mps
+# sim/glider/dragger/glob/glob_max_speed_tauten_mps
+# sim/glider/dragger/glob/glob_min_acceleration_mpss
+# sim/glider/dragger/glob/glob_max_acceleration_mpss
+# sim/glider/dragger/glob/glob_max_roll_deg
+# sim/glider/dragger/glob/glob_max_rollrate_degs
+# sim/glider/dragger/glob/glob_max_turnrate_degs
+# sim/glider/dragger/glob/glob_max_lift_height_m
+# sim/glider/dragger/glob/glob_max_tautendist_m
 
 # ## used properties from the property tree
 # environment/wind-from-north-fps
@@ -86,9 +97,15 @@
 
 # ############################################################################################
 # global variables:
-  var dragrobot_timeincrement_s = 0;                     # timer increment
-  
-  # constants for describing dragger key properties
+var dragrobot_timeincrement_s = 0;                     # timer increment
+
+
+
+# ############################################################################################
+# set drag roboter parameters to global values, if not properly defined by plane setup-file
+# store global values or plane-specific values to prepare for reset option
+var initDragRobot = func {
+  # constants for describing dragger key properties, if not defined by plane setup-file
   var glob_min_speed_takeoff_mps  = 20;       # minimum speed for take-off of drag-robot
   var glob_max_speed_mps          = 36;       # maximum speed of drag-robot
   var glob_max_speed_lift_mps     = 3;        # maximum lift speed of drag-robot
@@ -104,48 +121,124 @@
   if ( getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps") == nil ) {
     setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
              glob_min_speed_takeoff_mps);
+    setprop("sim/glider/dragger/glob/glob_min_speed_takeoff_mps", 
+             glob_min_speed_takeoff_mps);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_min_speed_takeoff_mps",
+             getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_speed_mps") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_speed_mps", 
              glob_max_speed_mps);
+    setprop("sim/glider/dragger/glob/glob_max_speed_mps", 
+             glob_max_speed_mps);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_speed_mps", 
+             getprop("sim/glider/dragger/conf/glob_max_speed_mps"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_speed_lift_mps", 
              glob_max_speed_lift_mps);
+    setprop("sim/glider/dragger/glob/glob_max_speed_lift_mps", 
+             glob_max_speed_lift_mps);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_speed_lift_mps", 
+             getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps", 
              glob_max_speed_tauten_mps);
+    setprop("sim/glider/dragger/glob/glob_max_speed_tauten_mps", 
+             glob_max_speed_tauten_mps);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_speed_tauten_mps", 
+             getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss") == nil ) {
     setprop("sim/glider/dragger/conf/glob_min_acceleration_mpss", 
              glob_min_acceleration_mpss);
+    setprop("sim/glider/dragger/glob/glob_min_acceleration_mpss", 
+             glob_min_acceleration_mpss);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_min_acceleration_mpss", 
+             getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_acceleration_mpss", 
              glob_max_acceleration_mpss);
+    setprop("sim/glider/dragger/glob/glob_max_acceleration_mpss", 
+             glob_max_acceleration_mpss);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_acceleration_mpss", 
+             getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_roll_deg") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_roll_deg", 
              glob_max_roll_deg);
+    setprop("sim/glider/dragger/glob/glob_max_roll_deg", 
+             glob_max_roll_deg);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_roll_deg", 
+             getprop("sim/glider/dragger/conf/glob_max_roll_deg"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_rollrate_degs") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_rollrate_degs", 
              glob_max_rollrate_degs);
+    setprop("sim/glider/dragger/glob/glob_max_rollrate_degs", 
+             glob_max_rollrate_degs);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_rollrate_degs", 
+             getprop("sim/glider/dragger/conf/glob_max_rollrate_degs"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_turnrate_degs") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_turnrate_degs", 
              glob_max_turnrate_degs);
+    setprop("sim/glider/dragger/glob/glob_max_turnrate_degs", 
+             glob_max_turnrate_degs);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_turnrate_degs", 
+             getprop("sim/glider/dragger/conf/glob_max_turnrate_degs"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_lift_height_m") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_lift_height_m", 
              glob_max_lift_height_m);
+    setprop("sim/glider/dragger/glob/glob_max_lift_height_m", 
+             glob_max_lift_height_m);
   }
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_lift_height_m", 
+             getprop("sim/glider/dragger/conf/glob_max_lift_height_m"));
+  }
+  
   if ( getprop("sim/glider/dragger/conf/glob_max_tautendist_m") == nil ) {
     setprop("sim/glider/dragger/conf/glob_max_tautendist_m", 
              glob_max_tautendist_m);
+    setprop("sim/glider/dragger/glob/glob_max_tautendist_m", 
+             glob_max_tautendist_m);
   }
-
+  else {
+    setprop("sim/glider/dragger/glob/glob_max_tautendist_m", 
+             getprop("sim/glider/dragger/conf/glob_max_tautendist_m"));
+  }
+}
 
 
 
@@ -174,7 +267,38 @@ var presetsRobot = func {
   glob_max_lift_height_m     = 
     getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
   glob_max_tautendist_m     = 
-    getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
+    getprop("sim/glider/dragger/conf/glob_max_tautendist_m");
+}
+
+
+
+
+# ############################################################################################
+# re-initialize presets
+var resetRobot = func {
+  # reading all global variables in case they has been changed in the property tree
+  setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
+    getprop("sim/glider/dragger/glob/glob_min_speed_takeoff_mps"));
+  setprop("sim/glider/dragger/conf/glob_max_speed_mps",  
+    getprop("sim/glider/dragger/glob/glob_max_speed_mps"));
+  setprop("sim/glider/dragger/conf/glob_max_speed_lift_mps", 
+    getprop("sim/glider/dragger/glob/glob_max_speed_lift_mps"));
+  setprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps", 
+    getprop("sim/glider/dragger/glob/glob_max_speed_tauten_mps"));
+  setprop("sim/glider/dragger/conf/glob_min_acceleration_mpss", 
+    getprop("sim/glider/dragger/glob/glob_min_acceleration_mpss"));
+  setprop("sim/glider/dragger/conf/glob_max_acceleration_mpss", 
+    getprop("sim/glider/dragger/glob/glob_max_acceleration_mpss"));
+  setprop("sim/glider/dragger/conf/glob_max_roll_deg", 
+    getprop("sim/glider/dragger/glob/glob_max_roll_deg"));
+  setprop("sim/glider/dragger/conf/glob_max_rollrate_degs", 
+    getprop("sim/glider/dragger/glob/glob_max_rollrate_degs"));
+  setprop("sim/glider/dragger/conf/glob_max_turnrate_degs", 
+    getprop("sim/glider/dragger/glob/glob_max_turnrate_degs"));
+  setprop("sim/glider/dragger/conf/glob_max_lift_height_m", 
+    getprop("sim/glider/dragger/glob/glob_max_lift_height_m"));
+  setprop("sim/glider/dragger/conf/glob_max_tautendist_m", 
+    getprop("sim/glider/dragger/glob/glob_max_tautendist_m"));
 }
 
 
@@ -262,6 +386,8 @@ var createDragRobot = func {
   var dip    = ac_pos.apply_course_distance( ac_hd , 35 );   # initial dragger position, 
                                                                # 35m in front of glider
   var dipalt_m = geo.elevation(dip.lat(), dip.lon());        # height at dragger position
+  var glob_max_lift_height_m     = 
+    getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
   
   # get the next free ai id and model id
   var freeAIid = getFreeAIID();
@@ -413,6 +539,16 @@ var leg0DragRobot = func {
   
   
   var segment = getprop("sim/glider/dragger/robot/leg_segment");
+  var glob_min_speed_takeoff_mps = 
+    getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps");
+  var glob_max_speed_tauten_mps  = 
+    getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps");
+  var glob_min_acceleration_mpss = 
+    getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss");
+  var glob_max_acceleration_mpss = 
+    getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss");
+  var glob_max_tautendist_m     = 
+    getprop("sim/glider/dragger/conf/glob_max_tautendist_m");
   
   
   if ( dragrobot_timeincrement_s == 0 ) {
@@ -451,7 +587,7 @@ var leg0DragRobot = func {
       newspeed_mps = glob_min_acceleration_mpss * deltatime_s + oldspeed_mps; 
       distance_m = (oldspeed_mps - headwind_mps) * deltatime_s 
                    + 0.5 * glob_min_acceleration_mpss * deltatime_s * deltatime_s ;
-      if ( distance_m < 0.1 ) {  # keep robot locked until speed is high enough
+      if ( distance_m < 0.01 ) {  # keep robot locked until speed is high enough
         distance_m = 0;
       }
     }
@@ -525,6 +661,21 @@ var leg1DragRobot = func {
   var segment = getprop("sim/glider/dragger/robot/leg_segment");
   var side    = getprop("sim/glider/dragger/robot/turnside");
   var targetheading_deg = getprop("sim/glider/dragger/robot/leg_angle_deg");
+  var glob_min_speed_takeoff_mps = 
+    getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps");
+  var glob_max_speed_mps         = 
+    getprop("sim/glider/dragger/conf/glob_max_speed_mps");
+  var glob_max_speed_lift_mps    = 
+    getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps");
+  var glob_max_acceleration_mpss = 
+    getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss");
+  var glob_max_roll_deg          = 
+    getprop("sim/glider/dragger/conf/glob_max_roll_deg");
+  var glob_max_rollrate_degs     = 
+    getprop("sim/glider/dragger/conf/glob_max_rollrate_degs");
+  var glob_max_turnrate_degs     = 
+    getprop("sim/glider/dragger/conf/glob_max_turnrate_degs");
+  
   
   if ( dragrobot_timeincrement_s == 0 ) {
     deltatime_s = getprop("sim/time/delta-sec");
@@ -714,6 +865,16 @@ var leg2DragRobot = func {
   var wind_from_nord_mps = 0;
   var wind_from_down_mps = 0;
   
+  var glob_min_speed_takeoff_mps = 
+    getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps");
+  var glob_max_speed_mps         = 
+    getprop("sim/glider/dragger/conf/glob_max_speed_mps");
+  var glob_max_speed_lift_mps    = 
+    getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps");
+  var glob_max_acceleration_mpss = 
+    getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss");
+  
+  
   if ( dragrobot_timeincrement_s == 0 ) {
     deltatime_s = getprop("sim/time/delta-sec");
   }
@@ -880,3 +1041,4 @@ var runDragRobot = func {
 }
 
 var pulling = setlistener("/sim/glider/dragger/robot/run", runDragRobot);
+var initializing_dragrobot = setlistener("/sim/signals/fdm-initialized", initDragRobot);
