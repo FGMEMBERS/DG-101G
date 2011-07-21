@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-07-18
+# Version: 2011-07-20
 #
 # ############################################################################################
 # Concepts:
@@ -37,8 +37,8 @@
 # models/model[id_model]/latitude-deg-prop
 # models/model[id_model]/elevation-ft-prop
 # models/model[id_model]/heading-deg-prop
-# sim/glider/dragger/robot/exist                        flag for existence of robot
-# sim/glider/dragger/robot/run                          flag for triggering operation
+# sim/glider/dragger/flags/exist                        flag for existence of robot
+# sim/glider/dragger/flags/run                          flag for triggering operation
 # sim/glider/dragger/robot/id_AI
 # sim/glider/dragger/robot/id_model
 # sim/glider/dragger/robot/wp0lat_deg                   wp0 reference point for different legs
@@ -244,37 +244,6 @@ var initDragRobot = func {
 
 # ############################################################################################
 # re-initialize presets
-var presetsRobot = func {
-  # reading all global variables in case they has been changed in the property tree
-  glob_min_speed_takeoff_mps = 
-    getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps");
-  glob_max_speed_mps         = 
-    getprop("sim/glider/dragger/conf/glob_max_speed_mps");
-  glob_max_speed_lift_mps    = 
-    getprop("sim/glider/dragger/conf/glob_max_speed_lift_mps");
-  glob_max_speed_tauten_mps  = 
-    getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps");
-  glob_min_acceleration_mpss = 
-    getprop("sim/glider/dragger/conf/glob_min_acceleration_mpss");
-  glob_max_acceleration_mpss = 
-    getprop("sim/glider/dragger/conf/glob_max_acceleration_mpss");
-  glob_max_roll_deg          = 
-    getprop("sim/glider/dragger/conf/glob_max_roll_deg");
-  glob_max_rollrate_degs     = 
-    getprop("sim/glider/dragger/conf/glob_max_rollrate_degs");
-  glob_max_turnrate_degs     = 
-    getprop("sim/glider/dragger/conf/glob_max_turnrate_degs");
-  glob_max_lift_height_m     = 
-    getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
-  glob_max_tautendist_m     = 
-    getprop("sim/glider/dragger/conf/glob_max_tautendist_m");
-}
-
-
-
-
-# ############################################################################################
-# re-initialize presets
 var resetRobot = func {
   # reading all global variables in case they has been changed in the property tree
   setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
@@ -397,14 +366,16 @@ var createDragRobot = func {
   var dragger_ai  = props.globals.getNode("ai/models/dragger", 1);
   var dragger_mod = props.globals.getNode("models", 1);
   var dragger_sim = props.globals.getNode("sim/glider/dragger/robot", 1);
+  var dragger_flg = props.globals.getNode("sim/glider/dragger/flags", 1);
   
   dragger_sim.getNode("id_AI", 1).setIntValue(freeAIid);
   dragger_sim.getNode("id_model", 1).setIntValue(freeModelid);
-  dragger_sim.getNode("exist", 1).setIntValue(1);
   dragger_sim.getNode("leg_type", 1).setIntValue(0);
   dragger_sim.getNode("leg_distance_m", 1).setValue(2000);
   dragger_sim.getNode("leg_angle_deg", 1).setValue(ac_hd);
   dragger_sim.getNode("leg_segment", 1).setIntValue(0);
+  
+  dragger_flg.getNode("exist", 1).setIntValue(1);
   
   
   dragger_ai.getNode("id", 1).setIntValue(freeAIid);
@@ -473,7 +444,7 @@ var removeDragRobot = func {
   # will be filled in the next future
   
   # in any case, first stop the dragger
-  setprop("sim/glider/dragger/robot/run", 0);
+  setprop("sim/glider/dragger/flags/run", 0);
   
   # next check for the dragger is still existent
   # if yes, 
@@ -486,7 +457,7 @@ var removeDragRobot = func {
   # local variables
   var modelsNode = {};
   
-  if ( getprop("/sim/glider/dragger/robot/exist") == 1 ) {         # does the dragger exist?
+  if ( getprop("/sim/glider/dragger/flags/exist") == 1 ) {         # does the dragger exist?
     # remove 3d model from scenery
     # identification is /models/model[x] with x=id_model
     var id_model = getprop("sim/glider/dragger/robot/id_model");
@@ -495,7 +466,7 @@ var removeDragRobot = func {
     props.globals.getNode("ai/models/dragger").remove();
     props.globals.getNode("sim/glider/dragger/robot").remove();
     atc_msg("dragger removed");
-    
+    setprop("/sim/glider/dragger/flags/exist", 0);
   }
   else {                                                         # do nothing
     atc_msg("dragger does not exist");
@@ -506,11 +477,11 @@ var removeDragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # run the drag robot for start leg
 var leg0DragRobot = func {
   
-  ############################################################################################
+  # ##########################################################################################
   # Strategy:
   # set flag for start
   # tauten the rope
@@ -631,7 +602,7 @@ var leg0DragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # run the drag robot for turns
 var leg1DragRobot = func {
   # turns are described by the turn angle, so the delta angle from heading at initial position
@@ -840,7 +811,7 @@ var leg1DragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # run the drag robot for straight legs
 var leg2DragRobot = func {
   # straight legs are described by the length, so the delta distance from initial position
@@ -959,7 +930,7 @@ var leg2DragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # run the drag robot for final leg
 var leg3DragRobot = func {
   
@@ -969,8 +940,8 @@ var leg3DragRobot = func {
   
   
   # stop loop for updating roboter
-  if ( getprop("sim/glider/dragger/robot/run") == 1 ) {
-    setprop("sim/glider/dragger/robot/run", 0);
+  if ( getprop("sim/glider/dragger/flags/run") == 1 ) {
+    setprop("sim/glider/dragger/flags/run", 0);
   }
   
   
@@ -989,22 +960,21 @@ var leg3DragRobot = func {
   setprop("sim/glider/dragger/robot/leg_type", 0);
   setprop("sim/glider/dragger/robot/leg_segment", 0);
   
-  presetsRobot();
 }
 
 
 
 
-##############################################################################################
+# ############################################################################################
 # function to switch the drag roboter on or off running
 var startDragRobot = func {
-  if ( getprop("sim/glider/dragger/robot/run" ) == 1) {
-    setprop("sim/glider/dragger/robot/run", 0);
+  if ( getprop("sim/glider/dragger/flags/run" ) == 1) {
+    setprop("sim/glider/dragger/flags/run", 0);
     print(" stop the drag robot");
   }
   else { 
     print(" start the drag robot");
-    setprop("sim/glider/dragger/robot/run", 1);
+    setprop("sim/glider/dragger/flags/run", 1);
   }
 }
 
@@ -1012,10 +982,10 @@ var startDragRobot = func {
 
 
 
-##############################################################################################
+# ############################################################################################
 # triggered function to run the drag roboter
 var runDragRobot = func {
-  if ( getprop("sim/glider/dragger/robot/run" ) == 1) {
+  if ( getprop("sim/glider/dragger/flags/run" ) == 1) {
     var leg = -1;
     
     leg = getprop("sim/glider/dragger/robot/leg_type");
@@ -1040,5 +1010,5 @@ var runDragRobot = func {
   }
 }
 
-var pulling = setlistener("/sim/glider/dragger/robot/run", runDragRobot);
+var pulling = setlistener("/sim/glider/dragger/flags/run", runDragRobot);
 var initializing_dragrobot = setlistener("/sim/signals/fdm-initialized", initDragRobot);

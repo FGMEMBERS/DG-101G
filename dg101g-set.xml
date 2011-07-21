@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-07-12
+Current 2011-07-21
 ************************************************************************
 -->
 
@@ -169,28 +169,28 @@ Current 2011-07-12
             <label>Configure</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.config_dialog.toggle()</script>.
+              <script>dg101g.config_dialog.open()</script>.
             </binding>
           </item>
           <item>
             <label>Aerotowing</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.dragger_list.toggle()</script>.
+              <script>dg101g.dragger_list.open()</script>.
             </binding>
           </item>
           <item>
             <label>Drag Roboter</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.robot_dialog.toggle()</script>.
+              <script>dg101g.robot_dialog.open()</script>.
             </binding>
           </item>
           <item>
             <label>Winch</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.winch_dialog.toggle()</script>.
+              <script>dg101g.winch_dialog.open()</script>.
             </binding>
           </item>
         </menu>
