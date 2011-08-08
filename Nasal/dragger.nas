@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-07-20
+# Version: 2011-08-03
 #
 # ############################################################################################
 # Concepts:
@@ -64,27 +64,27 @@
 #                                                                    3 keep roll angle
 #                                                                    4 roll out
 # sim/glider/dragger/conf/glob_min_speed_takeoff_mps
+#                .../glob/glob_min_speed_takeoff_mps
 # sim/glider/dragger/conf/glob_max_speed_mps
+#                .../glob/glob_max_speed_mps
 # sim/glider/dragger/conf/glob_max_speed_lift_mps
+#                .../glob/glob_max_speed_lift_mps
 # sim/glider/dragger/conf/glob_max_speed_tauten_mps
+#                .../glob/glob_max_speed_tauten_mps
 # sim/glider/dragger/conf/glob_min_acceleration_mpss
+#                .../glob/glob_min_acceleration_mpss
 # sim/glider/dragger/conf/glob_max_acceleration_mpss
+#                .../glob/glob_max_acceleration_mpss
 # sim/glider/dragger/conf/glob_max_roll_deg
+#                .../glob/glob_max_roll_deg
 # sim/glider/dragger/conf/glob_max_rollrate_degs
+#                .../glob/glob_max_rollrate_degs
 # sim/glider/dragger/conf/glob_max_turnrate_degs
+#                .../glob/glob_max_turnrate_degs
 # sim/glider/dragger/conf/glob_max_lift_height_m
+#                .../glob/glob_max_lift_height_m
 # sim/glider/dragger/conf/glob_max_tautendist_m
-# sim/glider/dragger/glob/glob_min_speed_takeoff_mps
-# sim/glider/dragger/glob/glob_max_speed_mps
-# sim/glider/dragger/glob/glob_max_speed_lift_mps
-# sim/glider/dragger/glob/glob_max_speed_tauten_mps
-# sim/glider/dragger/glob/glob_min_acceleration_mpss
-# sim/glider/dragger/glob/glob_max_acceleration_mpss
-# sim/glider/dragger/glob/glob_max_roll_deg
-# sim/glider/dragger/glob/glob_max_rollrate_degs
-# sim/glider/dragger/glob/glob_max_turnrate_degs
-# sim/glider/dragger/glob/glob_max_lift_height_m
-# sim/glider/dragger/glob/glob_max_tautendist_m
+#                .../glob/glob_max_tautendist_m
 
 # ## used properties from the property tree
 # environment/wind-from-north-fps

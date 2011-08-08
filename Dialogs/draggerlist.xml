@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Version: 2011-07-14 -->
+<!-- Version: 2011-08-08 -->
 
 <PropertyList>
   <name>dragger_list</name>
@@ -37,6 +37,14 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[0]/selected</property>
+        <enable>
+          <not>
+            <greater-than>
+              <property>sim/glider/towing/list/candidate[0]/distance_m</property>
+              <value>3000</value>
+            </greater-than>
+          </not>
+        </enable>
         <binding>
           <command>nasal</command>
           <script>dg101g.selectCandidates(0)</script>
@@ -48,6 +56,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[0]/id</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -56,6 +69,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[0]/type</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -64,6 +82,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[0]/callsign</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><stretch>true</stretch></empty>
       <text>
@@ -72,6 +95,11 @@
         <halign>right</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[0]/distance_m</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>60</pref-width></empty>
     </group>
@@ -82,6 +110,14 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[1]/selected</property>
+        <enable>
+          <not>
+            <greater-than>
+              <property>sim/glider/towing/list/candidate[1]/distance_m</property>
+              <value>3000</value>
+            </greater-than>
+          </not>
+        </enable>
         <binding>
           <command>nasal</command>
           <script>dg101g.selectCandidates(1)</script>
@@ -93,6 +129,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[1]/id</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -101,6 +142,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[1]/type</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -109,6 +155,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[1]/callsign</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><stretch>true</stretch></empty>
       <text>
@@ -117,6 +168,11 @@
         <halign>right</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[1]/distance_m</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>60</pref-width></empty>
     </group>
@@ -127,6 +183,14 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[2]/selected</property>
+        <enable>
+          <not>
+            <greater-than>
+              <property>sim/glider/towing/list/candidate[2]/distance_m</property>
+              <value>3000</value>
+            </greater-than>
+          </not>
+        </enable>
         <binding>
           <command>nasal</command>
           <script>dg101g.selectCandidates(2)</script>
@@ -138,6 +202,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[2]/id</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -146,6 +215,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[2]/type</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -154,6 +228,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[2]/callsign</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><stretch>true</stretch></empty>
       <text>
@@ -162,6 +241,11 @@
         <halign>right</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[2]/distance_m</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>60</pref-width></empty>
     </group>
@@ -172,6 +256,14 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[3]/selected</property>
+        <enable>
+          <not>
+            <greater-than>
+              <property>sim/glider/towing/list/candidate[3]/distance_m</property>
+              <value>3000</value>
+            </greater-than>
+          </not>
+        </enable>
         <binding>
           <command>nasal</command>
           <script>dg101g.selectCandidates(3)</script>
@@ -183,6 +275,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[3]/id</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -191,6 +288,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[3]/type</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -199,6 +301,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[3]/callsign</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><stretch>true</stretch></empty>
       <text>
@@ -207,6 +314,11 @@
         <halign>right</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[3]/distance_m</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>60</pref-width></empty>
     </group>
@@ -217,6 +329,14 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[4]/selected</property>
+        <enable>
+          <not>
+            <greater-than>
+              <property>sim/glider/towing/list/candidate[4]/distance_m</property>
+              <value>3000</value>
+            </greater-than>
+          </not>
+        </enable>
         <binding>
           <command>nasal</command>
           <script>dg101g.selectCandidates(4)</script>
@@ -228,6 +348,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[4]/id</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -236,6 +361,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[4]/type</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>30</pref-width></empty>
       <text>
@@ -244,6 +374,11 @@
         <halign>left</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[4]/callsign</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><stretch>true</stretch></empty>
       <text>
@@ -252,6 +387,11 @@
         <halign>right</halign>
         <live>true</live>
         <property>/sim/glider/towing/list/candidate[4]/distance_m</property>
+        <color>
+          <red>0.1</red>
+          <green>0.1</green>
+          <blue>0.1</blue>
+        </color>
       </text>
       <empty><pref-width>60</pref-width></empty>
     </group>

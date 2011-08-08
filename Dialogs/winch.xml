@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-07-11 -->
+<!-- version: 2011-08-03 -->
 
 <PropertyList>
   <name>winch_dialog</name>
@@ -8,70 +8,58 @@
   <modal>false</modal>
   <width>500</width>
 
+<!-- headline -->
     <group>
       <layout>hbox</layout>
       <default-padding>1</default-padding>
-      
       <empty>
         <stretch>true</stretch>
       </empty>
-      
-      
       <text>
         <label>Winch Configuration</label>
       </text>
-      
       <empty>
         <stretch>true</stretch>
       </empty>
-      
     </group>
 
 
     <hrule/>
 
-
 <!-- winch configuration -->
     <!-- initial rope length in meters -->
     <group>
       <layout>hbox</layout>
-      
       <text>
         <halign>left</halign>
         <label>Winch Tow Length</label>
       </text>
-      
       <group>
         <layout>hbox</layout>
         <halign>right</halign>
-        
         <text>
           <label>9999  </label>
           <live>true</live>
           <format>%0.0f m </format>
           <property>/sim/glider/winch/conf/rope_initial_length_m</property>
         </text>
-        
         <empty>
           <stretch>true</stretch>
         </empty>
-        
         <vrule/>
-        
         <text>
           <label>100m</label>
         </text>
-        
         <slider>
           <name>winchtow_length</name>
           <property>/sim/glider/winch/conf/rope_initial_length_m</property>
           <min>100.0</min>
           <max>1200.0</max>
+          <live>true</live>
           <binding>
             <command>dialog-apply</command>
           </binding>
         </slider>
-        
         <text>
           <label>1200m</label>
         </text>
@@ -81,43 +69,36 @@
     <!-- max. pull force of winch -->
     <group>
       <layout>hbox</layout>
-      
       <text>
         <halign>left</halign>
         <label>Winch Pull Force</label>
       </text>
-      
       <group>
         <layout>hbox</layout>
         <halign>right</halign>
-        
         <text>
           <label>9999  </label>
           <live>true</live>
           <format>%0.0f lbs </format>
           <property>/sim/glider/winch/conf/pull_max_lbs</property>
         </text>
-        
         <empty>
           <stretch>true</stretch>
         </empty>
-        
         <vrule/>
-        
         <text>
           <label>300lbs</label>
         </text>
-        
         <slider>
           <name>winch_force</name>
           <property>/sim/glider/winch/conf/pull_max_lbs</property>
           <min>300.0</min>
           <max>1200.0</max>
+          <live>true</live>
           <binding>
             <command>dialog-apply</command>
           </binding>
         </slider>
-        
         <text>
           <label>1200lbs</label>
         </text>
@@ -126,9 +107,9 @@
 
     <hrule/>
 
-
     <hrule/>
 
+<!-- bottom line -->
     <group>
       <layout>hbox</layout>
       <button>

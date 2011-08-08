@@ -1,12 +1,12 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script for a total energy compensated variometer
 #
-##############################################################################################
+# ############################################################################################
 # Author: Klaus Kerner
-# Version: 2010-11-11
+# Version: 2011-08-02
 #
-##############################################################################################
+# ############################################################################################
 # Concepts:
 # 1. check, whether the properties are created
 # 1a. get current status and write to previus properties
@@ -33,8 +33,8 @@
 
 # 
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # calculate total energy variometer 
 # 
 # script from Flightgear Wiki used as basis
@@ -45,7 +45,7 @@ var tevariometer = func {
 
     var square = func(x) {return x*x};
     
-    var location = "/instrumentation/te-vario/";
+    var location = "instrumentation/te-vario/";
     ##
     # expose all variables to the property tree for inspection and debugging
     var current_height_meters_prop    = location ~ "tmp/current-height-m";
@@ -64,11 +64,11 @@ var tevariometer = func {
     # initialize all properties with some defaults, if not allready existent:
     if (getprop(tevario_init) == nil) 
     {
-        setprop(current_height_meters_prop,  getprop("/position/altitude-ft") * FT2M);
-        setprop(previous_height_meters_prop, getprop("/position/altitude-ft") * FT2M);
+        setprop(current_height_meters_prop,  getprop("position/altitude-ft") * FT2M);
+        setprop(previous_height_meters_prop, getprop("position/altitude-ft") * FT2M);
         
-        setprop(current_airspeed_mps_prop,   getprop("/velocities/airspeed-kt") * KT2MPS);
-        setprop(previous_airspeed_mps_prop,  getprop("/velocities/airspeed-kt") * KT2MPS);
+        setprop(current_airspeed_mps_prop,   getprop("velocities/airspeed-kt") * KT2MPS);
+        setprop(previous_airspeed_mps_prop,  getprop("velocities/airspeed-kt") * KT2MPS);
         
         setprop(current_systime_prop,        systime() );
         setprop(previous_systime_prop,       systime() );
@@ -84,8 +84,8 @@ var tevariometer = func {
     setprop(current_systime_prop,        systime() );
     setprop(update_rate_sec_prop,        getprop(current_systime_prop) - 
                                            getprop(previous_systime_prop));
-    setprop(current_height_meters_prop,  getprop("/position/altitude-ft") * FT2M);
-    setprop(current_airspeed_mps_prop,   getprop("/velocities/airspeed-kt") * KT2MPS);
+    setprop(current_height_meters_prop,  getprop("position/altitude-ft") * FT2M);
+    setprop(current_airspeed_mps_prop,   getprop("velocities/airspeed-kt") * KT2MPS);
     
     
     ## formula:
@@ -118,4 +118,4 @@ var tevariometer = func {
   }
 
 
-setlistener("/sim/signals/fdm-initialized", tevariometer);
+setlistener("sim/signals/fdm-initialized", tevariometer);

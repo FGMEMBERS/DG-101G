@@ -1,12 +1,12 @@
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # Nasal script to manage thermals for the DG-101G
 #
-##############################################################################################
+# ############################################################################################
 # Author: Klaus Kerner
-# Version: 2010-03-09
+# Version: 2011-08-02
 #
-##############################################################################################
+# ############################################################################################
 # Concepts:
 # 1. check, whether the "thermal-demo" scenario (or other AI-thermals) is loaded
 # 2. search for thermals out of area
@@ -39,8 +39,8 @@
 #  position/longitude-deg      longitude of center
 #  position/altitude-ft        height of thermal above sealevel
 
-##############################################################################################
-##############################################################################################
+# ############################################################################################
+# ############################################################################################
 # update thermals 
 # search for thermals out of a certain area around the current position of the plane
 # place these thermals in a certain area around the current position of the plane 
@@ -82,7 +82,7 @@ var updateThermals = func {
   ac = geo.aircraft_position();           # gets aircraft position
   
   
-  if ( getprop("/ai/models/thermal[0]/position/latitude-deg") == nil ) { # available thermals?
+  if ( getprop("ai/models/thermal[0]/position/latitude-deg") == nil ) { # available thermals?
     atc_msg(" no thermals available"); 
   }
   else {                                  # mangle available thermals
@@ -132,7 +132,6 @@ var updateThermals = func {
       index = index + 1;
       
     }
-    
     
     foreach (var th; thermals) {                                # go again through the array
       lat = th.getNode("position/latitude-deg").getValue();     # latitude
@@ -211,4 +210,3 @@ var updateThermals = func {
 #  settimer(updateThermals, 10);
 
 } # End Function updateThermals
-

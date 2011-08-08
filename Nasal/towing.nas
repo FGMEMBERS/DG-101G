@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-07-18
+# Version: 2011-08-08
 #
 # ############################################################################################
 # Concepts:
@@ -304,9 +304,24 @@ var listCandidates = func {
       var candidate_x_sl_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/selected";
       setprop(candidate_x_id_prop, -1);
       setprop(candidate_x_cs_prop, "undef");
-      setprop(candidate_x_dm_prop, -9999);
+      setprop(candidate_x_dm_prop, 99999);
       setprop(candidate_x_tp_prop, "XX");
       setprop(candidate_x_sl_prop, 0);
+      # set color in dialog for aerotowing
+      var guigroup = index + 1;
+      var guicolor = "sim/gui/dialogs/dg101g/dragger/dialog/group[1]/group[" ~ guigroup ~ "]/text[";
+        setprop(guicolor ~ "0]/color/green", 0.1 );
+        setprop(guicolor ~ "0]/color/red", 0.1 );
+        setprop(guicolor ~ "0]/color/blue", 0.1 );
+        setprop(guicolor ~ "1]/color/green", 0.1 );
+        setprop(guicolor ~ "1]/color/red", 0.1 );
+        setprop(guicolor ~ "1]/color/blue", 0.1 );
+        setprop(guicolor ~ "2]/color/green", 0.1 );
+        setprop(guicolor ~ "2]/color/red", 0.1 );
+        setprop(guicolor ~ "2]/color/blue", 0.1 );
+        setprop(guicolor ~ "3]/color/green", 0.1 );
+        setprop(guicolor ~ "3]/color/red", 0.1 );
+        setprop(guicolor ~ "3]/color/blue", 0.1 );
     }
     else {
       var candidate_x_id_prop = "sim/glider/towing/list/candidate[" ~ index ~ "]/id";
@@ -319,6 +334,51 @@ var listCandidates = func {
       setprop(candidate_x_dm_prop, candidates_dst_m[index]);
       setprop(candidate_x_tp_prop, candidates_type[index]);
       setprop(candidate_x_sl_prop, 0);
+      # set color in dialog for aerotowing
+      var guigroup = index + 1;
+      var guicolor = "sim/gui/dialogs/dg101g/dragger/dialog/group[1]/group[" ~ guigroup ~ "]/text[";
+      if ( candidates_dst_m[index] < 1000) {
+        setprop(guicolor ~ "0]/color/green", 0.9 );
+        setprop(guicolor ~ "0]/color/red", 0.1 );
+        setprop(guicolor ~ "0]/color/blue", 0.1 );
+        setprop(guicolor ~ "1]/color/green", 0.9 );
+        setprop(guicolor ~ "1]/color/red", 0.1 );
+        setprop(guicolor ~ "1]/color/blue", 0.1 );
+        setprop(guicolor ~ "2]/color/green", 0.9 );
+        setprop(guicolor ~ "2]/color/red", 0.1 );
+        setprop(guicolor ~ "2]/color/blue", 0.1 );
+        setprop(guicolor ~ "3]/color/green", 0.9 );
+        setprop(guicolor ~ "3]/color/red", 0.1 );
+        setprop(guicolor ~ "3]/color/blue", 0.1 );
+      }
+      elsif ( candidates_dst_m[index] < 3000.01 ) {
+        setprop(guicolor ~ "0]/color/green", 0.9 );
+        setprop(guicolor ~ "0]/color/red", 0.1 );
+        setprop(guicolor ~ "0]/color/blue", 0.9 );
+        setprop(guicolor ~ "1]/color/green", 0.9 );
+        setprop(guicolor ~ "1]/color/red", 0.1 );
+        setprop(guicolor ~ "1]/color/blue", 0.9 );
+        setprop(guicolor ~ "2]/color/green", 0.9 );
+        setprop(guicolor ~ "2]/color/red", 0.1 );
+        setprop(guicolor ~ "2]/color/blue", 0.9 );
+        setprop(guicolor ~ "3]/color/green", 0.9 );
+        setprop(guicolor ~ "3]/color/red", 0.1 );
+        setprop(guicolor ~ "3]/color/blue", 0.9 );
+      }
+      else {
+        setprop(guicolor ~ "0]/color/green", 0.1 );
+        setprop(guicolor ~ "0]/color/red", 0.9 );
+        setprop(guicolor ~ "0]/color/blue", 0.1 );
+        setprop(guicolor ~ "1]/color/green", 0.1 );
+        setprop(guicolor ~ "1]/color/red", 0.9 );
+        setprop(guicolor ~ "1]/color/blue", 0.1 );
+        setprop(guicolor ~ "2]/color/green", 0.1 );
+        setprop(guicolor ~ "2]/color/red", 0.9 );
+        setprop(guicolor ~ "2]/color/blue", 0.1 );
+        setprop(guicolor ~ "3]/color/green", 0.1 );
+        setprop(guicolor ~ "3]/color/red", 0.9 );
+        setprop(guicolor ~ "3]/color/blue", 0.1 );
+      }
     }
   }
   # and write the initial position of the glider to the property tree for cancel posibility
@@ -330,7 +390,6 @@ var listCandidates = func {
            getprop("position/altitude-ft"));
   setprop("sim/glider/towing/list/init_head_deg", 
            getprop("orientation/heading-deg"));
-
   
 } # End Function listCandidates
 
