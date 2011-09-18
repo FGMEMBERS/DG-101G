@@ -1,10 +1,10 @@
 # ############################################################################################
 # ############################################################################################
-# Nasal script to manage winch-launch for the DG-101G
+# Nasal script to manage winch-launch for JSBSIM gliders (like DG-101G)
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-08-04
+# Version: 2011-09-16
 #
 # ############################################################################################
 # Concepts:
@@ -14,12 +14,27 @@
 #    - up to now there is no winch placed
 #    and if we are fine,place a winch in front of the plane and 
 #    initialize all relevant parameters
-# 2. launch the winch
-# 3. release the winch
+# 2. attach to and run winch
+#    The winch applies a certain force on the rope contact location at the plane. This force 
+#    is dependent on several factors: rope speed, rope angle (glider altitude), ...
+#    Rope speed: the force is constant up to 85% of max rope speed. From 85% up to 100% of 
+#      max. rope speed the force decreases to 0%. 
+#    Rope angle: up to 45° the force does not change. From 45° up to 70° (the automatic 
+#      release angle) the force will decrease to 30%. 
+# 3. release from winch
 #    - by reaching conditions
 #    - manually
-#    and remove it 
-# 4. be happy and fly
+# 4. and finally remove it 
+
+
+# ###  IMPORTANT  ###  IMPORTANT  ###  IMPORTANT #############################################
+# ## required proterties from the jsbsim FDM, that are required to interact with the winch
+# /fdm/jsbsim/fcs/winch-cmd-norm                             created by jsbsim config file
+#                                                              1: winch is engaged
+#                                                              0: winch is not engaged
+# /fdm/jsbsim/external_reactions/winchx/magnitude            created by jsbsim config file
+# /fdm/jsbsim/external_reactions/winchy/magnitude            created by jsbsim config file
+# /fdm/jsbsim/external_reactions/winchz/magnitude            created by jsbsim config file
 
 # ## existing proterties, that are used to handle the winch
 # /gear/gear/wow                                             indicating contact to ground
@@ -30,27 +45,33 @@
 # /sim/presets/latitude-deg                                  initial position at runway
 # /sim/presets/longitude-deg                                 initial position at runway
 
-# ## required proterties from the jsbsim config file, that are used to handle the winch
-# /fdm/jsbsim/fcs/winch-cmd-norm                             created by jsbsim config file
-#                                                              1: winch is engaged
-#                                                              0: winch is not engaged
-# /fdm/jsbsim/external_reactions/winchx/magnitude            created by jsbsim config file
-# /fdm/jsbsim/external_reactions/winchy/magnitude            created by jsbsim config file
-# /fdm/jsbsim/external_reactions/winchz/magnitude            created by jsbsim config file
-
 # ## new properties, used to manage the winch
 # /sim/glider/winch/conf/rope_initial_length_m               initial rope length
 # /sim/glider/winch/conf/pull_max_lbs                        max. pulling force
-#                                                              will be used in the future for
-#                                                              a more realistic winch model
+# /sim/glider/winch/conf/pull_max_speed_mps                  max. pulling speed
+# /sim/glider/winch/conf/k_speed_x1
+# /sim/glider/winch/conf/k_speed_y1
+# /sim/glider/winch/conf/k_speed_x2
+# /sim/glider/winch/conf/k_speed_y2
+# /sim/glider/winch/conf/k_angle_x1
+# /sim/glider/winch/conf/k_angle_y1
+# /sim/glider/winch/conf/k_angle_x2
+# /sim/glider/winch/conf/k_angle_y2
 # /sim/glider/winch/glob/rope_initial_length_m               global rope length
 # /sim/glider/winch/glob/pull_max_lbs                        global max. pulling force
+# /sim/glider/winch/glob/pull_max_speed_mps                  global max. pulling speed
+# /sim/glider/winch/glob/k_speed_x1
+# /sim/glider/winch/glob/k_speed_y1
+# /sim/glider/winch/glob/k_speed_x2
+# /sim/glider/winch/glob/k_speed_y2
+# /sim/glider/winch/glob/k_angle_x1
+# /sim/glider/winch/glob/k_angle_y1
+# /sim/glider/winch/glob/k_angle_x2
+# /sim/glider/winch/glob/k_angle_y2
 # /sim/glider/winch/work/wp-lat-deg                          storing winch position
 # /sim/glider/winch/work/wp-lon-deg                          storing winch position
 # /sim/glider/winch/work/wp-alti-m                           storing winch position
 # /sim/glider/winch/work/speed                               current speed of rope
-#                                                              will be used in the future for
-#                                                              a more realistic winch model
 # /sim/glider/winch/work/rope_m                              current length of rope
 # /sim/glider/winch/work/placed                              bool storing existence of winch
 #                                                              1: winch placed
@@ -67,7 +88,7 @@
 # ############################################################################################
 # ############################################################################################
 # global variables for this script
-  var winch_timeincrement_s = 0.1;                                       # timer increment
+  var winch_timeincrement_s = 0.1;                           # timer increment
 
 
 
@@ -76,12 +97,19 @@
 # set winch parameters to global values, if not properly defined by plane setup-file
 # store global values or plane-specific values to prepare for reset option
 var globalsWinch = func {
-  var glob_rope_initial_length_m = 800;
-  var glob_pull_max_lbs = 600;
+  var glob_rope_initial_length_m = 800;                      # default length 800m
+  var glob_pull_max_lbs = 600;                               # default force 600lbs
+  var glob_pull_max_speed_mps = 40;                          # default speed 40m/s
+  var glob_k_speed_x1 = 0.85;
+  var glob_k_speed_y1 = 1.00;
+  var glob_k_speed_x2 = 1.00;
+  var glob_k_speed_y2 = 0.00;
+  var glob_k_angle_x1 = 50;
+  var glob_k_angle_y1 = 1.00;
+  var glob_k_angle_x2 = 70;
+  var glob_k_angle_y2 = 0.30;
   # set initial rope length if not defined from "plane"-set.xml 
   if ( getprop("sim/glider/winch/conf/rope_initial_length_m") == nil ) {
-    atc_msg("initial rope length not defined by plane");
-    atc_msg(" use default setting of ", glob_rope_initial_length_m, "m");
     setprop("sim/glider/winch/conf/rope_initial_length_m", glob_rope_initial_length_m);
     setprop("sim/glider/winch/glob/rope_initial_length_m", glob_rope_initial_length_m);
   }
@@ -92,14 +120,102 @@ var globalsWinch = func {
   
   # set max force for pulling, if not defined from "plane"-set.xml
   if ( getprop("sim/glider/winch/conf/pull_max_lbs") == nil ) {
-    atc_msg("initial max force winch not defined by plane");
-    atc_msg(" use default setting of ", glob_pull_max_lbs, "lbs");
     setprop("sim/glider/winch/conf/pull_max_lbs", glob_pull_max_lbs);
     setprop("sim/glider/winch/glob/pull_max_lbs", glob_pull_max_lbs);
   }
   else { # if defined, set global to plane specific for reset option
     setprop("sim/glider/winch/glob/pull_max_lbs", 
             getprop("sim/glider/winch/conf/pull_max_lbs"));
+  }
+  
+  # set max speed for pulling, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/pull_max_speed_mps") == nil ) {
+    setprop("sim/glider/winch/conf/pull_max_speed_mps", glob_pull_max_speed_mps);
+    setprop("sim/glider/winch/glob/pull_max_speed_mps", glob_pull_max_speed_mps);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/pull_max_speed_mps", 
+            getprop("sim/glider/winch/conf/pull_max_speed_mps"));
+  }
+  
+  # set ref-poing x1 for speed correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_speed_x1") == nil ) {
+    setprop("sim/glider/winch/conf/k_speed_x1", glob_k_speed_x1);
+    setprop("sim/glider/winch/glob/k_speed_x1", glob_k_speed_x1);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_speed_x1", 
+            getprop("sim/glider/winch/conf/k_speed_x1"));
+  }
+  
+  # set ref-poing y1 for speed correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_speed_y1") == nil ) {
+    setprop("sim/glider/winch/conf/k_speed_y1", glob_k_speed_y1);
+    setprop("sim/glider/winch/glob/k_speed_y1", glob_k_speed_y1);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_speed_y1", 
+            getprop("sim/glider/winch/conf/k_speed_y1"));
+  }
+  
+  # set ref-poing x2 for speed correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_speed_x2") == nil ) {
+    setprop("sim/glider/winch/conf/k_speed_x2", glob_k_speed_x2);
+    setprop("sim/glider/winch/glob/k_speed_x2", glob_k_speed_x2);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_speed_x2", 
+            getprop("sim/glider/winch/conf/k_speed_x2"));
+  }
+  
+  # set ref-poing y2 for speed correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_speed_y2") == nil ) {
+    setprop("sim/glider/winch/conf/k_speed_y2", glob_k_speed_y2);
+    setprop("sim/glider/winch/glob/k_speed_y2", glob_k_speed_y2);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_speed_y2", 
+            getprop("sim/glider/winch/conf/k_speed_y2"));
+  }
+  
+  # set ref-poing x1 for angle correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_angle_x1") == nil ) {
+    setprop("sim/glider/winch/conf/k_angle_x1", glob_k_angle_x1);
+    setprop("sim/glider/winch/glob/k_angle_x1", glob_k_angle_x1);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_angle_x1", 
+            getprop("sim/glider/winch/conf/k_angle_x1"));
+  }
+  
+  # set ref-poing y1 for angle correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_angle_y1") == nil ) {
+    setprop("sim/glider/winch/conf/k_angle_y1", glob_k_angle_y1);
+    setprop("sim/glider/winch/glob/k_angle_y1", glob_k_angle_y1);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_angle_y1", 
+            getprop("sim/glider/winch/conf/k_angle_y1"));
+  }
+  
+  # set ref-poing x2 for angle correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_angle_x2") == nil ) {
+    setprop("sim/glider/winch/conf/k_angle_x2", glob_k_angle_x2);
+    setprop("sim/glider/winch/glob/k_angle_x2", glob_k_angle_x2);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_angle_x2", 
+            getprop("sim/glider/winch/conf/k_angle_x2"));
+  }
+  
+  # set ref-poing y2 for angle correction, if not defined from "plane"-set.xml
+  if ( getprop("sim/glider/winch/conf/k_angle_y2") == nil ) {
+    setprop("sim/glider/winch/conf/k_angle_y2", glob_k_angle_y2);
+    setprop("sim/glider/winch/glob/k_angle_y2", glob_k_angle_y2);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("sim/glider/winch/glob/k_angle_y2", 
+            getprop("sim/glider/winch/conf/k_angle_y2"));
   }
   
 } # End Function globalsWinch
@@ -117,6 +233,30 @@ var resetWinch = func {
   # set max force for pulling to global
   setprop("sim/glider/winch/conf/pull_max_lbs", 
             getprop("sim/glider/winch/glob/pull_max_lbs"));
+  
+  # set max speed for pulling to global
+  setprop("sim/glider/winch/conf/pull_max_speed_mps", 
+            getprop("sim/glider/winch/glob/pull_max_speed_mps"));
+  
+  # set speed correction for pulling to global
+  setprop("sim/glider/winch/conf/k_speed_x1", 
+            getprop("sim/glider/winch/glob/k_speed_x1"));
+  setprop("sim/glider/winch/conf/k_speed_y1", 
+            getprop("sim/glider/winch/glob/k_speed_y1"));
+  setprop("sim/glider/winch/conf/k_speed_x2", 
+            getprop("sim/glider/winch/glob/k_speed_x2"));
+  setprop("sim/glider/winch/conf/k_speed_y2", 
+            getprop("sim/glider/winch/glob/k_speed_y2"));
+  
+  # set angle correction for pulling to global
+  setprop("sim/glider/winch/conf/k_angle_x1", 
+            getprop("sim/glider/winch/glob/k_angle_x1"));
+  setprop("sim/glider/winch/conf/k_angle_y1", 
+            getprop("sim/glider/winch/glob/k_angle_y1"));
+  setprop("sim/glider/winch/conf/k_angle_x2", 
+            getprop("sim/glider/winch/glob/k_angle_x2"));
+  setprop("sim/glider/winch/conf/k_angle_y2", 
+            getprop("sim/glider/winch/glob/k_angle_y2"));
   
 } # End Function resetWinch
 
@@ -346,6 +486,17 @@ var runWinch = func {
   var roperelease_deg = 70;  # release winch automatically
 
   var pullmax = getprop("sim/glider/winch/conf/pull_max_lbs");
+  var speedmax = getprop("sim/glider/winch/conf/pull_max_speed_mps");
+  
+  var k_speed_x1 = getprop("sim/glider/winch/conf/k_speed_x1");
+  var k_speed_y1 = getprop("sim/glider/winch/conf/k_speed_y1");
+  var k_speed_x2 = getprop("sim/glider/winch/conf/k_speed_x2");
+  var k_speed_y2 = getprop("sim/glider/winch/conf/k_speed_y2");
+  var k_angle_x1 = getprop("sim/glider/winch/conf/k_angle_x1");
+  var k_angle_y1 = getprop("sim/glider/winch/conf/k_angle_y1");
+  var k_angle_x2 = getprop("sim/glider/winch/conf/k_angle_x2");
+  var k_angle_y2 = getprop("sim/glider/winch/conf/k_angle_y2");
+  
 
   if ( winch_timeincrement_s == 0 ) {
     var deltatime_s = getprop("sim/time/delta-sec");
@@ -367,7 +518,7 @@ var runWinch = func {
     var pt_deg = getprop("orientation/pitch-deg");      # pitch of aircraft
     var rt_deg = getprop("orientation/roll-deg");       # roll of aircraft
     var dd_old_m = getprop("sim/glider/winch/work/rope_m");  # rope length from last step
-    var ropespeed = (dd_m - dd_old_m)/deltatime_s;       # the speed of the rope
+    var ropespeed = (dd_old_m - dd_m)/deltatime_s;       # the speed of the rope
     
     if (dp_m > dd_m) { dp_m = dd_m;}                     # correct a failure, if the projected
                                                          # length is larger than direct length
@@ -385,6 +536,17 @@ var runWinch = func {
     var cosg = math.cos(gamma);
     var sind = math.sin(delta);
     var cosd = math.cos(delta);
+    
+    var k_force_speed = k_speed_y1 + (k_speed_y2 - k_speed_y1)/
+                                     (k_speed_x2 - k_speed_x1)*
+                                     (ropespeed/speedmax - k_speed_x1);
+    var k_force_angle = k_angle_y1 + (k_angle_y2 - k_angle_y1)/
+                                     (k_angle_x2 - k_angle_x1)*
+                                     (alpha / 0.01745    - k_angle_x1);
+    if ( k_force_speed > k_speed_y1 ) { k_force_speed = k_speed_y1; }
+    if ( k_force_speed < k_speed_y2 ) { k_force_speed = k_speed_y2; }
+    if ( k_force_angle > k_angle_y1 ) { k_force_angle = k_angle_y1; }
+    if ( k_force_angle < k_angle_y2 ) { k_force_angle = k_angle_y2; }
     
     # global forces: alpha beta
     var fglobalx = pullmax * cosa * cosb;
@@ -408,14 +570,16 @@ var runWinch = func {
       / math.sqrt(forcex * forcex + forcey * forcey + forcez * forcez) ) 
       / 0.01745;                                    # calculates the force angle
     
-    
     if (force_deg > roperelease_deg) {              # automatic release if criteria is reached
       releaseWinch(); 
     } 
     else  {                                         # set the current forces
-      setprop("fdm/jsbsim/external_reactions/winchx/magnitude",  forcex);
-      setprop("fdm/jsbsim/external_reactions/winchy/magnitude",  forcey);
-      setprop("fdm/jsbsim/external_reactions/winchz/magnitude",  forcez);
+      forcex = forcex * k_force_speed * k_force_angle;
+      forcey = forcey * k_force_speed * k_force_angle;
+      forcez = forcez * k_force_speed * k_force_angle;
+      setprop("fdm/jsbsim/external_reactions/winchx/magnitude",  forcex );
+      setprop("fdm/jsbsim/external_reactions/winchy/magnitude",  forcey );
+      setprop("fdm/jsbsim/external_reactions/winchz/magnitude",  forcez );
       setprop("sim/glider/winch/work/speed", ropespeed); 
       setprop("sim/glider/winch/work/rope_m", dd_m ); 
     }

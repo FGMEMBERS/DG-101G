@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-08-03 -->
+<!-- version: 2011-09-16 -->
 
 <PropertyList>
   <name>winch_dialog</name>
@@ -105,8 +105,206 @@
       </group>
     </group>
 
+    <!-- max. pull speed of winch -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Winch Pull Speed</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>9999  </label>
+          <live>true</live>
+          <format>%0.0f m/s </format>
+          <property>/sim/glider/winch/conf/pull_max_speed_mps</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>30m/s</label>
+        </text>
+        <slider>
+          <name>winch_force</name>
+          <property>/sim/glider/winch/conf/pull_max_speed_mps</property>
+          <min>30.0</min>
+          <max>50.0</max>
+          <live>true</live>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>50m/s</label>
+        </text>
+      </group>
+    </group>
+
     <hrule/>
 
+
+    <!-- speed correction of winch, x1 -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Speed Correction X1</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>9999  </label>
+          <live>true</live>
+          <format>%0.2f </format>
+          <property>/sim/glider/winch/conf/k_speed_x1</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>0.50</label>
+        </text>
+        <slider>
+          <name>winch_force</name>
+          <property>/sim/glider/winch/conf/k_speed_x1</property>
+          <min>0.50</min>
+          <max>0.90</max>
+          <live>true</live>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>0.90</label>
+        </text>
+      </group>
+    </group>
+
+    <!-- speed correction of winch, y2 -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Speed Correction Y2</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>9999  </label>
+          <live>true</live>
+          <format>%0.2f </format>
+          <property>/sim/glider/winch/conf/k_speed_y2</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>0.00</label>
+        </text>
+        <slider>
+          <name>winch_force</name>
+          <property>/sim/glider/winch/conf/k_speed_y2</property>
+          <min>0.00</min>
+          <max>0.90</max>
+          <live>true</live>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>0.90</label>
+        </text>
+      </group>
+    </group>
+
+    <!-- angle correction of winch, x1 -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Angle Correction X1</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>9999  </label>
+          <live>true</live>
+          <format>%0.0f </format>
+          <property>/sim/glider/winch/conf/k_angle_x1</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>40</label>
+        </text>
+        <slider>
+          <name>winch_force</name>
+          <property>/sim/glider/winch/conf/k_angle_x1</property>
+          <min>40</min>
+          <max>65</max>
+          <live>true</live>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>65</label>
+        </text>
+      </group>
+    </group>
+
+    <!-- angle correction of winch, y2 -->
+    <group>
+      <layout>hbox</layout>
+      <text>
+        <halign>left</halign>
+        <label>Angle Correction Y2</label>
+      </text>
+      <group>
+        <layout>hbox</layout>
+        <halign>right</halign>
+        <text>
+          <label>9999  </label>
+          <live>true</live>
+          <format>%0.2f </format>
+          <property>/sim/glider/winch/conf/k_angle_y2</property>
+        </text>
+        <empty>
+          <stretch>true</stretch>
+        </empty>
+        <vrule/>
+        <text>
+          <label>0.00</label>
+        </text>
+        <slider>
+          <name>winch_force</name>
+          <property>/sim/glider/winch/conf/k_angle_y2</property>
+          <min>0.00</min>
+          <max>0.90</max>
+          <live>true</live>
+          <binding>
+            <command>dialog-apply</command>
+          </binding>
+        </slider>
+        <text>
+          <label>0.90</label>
+        </text>
+      </group>
+    </group>
+
+
+    <hrule/>
     <hrule/>
 
 <!-- bottom line -->
@@ -147,6 +345,23 @@
         <binding>
           <command>nasal</command>
           <script>dg101g.startWinch()</script>
+        </binding>
+        <binding>
+          <command>dialog-close</command>
+        </binding>
+      </button>
+      <empty>
+        <pref-height>6</pref-height>
+      </empty>
+      <button>
+        <legend>Cancel</legend>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.removeWinch()</script>
+        </binding>
+        <binding>
+          <command>nasal</command>
+          <script>dg101g.resetWinch()</script>
         </binding>
         <binding>
           <command>dialog-close</command>
