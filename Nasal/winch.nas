@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-09-16
+# Version: 2011-09-23
 #
 # ############################################################################################
 # Concepts:
@@ -98,15 +98,15 @@
 # store global values or plane-specific values to prepare for reset option
 var globalsWinch = func {
   var glob_rope_initial_length_m = 800;                      # default length 800m
-  var glob_pull_max_lbs = 600;                               # default force 600lbs
+  var glob_pull_max_lbs = 1102;                              # default force 1102lbs=500daN
   var glob_pull_max_speed_mps = 40;                          # default speed 40m/s
   var glob_k_speed_x1 = 0.85;
   var glob_k_speed_y1 = 1.00;
   var glob_k_speed_x2 = 1.00;
   var glob_k_speed_y2 = 0.00;
-  var glob_k_angle_x1 = 50;
+  var glob_k_angle_x1 = 0.75;
   var glob_k_angle_y1 = 1.00;
-  var glob_k_angle_x2 = 70;
+  var glob_k_angle_x2 = 1.00;
   var glob_k_angle_y2 = 0.30;
   # set initial rope length if not defined from "plane"-set.xml 
   if ( getprop("sim/glider/winch/conf/rope_initial_length_m") == nil ) {
@@ -542,7 +542,7 @@ var runWinch = func {
                                      (ropespeed/speedmax - k_speed_x1);
     var k_force_angle = k_angle_y1 + (k_angle_y2 - k_angle_y1)/
                                      (k_angle_x2 - k_angle_x1)*
-                                     (alpha / 0.01745    - k_angle_x1);
+                                     (alpha / 0.01745 / roperelease_deg    - k_angle_x1);
     if ( k_force_speed > k_speed_y1 ) { k_force_speed = k_speed_y1; }
     if ( k_force_speed < k_speed_y2 ) { k_force_speed = k_speed_y2; }
     if ( k_force_angle > k_angle_y1 ) { k_force_angle = k_angle_y1; }

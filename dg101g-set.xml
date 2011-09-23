@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-07-21
+Current 2011-09-22
 ************************************************************************
 -->
 
@@ -208,7 +208,7 @@ Current 2011-07-21
       <winch>
         <conf>
           <rope_initial_length_m>1000.0</rope_initial_length_m>
-          <pull_max_lbs>600.0</pull_max_lbs>
+          <pull_max_lbs>1102.0</pull_max_lbs> <!-- 500daN -->
         </conf>
       </winch>
       <towing>
