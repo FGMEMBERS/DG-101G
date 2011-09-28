@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!-- version: 2011-09-26 -->
+<!-- version: 2011-09-28 -->
 
 <PropertyList>
-  <name>winch_dialog</name>
+  <name>dragrobot_dialog</name>
   <layout>vbox</layout>
   <default-padding>1</default-padding>
   <modal>false</modal>
@@ -16,7 +16,7 @@
       <stretch>true</stretch>
     </empty>
     <text>
-      <label>Winch Configuration</label>
+      <label>Drag Roboter Configuration</label>
       <font>
         <name>times_bold</name>
       </font>
@@ -26,16 +26,18 @@
     </empty>
   </group>
 
-  <hrule/>
-  <hrule/>
 
-<!-- winch configuration -->
-<!-- initial rope length in meters -->
+    <hrule/>
+    <hrule/>
+
+
+
+<!-- max. lift height -->
   <group>
     <layout>hbox</layout>
     <text>
       <halign>left</halign>
-      <label>Winch Tow Length</label>
+      <label>max. lift height</label>
     </text>
     <group>
       <layout>hbox</layout>
@@ -44,7 +46,7 @@
         <label>999999</label>
         <live>true</live>
         <format>%0.0f m </format>
-        <property>/sim/glider/winch/conf/rope_initial_length_m</property>
+        <property>sim/glider/dragger/conf/glob_max_lift_height_m</property>
         <color>
           <red>0.2</red>
           <green>0.9</green>
@@ -62,10 +64,10 @@
         </text>
       </group>
       <slider>
-        <name>winchtow_length</name>
-        <property>/sim/glider/winch/conf/rope_initial_length_m</property>
+        <name>max_lift_height_m</name>
+        <property>sim/glider/dragger/conf/glob_max_lift_height_m</property>
         <min>100.0</min>
-        <max>1200.0</max>
+        <max>5000.0</max>
         <live>true</live>
         <binding>
           <command>dialog-apply</command>
@@ -74,21 +76,18 @@
       <group>
         <width>60</width>
         <text>
-          <label>1200m</label>
+          <label>5000m</label>
         </text>
       </group>
     </group>
   </group>
 
-<!-- max. pull force of winch -->
-<!-- Due to limitations of jsbsim to handle SI units, input is done
-     in imperial units. Mapping to SI units is only done for gui. 
-     See dialogs.nas for corresponding helper functions -->
+<!-- tow length -->
   <group>
     <layout>hbox</layout>
     <text>
       <halign>left</halign>
-      <label>Winch Pull Force</label>
+      <label>Aerotowing Tow Length</label>
     </text>
     <group>
       <layout>hbox</layout>
@@ -96,8 +95,8 @@
       <text>
         <label>999999</label>
         <live>true</live>
-        <format>%0.0f daN </format>
-        <property>/sim/glider/gui/winch/pull_max_daN</property>
+        <format>%0.0f m </format>
+        <property>/sim/glider/towing/conf/rope_length_m</property>
         <color>
           <red>0.2</red>
           <green>0.9</green>
@@ -111,15 +110,15 @@
       <group>
         <width>60</width>
         <text>
-          <label>250daN</label>
+          <label>50m</label>
         </text>
       </group>
       <slider>
-        <name>winch_force</name>
-        <property>/sim/glider/winch/conf/pull_max_lbs</property>
-        <min>551</min>
-        <max>1653</max>
-        <live>true</live>
+        <name>aerotow_length</name>
+        <property>/sim/glider/towing/conf/rope_length_m</property>
+        <min>50</min>
+        <max>100</max>
+        <step>1</step>  
         <binding>
           <command>dialog-apply</command>
         </binding>
@@ -127,63 +126,12 @@
       <group>
         <width>60</width>
         <text>
-          <label>750daN</label>
+          <label>100m</label>
         </text>
       </group>
     </group>
   </group>
 
-<!-- max. pull speed of winch -->
-<!-- Internal calculations are done in m/s. Mapping to km/h units is only done for gui. 
-     See dialogs.nas for corresponding helper functions -->
-  <group>
-    <layout>hbox</layout>
-    <text>
-      <halign>left</halign>
-      <label>Winch Pull Speed</label>
-    </text>
-    <group>
-      <layout>hbox</layout>
-      <halign>right</halign>
-      <text>
-        <label>999999</label>
-        <live>true</live>
-        <format>%0.0f km/h </format>
-        <property>/sim/glider/gui/winch/pull_max_speed_kmh</property>
-        <color>
-          <red>0.2</red>
-          <green>0.9</green>
-          <blue>0.2</blue>
-        </color>
-      </text>
-      <empty>
-        <stretch>true</stretch>
-      </empty>
-      <vrule/>
-      <group>
-        <width>60</width>
-        <text>
-          <label>108km/h</label>
-        </text>
-      </group>
-      <slider>
-        <name>winch_force</name>
-        <property>/sim/glider/winch/conf/pull_max_speed_mps</property>
-        <min>30.0</min>
-        <max>50.0</max>
-        <live>true</live>
-        <binding>
-          <command>dialog-apply</command>
-        </binding>
-      </slider>
-      <group>
-        <width>60</width>
-        <text>
-          <label>180km/h</label>
-        </text>
-      </group>
-    </group>
-  </group>
 
   <hrule/>
 
@@ -194,10 +142,10 @@
       <pref-height>6</pref-height>
     </empty>
     <button>
-      <legend>advanced configuration</legend>
+      <legend>advanced configuration drag roboter</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.winch_advanced_dialog.open()</script>
+        <script>dg101g.dragrobot_advanced_dialog.open()</script>
       </binding>
     </button>
     <empty>
@@ -205,8 +153,27 @@
     </empty>
   </group>
 
+  <group>
+    <layout>hbox</layout>
+    <empty>
+      <pref-height>6</pref-height>
+    </empty>
+    <button>
+      <legend>advanced configuration aerotowing</legend>
+      <binding>
+        <command>nasal</command>
+        <script>dg101g.aerotowing_advanced_dialog.open()</script>
+      </binding>
+    </button>
+    <empty>
+      <pref-height>6</pref-height>
+    </empty>
+  </group>
+
+
     <hrule/>
     <hrule/>
+
 
 <!-- bottom line -->
   <group>
@@ -215,7 +182,11 @@
       <legend>Reset</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.resetWinch()</script>
+        <script>dg101g.resetRobot()</script>
+      </binding>
+      <binding>
+        <command>nasal</command>
+        <script>dg101g.resetTowing()</script>
       </binding>
     </button>
     <empty>
@@ -225,7 +196,7 @@
       <legend>Create</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.placeWinch()</script>
+        <script>dg101g.setupDragRobot()</script>
       </binding>
     </button>
     <empty>
@@ -235,7 +206,7 @@
       <legend>Remove</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.removeWinch()</script>
+        <script>dg101g.removeDragRobot()</script>
       </binding>
     </button>
     <empty>
@@ -245,7 +216,15 @@
       <legend>Run</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.startWinch()</script>
+        <script>dg101g.findDragger()</script>
+      </binding>
+      <binding>
+        <command>nasal</command>
+        <script>dg101g.hookDragger()</script>
+      </binding>
+      <binding>
+        <command>nasal</command>
+        <script>dg101g.startDragRobot()</script>
       </binding>
       <binding>
         <command>dialog-close</command>
@@ -258,16 +237,26 @@
       <legend>Cancel</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.removeWinch()</script>
+        <script>dg101g.removeDragRobot()</script>
       </binding>
       <binding>
         <command>nasal</command>
-        <script>dg101g.resetWinch()</script>
+        <script>dg101g.resetRobot()</script>
       </binding>
       <binding>
         <command>dialog-close</command>
       </binding>
     </button>
   </group>
+
+
+
+<!-- nasal code -->
+  <nasal>
+    <open>
+    </open>
+    <close>
+    </close>
+  </nasal>
 
 </PropertyList>

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-09-21 -->
+<!-- version: 2011-09-26 -->
 <PropertyList>
   <name>config_dialog</name>
   <layout>vbox</layout>
@@ -56,9 +56,12 @@
         <stretch>true</stretch>
       </empty>
       <vrule/>
-      <text>
-        <label>50kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>50kg</label>
+        </text>
+      </group>
       <slider>
         <name>pilots_weight</name>
         <property>/fdm/jsbsim/inertia/pointmass-weight-lbs</property>
@@ -68,9 +71,12 @@
           <command>dialog-apply</command>
         </binding>
       </slider>
-      <text>
-        <label>100kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>100kg</label>
+        </text>
+      </group>
     </group>
   </group>
 
@@ -104,9 +110,12 @@
         <stretch>true</stretch>
       </empty>
       <vrule/>
-      <text>
-        <label>0kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>0kg</label>
+        </text>
+      </group>
       <slider>
         <name>pilots_weight</name>
         <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[3]</property>
@@ -116,9 +125,12 @@
           <command>dialog-apply</command>
         </binding>
       </slider>
-      <text>
-        <label>50kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>50kg</label>
+        </text>
+      </group>
     </group>
   </group>
 
@@ -152,9 +164,12 @@
         <stretch>true</stretch>
       </empty>
       <vrule/>
-      <text>
-        <label>0kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>0kg</label>
+        </text>
+      </group>
       <slider>
         <name>ballastpertank_weight</name>
         <property>/fdm/jsbsim/inertia/pointmass-weight-lbs[1]</property>
@@ -165,9 +180,12 @@
           <command>dialog-apply</command>
         </binding>
       </slider>
-      <text>
-        <label>50kg</label>
-      </text>
+      <group>
+        <width>60</width>
+        <text>
+          <label>50kg</label>
+        </text>
+      </group>
     </group>
   </group>
 

@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-08-03
+# Version: 2011-09-28
 #
 # ############################################################################################
 # Concepts:
@@ -348,12 +348,17 @@ var getFreeModelID = func {
 # ############################################################################################
 # create the drag robot in the ai property tree
 var createDragRobot = func {
+  # place drag roboter with a distance, that the tow is nearly tautened
+  var rope_length_m = getprop("/sim/glider/towing/conf/rope_length_m");
+  var tauten_relative = getprop("/sim/glider/towing/conf/rope_x1");
+  var install_distance_m = rope_length_m * (tauten_relative - 0.02);
   
   # local variables
   var ac_pos = geo.aircraft_position();                      # get position of aircraft
   var ac_hd  = getprop("orientation/heading-deg");           # get heading of aircraft
-  var dip    = ac_pos.apply_course_distance( ac_hd , 35 );   # initial dragger position, 
-                                                               # 35m in front of glider
+  var dip    = ac_pos.apply_course_distance( ac_hd , install_distance_m );   
+                                                             # initial dragger position, 
+                                                               # close to tauten-distance
   var dipalt_m = geo.elevation(dip.lat(), dip.lon());        # height at dragger position
   var glob_max_lift_height_m     = 
     getprop("sim/glider/dragger/conf/glob_max_lift_height_m");

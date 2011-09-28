@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-08-08
+# Version: 2011-09-28
 #
 # ############################################################################################
 # Concepts:
@@ -43,11 +43,16 @@
 # new properties to handle the dragger
 # /sim/glider/towing/conf/rope_length_m         length of rope, set by config file or default
 # /sim/glider/towing/conf/nominal_towforce_lbs    nominal force at nominal distance
+# /sim/glider/towing/conf/breaking_towforce_lbs   max. force of tow
+# /sim/glider/towing/conf/rope_x1             describes relative starting point for force
+# /sim/glider/towing/conf/rope_characteristics   describes force/elongation ratio of rope
 # /sim/glider/towing/glob/rope_length_m         length of rope, set by config file or default
 # /sim/glider/towing/glob/nominal_towforce_lbs    nominal force at nominal distance
+# /sim/glider/towing/glob/breaking_towforce_lbs   max. force of tow
+# /sim/glider/towing/conf/rope_x1             describes relative starting point for force
+# /sim/glider/towing/glob/rope_characteristics   describes force/elongation ratio of rope
 
 # /sim/glider/towing/dragid                  the ID of /ai/models/xyz[x]/id
-# /sim/glider/towing/breaking_towforce_lbs   max. force of tow
 # /sim/glider/towing/hooked                 flag to control engaged tow
 #                                              1: rope hooked in
 #                                              0: rope not hooked in
@@ -73,11 +78,13 @@ var towing_timeincrement = 0;                        # timer increment
 # set aerotowing parameters to global values, if not properly defined by plane setup-file
 # store global values or plane-specific values to prepare for reset option
 var globalsTowing = func {
-  var glob_rope_length_m = 80;
-  var glob_nominal_towforce_lbs = 1000;
+  var glob_rope_length_m = 60;
+  var glob_nominal_towforce_lbs = 500;
   var glob_breaking_towforce_lbs = 9999;
+  var glob_rope_x1 = 0.7;
+  var glob_rope_characteristics = 2;
   
-  # set rope length if not defined from "plane"-set.xml 
+  # set rope length X2, if not defined from "plane"-set.xml 
   if ( getprop("/sim/glider/towing/conf/rope_length_m") == nil ) {
     atc_msg("rope length not defined by plane");
     atc_msg(" use default setting of ", glob_rope_length_m, "m");
@@ -89,7 +96,7 @@ var globalsTowing = func {
             getprop("/sim/glider/towing/conf/rope_length_m"));
   }
   
-  # set nominal force for pulling, if not defined from "plane"-set.xml
+  # set nominal force for pulling F2, if not defined from "plane"-set.xml
   if ( getprop("/sim/glider/towing/conf/nominal_towforce_lbs") == nil ) {
     atc_msg("nominal tow force not defined by plane");
     atc_msg(" use default setting of ", glob_nominal_towforce_lbs, "lbs");
@@ -101,7 +108,7 @@ var globalsTowing = func {
             getprop("/sim/glider/towing/conf/nominal_towforce_lbs"));
   }
   
-  # set breaking force for pulling, if not defined from "plane"-set.xml
+  # set breaking force for pulling Fmax, if not defined from "plane"-set.xml
   if ( getprop("/sim/glider/towing/conf/breaking_towforce_lbs") == nil ) {
     atc_msg("breaking tow force not defined by plane");
     atc_msg(" use default setting of ", glob_breaking_towforce_lbs, "lbs");
@@ -111,6 +118,26 @@ var globalsTowing = func {
   else { # if defined, set global to plane specific for reset option
     setprop("/sim/glider/towing/glob/breaking_towforce_lbs", 
             getprop("/sim/glider/towing/conf/breaking_towforce_lbs"));
+  }
+  
+  # set relative rope length X1, if not defined from "plane"-set.xml 
+  if ( getprop("/sim/glider/towing/conf/rope_x1") == nil ) {
+    setprop("/sim/glider/towing/conf/rope_x1", glob_rope_x1);
+    setprop("/sim/glider/towing/glob/rope_x1", glob_rope_x1);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/towing/glob/rope_x1", 
+            getprop("/sim/glider/towing/conf/rope_x1"));
+  }
+  
+  # set relative rope characteristics, if not defined from "plane"-set.xml 
+  if ( getprop("/sim/glider/towing/conf/rope_characteristics") == nil ) {
+    setprop("/sim/glider/towing/conf/rope_characteristics", glob_rope_characteristics);
+    setprop("/sim/glider/towing/glob/rope_characteristics", glob_rope_characteristics);
+  }
+  else { # if defined, set global to plane specific for reset option
+    setprop("/sim/glider/towing/glob/rope_characteristics", 
+            getprop("/sim/glider/towing/conf/rope_characteristics"));
   }
   
 } # End Function globalsWinch
@@ -131,6 +158,15 @@ var resetTowing = func {
   # set breaking force for pulling to global
   setprop("/sim/glider/towing/conf/breaking_towforce_lbs", 
             getprop("/sim/glider/towing/glob/breaking_towforce_lbs"));
+  
+  # set rope length X1 to global
+  setprop("/sim/glider/towing/conf/rope_x1", 
+            getprop("/sim/glider/towing/glob/rope_x1"));
+  
+  
+  # set rope characteristics to global
+  setprop("/sim/glider/towing/conf/rope_characteristics", 
+            getprop("/sim/glider/towing/glob/rope_characteristics"));
   
 } # End Function resetWinch
 
@@ -156,7 +192,7 @@ var restorePosition = func {
 # listCandidates
 var listCandidates = func {
   
-  # first check for available multiplayer, ai-planes and drag roboter
+  # first check for available multiplayer and ai-planes 
   # if ai-objects are available 
   #   store them in an array
   #   get the glider position
@@ -228,24 +264,24 @@ var listCandidates = func {
   }
   
   # third scan for drag roboter
-  aiobjects = props.globals.getNode("ai/models").getChildren("dragger"); 
-  
-  print("found robot: ", size(aiobjects));
-  
-  if (size(aiobjects) > 0 ) {
-    foreach (var aimember; aiobjects) { 
-      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
-      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
-      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
-      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
-      distance_m = (glider.distance_to(cur)); 
-      
-      append( candidates_id, aimember.getNode("id").getValue() );
-      append( candidates_callsign, aimember.getNode("callsign").getValue() );
-      append( candidates_dst_m, distance_m );
-      append( candidates_type, "DR" );
-    }
-  }
+#  aiobjects = props.globals.getNode("ai/models").getChildren("dragger"); 
+#  
+#  print("found robot: ", size(aiobjects));
+#  
+#  if (size(aiobjects) > 0 ) {
+#    foreach (var aimember; aiobjects) { 
+#      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
+#      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
+#      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
+#      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
+#      distance_m = (glider.distance_to(cur)); 
+#      
+#      append( candidates_id, aimember.getNode("id").getValue() );
+#      append( candidates_callsign, aimember.getNode("callsign").getValue() );
+#      append( candidates_dst_m, distance_m );
+#      append( candidates_type, "DR" );
+#    }
+#  }
   
   # some kind of sorting, criteria is distance, 
   # but only if there are more than 1 candidate
@@ -404,6 +440,10 @@ var selectCandidates = func (select) {
   var aiobjects = [];
   var initpos_geo = geo.Coord.new();
   var dragpos_geo = geo.Coord.new();
+  # place behind dragger with a distance, that the tow is nearly tautened
+  var rope_length_m = getprop("/sim/glider/towing/conf/rope_length_m");
+  var tauten_relative = getprop("/sim/glider/towing/conf/rope_x1");
+  var install_distance_m = rope_length_m * (tauten_relative - 0.02);
   
   # first reset all candidate selections and then set selected
   candidates = props.globals.getNode("sim/glider/towing/list").getChildren("candidate");
@@ -435,10 +475,10 @@ var selectCandidates = func (select) {
   dragpos_geo.set_latlon(drlat, drlon, dralt);
   initpos_geo.set_latlon(drlat, drlon, dralt);
   if (drhed > 180) {
-    initpos_geo.apply_course_distance( (drhed - 180), 35 );
+    initpos_geo.apply_course_distance( (drhed - 180), install_distance_m );
   }
   else {
-    initpos_geo.apply_course_distance( (drhed + 180), 35 );
+    initpos_geo.apply_course_distance( (drhed + 180), install_distance_m );
   }
   var initelevation_m = geo.elevation( initpos_geo.lat(), initpos_geo.lon() );
   setprop("position/latitude-deg", initpos_geo.lat());
@@ -620,7 +660,6 @@ var runDragger = func {
   # do this as long as the tow is engaged at the glider
   
   # local constants describing tow properties
-  var tl0 = 0.15;                      # relative length below no forces exist
   var tf0 = 0;                         # coresponding force
   # local variables
   var forcex = 0;                      # the force in x-direction, body ref system
@@ -645,6 +684,8 @@ var runDragger = func {
   var nominaltowforce = getprop("/sim/glider/towing/conf/nominal_towforce_lbs");
   var breakingtowforce = getprop("/sim/glider/towing/conf/breaking_towforce_lbs");
   var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
+  var tl0 = getprop("/sim/glider/towing/conf/rope_x1");
+  var ropetype = getprop("/sim/glider/towing/conf/rope_characteristics");
   
   # do all the stuff
   
@@ -685,7 +726,8 @@ var runDragger = func {
       # calculate tow force by multiplying the nominal force with reldistance powered 4
       # this gives a smooth pulling for start and a high force when the tow is nearly
       # completely taut
-      forcetow = reldistance * reldistance * reldistance * reldistance * nominaltowforce;
+#      forcetow = reldistance * reldistance * reldistance * reldistance * nominaltowforce;
+      forcetow = math.pow((reldistance - tl0),ropetype) / math.pow((1-tl0),ropetype) * nominaltowforce;
     }
     
     if ( forcetow < breakingtowforce ) {
@@ -752,4 +794,4 @@ var runDragger = func {
 } # End Function runDragger
 
 var dragging = setlistener("/sim/glider/towing/hooked", runDragger); 
-var initializing_towing = setlistener("/sim/signals/fdm-initialized", globalsTowing);
+var initialize_aerotowing = setlistener("/sim/signals/fdm-initialized", globalsTowing);

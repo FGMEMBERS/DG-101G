@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-09-22
+Current 2011-09-28
 ************************************************************************
 -->
 
@@ -166,31 +166,31 @@ Current 2011-09-22
             </binding>
           </item>
           <item>
-            <label>Configure</label>
+            <label>Configure Loads</label>
             <binding>
               <command>nasal</command>
               <script>dg101g.config_dialog.open()</script>.
             </binding>
           </item>
           <item>
-            <label>Aerotowing</label>
+            <label>Winch Launch</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.dragger_list.open()</script>.
+              <script>dg101g.winch_dialog.open()</script>.
+            </binding>
+          </item>
+          <item>
+            <label>Aerotowing MP/AI</label>
+            <binding>
+              <command>nasal</command>
+              <script>dg101g.aerotowing_ai_dialog.open()</script>.
             </binding>
           </item>
           <item>
             <label>Drag Roboter</label>
             <binding>
               <command>nasal</command>
-              <script>dg101g.robot_dialog.open()</script>.
-            </binding>
-          </item>
-          <item>
-            <label>Winch</label>
-            <binding>
-              <command>nasal</command>
-              <script>dg101g.winch_dialog.open()</script>.
+              <script>dg101g.dragrobot_dialog.open()</script>.
             </binding>
           </item>
         </menu>
@@ -214,7 +214,7 @@ Current 2011-09-22
       <towing>
         <conf>
           <rope_length_m>60.0</rope_length_m>
-          <nominal_towforce_lbs>1000.0</nominal_towforce_lbs>
+          <nominal_towforce_lbs>500.0</nominal_towforce_lbs>
           <breaking_towforce_lbs>9999.0</breaking_towforce_lbs>
         </conf>
         <hooked>0</hooked>
@@ -381,13 +381,13 @@ Current 2011-09-22
 
   <nasal>
     <dg101g>
+      <file>Aircraft/DG-101G/Nasal/aerotowing.nas</file>
       <file>Aircraft/DG-101G/Nasal/dialogs.nas</file>
-      <file>Aircraft/DG-101G/Nasal/dragger.nas</file>
+      <file>Aircraft/DG-101G/Nasal/dragrobot.nas</file>
       <file>Aircraft/DG-101G/Nasal/liveries.nas</file>
       <file>Aircraft/DG-101G/Nasal/messages.nas</file>
       <file>Aircraft/DG-101G/Nasal/te-vario.nas</file>
       <file>Aircraft/DG-101G/Nasal/thermal.nas</file>
-      <file>Aircraft/DG-101G/Nasal/towing.nas</file>
       <file>Aircraft/DG-101G/Nasal/waterballast.nas</file>
       <file>Aircraft/DG-101G/Nasal/winch.nas</file>
       <!-- This binds the joystick's throttle slider to the spoilers. -->

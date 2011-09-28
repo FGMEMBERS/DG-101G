@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-09-23
+# Version: 2011-09-26
 #
 # ############################################################################################
 # Concepts:
@@ -19,7 +19,7 @@
 #    is dependent on several factors: rope speed, rope angle (glider altitude), ...
 #    Rope speed: the force is constant up to 85% of max rope speed. From 85% up to 100% of 
 #      max. rope speed the force decreases to 0%. 
-#    Rope angle: up to 45° the force does not change. From 45° up to 70° (the automatic 
+#    Rope angle: up to 70% the force does not change. From 70% up to 100% (the automatic 
 #      release angle) the force will decrease to 30%. 
 # 3. release from winch
 #    - by reaching conditions
