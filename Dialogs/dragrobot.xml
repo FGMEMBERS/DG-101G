@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-09-28 -->
+<!-- version: 2011-10-03 -->
 
 <PropertyList>
   <name>dragrobot_dialog</name>
@@ -214,6 +214,7 @@
     </empty>
     <button>
       <legend>Run</legend>
+<!--
       <binding>
         <command>nasal</command>
         <script>dg101g.findDragger()</script>
@@ -225,6 +226,11 @@
       <binding>
         <command>nasal</command>
         <script>dg101g.startDragRobot()</script>
+      </binding>
+-->
+      <binding>
+        <command>nasal</command>
+        <script>dg101g.guiRunDragRobot()</script>
       </binding>
       <binding>
         <command>dialog-close</command>

@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-09-28
+# Version: 2011-10-03
 #
 
 # ############################################################################################
@@ -189,6 +189,15 @@ var guiUpdateDragRobot = func {
     }
     setprop("sim/glider/gui/dragrobot/max_speed_tauten", max_speed_tauten);
     
+}
+
+
+# ############################################################################################
+# drag-robot dialog: helper function to run the roboter, avoiding race conditions
+var guiRunDragRobot = func {
+    dg101g.findDragger();
+    dg101g.hookDragger();
+    dg101g.startDragRobot();
 }
 
 var guidragrobotinit = setlistener("sim/sginals/fdm-initialized", 
