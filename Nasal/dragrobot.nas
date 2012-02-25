@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-09-28
+# Version: 2011-10-17
 #
 # ############################################################################################
 # Concepts:
@@ -315,7 +315,12 @@ var getFreeAIID = func {
       } 
     }
   }
-  return(aiid);
+  
+# dirty bug-fix for double-used IDs, assign a most probably never reached ID (9999)
+# hopefully this will change in the future with correct ID assignment as the 
+# AI-system does, needs access to flightgear core functions
+#  return(aiid);
+  return(9999);
 }
 
 
@@ -546,7 +551,6 @@ var leg0DragRobot = func {
                           getprop("ai/models/dragger/position/altitude-ft") * FT2M);
   
   headwind_mps = aircraft.wind_speed_from(oldheading_deg) * KT2MPS;
-  
   
   
   # update properties like speed and position

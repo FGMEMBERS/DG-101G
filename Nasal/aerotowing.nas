@@ -4,7 +4,7 @@
 #
 # ############################################################################################
 # Author: Klaus Kerner
-# Version: 2011-09-28
+# Version: 2011-10-17
 #
 # ############################################################################################
 # Concepts:
@@ -723,10 +723,6 @@ var runDragger = func {
       forcetow = tf0;
     }
     else {
-      # calculate tow force by multiplying the nominal force with reldistance powered 4
-      # this gives a smooth pulling for start and a high force when the tow is nearly
-      # completely taut
-#      forcetow = reldistance * reldistance * reldistance * reldistance * nominaltowforce;
       forcetow = math.pow((reldistance - tl0),ropetype) / math.pow((1-tl0),ropetype) * nominaltowforce;
     }
     
@@ -785,11 +781,12 @@ var runDragger = func {
     }
     else {
       releaseDragger();
+      atc_msg("TOWFORCE EXCEEDED");
     }
+    
+    settimer(runDragger, towing_timeincrement);
+    
   }
-  
-  settimer(runDragger, towing_timeincrement);
-  
   
 } # End Function runDragger
 
