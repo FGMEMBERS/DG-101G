@@ -1,24 +1,23 @@
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
+# ####################################################################################
 # Nasal script to handle drag robot, in case there is no other dragger
 #
-# ############################################################################################
+# ####################################################################################
 # Author:  Klaus Kerner
-# Version: 2011-10-17
+# Version: 2012-03-08
 #
-# ############################################################################################
+# ####################################################################################
 # Concepts:
 # 1. search for allready existing dragger in the property tree                  done
 # 2. if an dragger does not exist, create a new one                             done
 # 3. place dragger in front of glider                                           done
-# 4. run the dragger up into the sky                                            mostly done
-# 5. after releasing tow reset the dragger                                      mostly done
+# 4. run the dragger up into the sky                                       mostly done
+# 5. after releasing tow reset the dragger                                 mostly done
 # 6. allow redefining presets                                                   done
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # ## new properties in the property tree
 # ai/models/dragger
 # ai/models/dragger/id
@@ -37,29 +36,29 @@
 # models/model[id_model]/latitude-deg-prop
 # models/model[id_model]/elevation-ft-prop
 # models/model[id_model]/heading-deg-prop
-# sim/glider/dragger/flags/exist                        flag for existence of robot
-# sim/glider/dragger/flags/run                          flag for triggering operation
+# sim/glider/dragger/flags/exist                flag for existence of robot
+# sim/glider/dragger/flags/run                  flag for triggering operation
 # sim/glider/dragger/robot/id_AI
 # sim/glider/dragger/robot/id_model
-# sim/glider/dragger/robot/wp0lat_deg                   wp0 reference point for different legs
+# sim/glider/dragger/robot/wp0lat_deg           wp0 reference point for different legs
 # sim/glider/dragger/robot/wp0lon_deg
 # sim/glider/dragger/robot/wp0alt_m
 # sim/glider/dragger/robot/wp0head_deg
-# sim/glider/dragger/robot/exit_height_m                exit height for stopping robot
-# sim/glider/dragger/robot/anchorlat_deg                anchor for checking leg position
+# sim/glider/dragger/robot/exit_height_m        exit height for stopping robot
+# sim/glider/dragger/robot/anchorlat_deg        anchor for checking leg position
 # sim/glider/dragger/robot/anchorlon_deg
 # sim/glider/dragger/robot/anchoralt_m
-# sim/glider/dragger/robot/leg_type                     storing type of leg, 0 start, 
-#                                                                            1 turn, 
-#                                                                            2 straight
-#                                                                            3 end 
-# sim/glider/dragger/robot/leg_distance_m               target distance in straight leg
-# sim/glider/dragger/robot/leg_angle_deg                target turn angle in turn leg
-# sim/glider/dragger/robot/turnside                     1: right turn, 0: left turn
-# sim/glider/dragger/robot/leg_segment                  storing segment of leg0, 
+# sim/glider/dragger/robot/leg_type             storing type of leg, 0 start, 
+#                                                                    1 turn, 
+#                                                                    2 straight
+#                                                                    3 end 
+# sim/glider/dragger/robot/leg_distance_m       target distance in straight leg
+# sim/glider/dragger/robot/leg_angle_deg        target turn angle in turn leg
+# sim/glider/dragger/robot/turnside             1: right turn, 0: left turn
+# sim/glider/dragger/robot/leg_segment          storing segment of leg0, 
 #                                                                    0 tauten, 
 #                                                                    1 acceleration
-#                                                       storing segment of leg1
+#                                               storing segment of leg1
 #                                                                    2 roll in 
 #                                                                    3 keep roll angle
 #                                                                    4 roll out
@@ -95,28 +94,30 @@
 
 
 
-# ############################################################################################
+# ####################################################################################
 # global variables:
 var dragrobot_timeincrement_s = 0;                     # timer increment
 
 
 
-# ############################################################################################
-# set drag roboter parameters to global values, if not properly defined by plane setup-file
+# ####################################################################################
+# set drag roboter parameters to global values, if not properly defined by plane 
+# setup-file
 # store global values or plane-specific values to prepare for reset option
-var initDragRobot = func {
-  # constants for describing dragger key properties, if not defined by plane setup-file
-  var glob_min_speed_takeoff_mps  = 20;       # minimum speed for take-off of drag-robot
-  var glob_max_speed_mps          = 36;       # maximum speed of drag-robot
-  var glob_max_speed_lift_mps     = 3;        # maximum lift speed of drag-robot
-  var glob_max_speed_tauten_mps   = 3;        # maximum speed to tauten the rope
-  var glob_min_acceleration_mpss  = 0.5;      # minimum acceleration
-  var glob_max_acceleration_mpss  = 3;        # maximum acceleration
-  var glob_max_roll_deg           = 20;       # maximum roll angle
-  var glob_max_rollrate_degs      = 5;        # maximum roll rate per second
-  var glob_max_turnrate_degs      = 3;        # maximum turn rate per second at max roll angle
-  var glob_max_lift_height_m      = 800;      # maximum lifht height over start point
-  var glob_max_tautendist_m       = 50;       # maximum distance for tauten the rope
+var initRobotAttributes = func {
+  # constants for describing dragger attributes, if not defined by plane setup-file
+  var glob_min_speed_takeoff_mps  = 20;       # min. speed for take-off of drag-robot
+  var glob_max_speed_mps          = 36;       # max. speed of drag-robot
+  var glob_max_speed_lift_mps     = 3;        # max. lift speed of drag-robot
+  var glob_max_speed_tauten_mps   = 3;        # max. speed to tauten the rope
+  var glob_min_acceleration_mpss  = 0.5;      # min. acceleration
+  var glob_max_acceleration_mpss  = 3;        # max. acceleration
+  var glob_max_roll_deg           = 20;       # max. roll angle
+  var glob_max_rollrate_degs      = 5;        # max. roll rate per second
+  var glob_max_turnrate_degs      = 3;        # max. turn rate per second 
+                                                # at max roll angle
+  var glob_max_lift_height_m      = 800;      # max. lifht height over start point
+  var glob_max_tautendist_m       = 50;       # max. distance for tauten the rope
   
   if ( getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps") == nil ) {
     setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
@@ -242,9 +243,9 @@ var initDragRobot = func {
 
 
 
-# ############################################################################################
+# ####################################################################################
 # re-initialize presets
-var resetRobot = func {
+var resetRobotAttributes = func {
   # reading all global variables in case they has been changed in the property tree
   setprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
     getprop("sim/glider/dragger/glob/glob_min_speed_takeoff_mps"));
@@ -272,8 +273,7 @@ var resetRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # check for allready available dragger
 var checkDragger = func {
   
@@ -296,8 +296,7 @@ var checkDragger = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # get the next free id of ai/models members
 var getFreeAIID = func {
   
@@ -325,8 +324,7 @@ var getFreeAIID = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # get the next free id of models/model members
 var getFreeModelID = func {
   
@@ -334,7 +332,7 @@ var getFreeModelID = func {
   var modelid = 0;                                 # for the next unsused id
   var modelobjects = {};                           # vector to keep all model objects
   
-  modelobjects = props.globals.getNode("models", 1).getChildren();  # store model objects
+  modelobjects = props.globals.getNode("models", 1).getChildren(); # get model objects
   foreach ( var member; modelobjects ) { 
     # get data from member
     if ( (var c = member.getNode("id")) != nil) {
@@ -349,8 +347,7 @@ var getFreeModelID = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # create the drag robot in the ai property tree
 var createDragRobot = func {
   # place drag roboter with a distance, that the tow is nearly tautened
@@ -359,12 +356,12 @@ var createDragRobot = func {
   var install_distance_m = rope_length_m * (tauten_relative - 0.02);
   
   # local variables
-  var ac_pos = geo.aircraft_position();                      # get position of aircraft
-  var ac_hd  = getprop("orientation/heading-deg");           # get heading of aircraft
+  var ac_pos = geo.aircraft_position();                   # get position of aircraft
+  var ac_hd  = getprop("orientation/heading-deg");        # get heading of aircraft
   var dip    = ac_pos.apply_course_distance( ac_hd , install_distance_m );   
-                                                             # initial dragger position, 
-                                                               # close to tauten-distance
-  var dipalt_m = geo.elevation(dip.lat(), dip.lon());        # height at dragger position
+                                                          # initial dragger position, 
+                                                            # close to tauten-distance
+  var dipalt_m = geo.elevation(dip.lat(), dip.lon());     # height at dragger position
   var glob_max_lift_height_m     = 
     getprop("sim/glider/dragger/conf/glob_max_lift_height_m");
   
@@ -425,17 +422,17 @@ var createDragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # main function to initialize the drag roboter
+# used by key "D" or gui
 var setupDragRobot = func {
   
   # look for allready existing ai object with callsign "dragger"
   var existingdragid = checkDragger();
-  if ( existingdragid > -1 ) {                       # dragger allready exists, we can exit
+  if ( existingdragid > -1 ) {               # dragger allready exists, we can exit
     atc_msg(" existing dragger id: ", existingdragid);
   }
-  else {                                             # dragger does not exist, we have to work
+  else {                                     # dragger does not exist, we have to work
     # create a new ai object with callsign "dragger"
     # set initial position 
     createDragRobot();
@@ -445,9 +442,9 @@ var setupDragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # dummy function to delete the drag roboter
+# used by gui and dragrobot.nas functions
 var removeDragRobot = func {
   
   # look for allready existing ai object with callsign "dragger"
@@ -467,7 +464,7 @@ var removeDragRobot = func {
   # local variables
   var modelsNode = {};
   
-  if ( getprop("/sim/glider/dragger/flags/exist") == 1 ) {         # does the dragger exist?
+  if ( getprop("/sim/glider/dragger/flags/exist") == 1 ) {   # does the dragger exist?
     # remove 3d model from scenery
     # identification is /models/model[x] with x=id_model
     var id_model = getprop("sim/glider/dragger/robot/id_model");
@@ -478,7 +475,7 @@ var removeDragRobot = func {
     atc_msg("dragger removed");
     setprop("/sim/glider/dragger/flags/exist", 0);
   }
-  else {                                                         # do nothing
+  else {                                                     # do nothing
     atc_msg("dragger does not exist");
   }
   
@@ -486,12 +483,11 @@ var removeDragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # run the drag robot for start leg
 var leg0DragRobot = func {
   
-  # ##########################################################################################
+  # ##################################################################################
   # Strategy:
   # set flag for start
   # tauten the rope
@@ -599,7 +595,7 @@ var leg0DragRobot = func {
     setprop("sim/glider/dragger/robot/anchorlon_deg", dragpos_geo.lon());
     setprop("sim/glider/dragger/robot/anchoralt_m", dragpos_geo.alt());
     # set flags for next leg
-    setprop("sim/glider/dragger/robot/leg_type", 2);          # next one is straight forward
+    setprop("sim/glider/dragger/robot/leg_type", 2);    # next one is straight forward
     # set next exit criteria for straight leg, 200m ... 400m 
     leg_distance_m = 200 + rand() * 200;
     setprop("sim/glider/dragger/robot/leg_distance_m", leg_distance_m ); 
@@ -610,12 +606,11 @@ var leg0DragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # run the drag robot for turns
 var leg1DragRobot = func {
-  # turns are described by the turn angle, so the delta angle from heading at initial position
-  # to heading from current position is the criteria for exit
+  # turns are described by the turn angle, so the delta angle from heading at initial 
+  # position to heading from current position is the criteria for exit
   
   
   var initpos_geo = geo.Coord.new();
@@ -706,7 +701,7 @@ var leg1DragRobot = func {
         # calculate new roll angle
         newroll_deg = oldroll_deg - deltatime_s * glob_max_rollrate_degs;
       }
-      else {                                                              # also exit criteria
+      else {                                                      # also exit criteria
         newroll_deg = 0;
         # set anchor point
         setprop("sim/glider/dragger/robot/anchorlat_deg", dragpos_geo.lat());
@@ -715,7 +710,7 @@ var leg1DragRobot = func {
         # set next leg
         setprop("sim/glider/dragger/robot/leg_segment", 2);
         setprop("sim/glider/dragger/robot/leg_type", 2);
-        var length_m = 100;                                            # first turn after 100m
+        var length_m = 100;                                    # first turn after 100m
         setprop("sim/glider/dragger/robot/leg_distance_m", length_m); 
         dragger_msg("straight leg");
         dragger_msg( length_m, "m");
@@ -751,7 +746,7 @@ var leg1DragRobot = func {
         # calculate new roll angle
         newroll_deg = oldroll_deg + deltatime_s * glob_max_rollrate_degs;
       }
-      else {                                                              # also exit criteria
+      else {                                                      # also exit criteria
         newroll_deg = 0;
         # set anchor point
         setprop("sim/glider/dragger/robot/anchorlat_deg", dragpos_geo.lat());
@@ -760,7 +755,7 @@ var leg1DragRobot = func {
         # set next leg
         setprop("sim/glider/dragger/robot/leg_segment", 2);
         setprop("sim/glider/dragger/robot/leg_type", 2);
-        var length_m = 100;                                            # first turn after 100m
+        var length_m = 100;                                    # first turn after 100m
         setprop("sim/glider/dragger/robot/leg_distance_m", length_m); 
         dragger_msg("straight leg");
         dragger_msg( length_m, "m");
@@ -788,11 +783,11 @@ var leg1DragRobot = func {
   newturn_deg = glob_max_turnrate_degs * newroll_deg / glob_max_roll_deg * deltatime_s;
   
   # calculate new heading based on turn rate
-  if ( (oldheading_deg + newturn_deg) > 360 ) { # if a rightturn exceeds 360 degree heading
+  if ( (oldheading_deg + newturn_deg) > 360 ) { # if a rightturn exceeds 360 heading
     newheading_deg = oldheading_deg + newturn_deg - 360;
   }
   else {
-    if ( (oldheading_deg + newturn_deg) < 0 ) { # if a leftturn exceeds 0 degree heading
+    if ( (oldheading_deg + newturn_deg) < 0 ) { # if a leftturn exceeds 0 heading
       newheading_deg = oldheading_deg + newturn_deg +360;
     }
     else { # for all other headings
@@ -819,12 +814,11 @@ var leg1DragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # run the drag robot for straight legs
 var leg2DragRobot = func {
-  # straight legs are described by the length, so the delta distance from initial position
-  # to current position is the criteria for exit
+  # straight legs are described by the length, so the delta distance from initial 
+  # position to current position is the criteria for exit
   
   
   
@@ -905,7 +899,7 @@ var leg2DragRobot = func {
   
   # exit criteria to next turn
   if ( dragpos_geo.direct_distance_to(initpos_geo) > leg_distance_m ) { 
-    var turn_deg = 30 + rand() * 240;                            # turn range from 30° to 270°
+    var turn_deg = 30 + rand() * 240;                    # turn range from 30° to 270°
     if ( (oldheading_deg + turn_deg) >= 360) {
       leg_angle_deg = oldheading_deg + turn_deg - 360;
     }
@@ -938,14 +932,13 @@ var leg2DragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # run the drag robot for final leg
 var leg3DragRobot = func {
   
   dragger_msg(" turn right, I turn left" );
   # unhook from dragger
-  releaseDragger();                                                 # function from towing.nas
+  releaseDragger();                                         # function from towing.nas
   
   
   # stop loop for updating roboter
@@ -973,9 +966,9 @@ var leg3DragRobot = func {
 
 
 
-
-# ############################################################################################
+# ####################################################################################
 # function to switch the drag roboter on or off running
+# used by key "d" and gui
 var startDragRobot = func {
   if ( getprop("sim/glider/dragger/flags/run" ) == 1) {
     setprop("sim/glider/dragger/flags/run", 0);
@@ -989,9 +982,7 @@ var startDragRobot = func {
 
 
 
-
-
-# ############################################################################################
+# ####################################################################################
 # triggered function to run the drag roboter
 var runDragRobot = func {
   if ( getprop("sim/glider/dragger/flags/run" ) == 1) {
@@ -1019,5 +1010,8 @@ var runDragRobot = func {
   }
 }
 
-var pulling = setlistener("/sim/glider/dragger/flags/run", runDragRobot);
-var initializing_dragrobot = setlistener("/sim/signals/fdm-initialized", initDragRobot);
+
+
+# ####################################################################################
+var pulling = setlistener("sim/glider/dragger/flags/run", runDragRobot);
+var initializing_dragrobot = setlistener("sim/signals/fdm-initialized", initRobotAttributes);

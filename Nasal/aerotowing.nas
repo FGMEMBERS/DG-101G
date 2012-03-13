@@ -1,81 +1,94 @@
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
+# ####################################################################################
 # Nasal script to handle aerotowing, with AI-dragger
 #
-# ############################################################################################
+# ####################################################################################
 # Author: Klaus Kerner
-# Version: 2011-10-17
+# Version: 2012-03-08
 #
-# ############################################################################################
+# ####################################################################################
 # Concepts:
 # 1. search for allready existing dragger in the property tree
-# 2. if an existing dragger is too far away or no dragger is available create a new one
+# 2. if an existing dragger is too far away or no dragger exists: create a new one
 # 3. hook in to the dragger, that is close to the glider
 # 4. lift up into the air
 # 5. finish towing
 
+# ## properties tree setup
+# to handle the aerotowing functionality following setup of the properties tree
+# has been used
+# /sim/glider/towing                         base node
+# /sim/glider/towing/glob                    node, keeping all global configuration
+#                                             attributes (default values)
+# /sim/glider/towing/conf                    node, keeping all current configuration
+#                                             attributes (currently in use)
+# /sim/glider/towing/list                    node, keeping all possible candidates for
+#                                             aerotowing, mainly used by gui
 
 # existing properties from ai branch, to handle the dragger (or the drag-robot)
-# /ai/models/xyz[x]                                           the dragger that lifts me up
-#  ./id                                                       the id of the ai-model
-#  ./callsign                                                 the callsign of the dragger
-#  ./position/latitude-deg                                    latitude of dragger
-#  ./position/longitude-deg                                   longitude of dragger
-#  ./position/altitude-ft                                     height of dragger
-#  ./orientation/true-heading-deg                             heading
-#  ./orientation/pitch-deg                                    pitch
-#  ./orientation/roll-deg                                     roll
-#  ./velocities/true-airspeed-kt                              speed
+# /ai/models/xyz[x]                                       the dragger that lifts me up
+#  ./id                                                   the id of the ai-model
+#  ./callsign                                             the callsign of the dragger
+#  ./position/latitude-deg                                latitude of dragger
+#  ./position/longitude-deg                               longitude of dragger
+#  ./position/altitude-ft                                 height of dragger
+#  ./orientation/true-heading-deg                         heading
+#  ./orientation/pitch-deg                                pitch
+#  ./orientation/roll-deg                                 roll
+#  ./velocities/true-airspeed-kt                          speed
 #
 # ## existing properties to get glider orientation
 # /orientation/heading-deg
 # /orientation/pitch-deg
 # /orientation/roll-deg
 
-# ## existing proterties from jsbsim config file, that are used to handle the towing forces
-# /fdm/jsbsim/fcs/dragger-cmd-norm                            created by jsbsim config file
-#                                                               1: dragger engaged
-#                                                               0: drager not engaged
-# /fdm/jsbsim/external_reactions/dragx/magnitude              created by jsbsim config file
-# /fdm/jsbsim/external_reactions/dragy/magnitude              created by jsbsim config file
-# /fdm/jsbsim/external_reactions/dragz/magnitude              created by jsbsim config file
+# ## existing proterties from jsbsim config file, that are used to handle 
+#     the towing forces
+# /fdm/jsbsim/fcs/dragger-cmd-norm                       created by jsbsim config file
+#                                                          1: dragger engaged
+#                                                          0: drager not engaged
+# /fdm/jsbsim/external_reactions/dragx/magnitude         created by jsbsim config file
+# /fdm/jsbsim/external_reactions/dragy/magnitude         created by jsbsim config file
+# /fdm/jsbsim/external_reactions/dragz/magnitude         created by jsbsim config file
 
-# new properties to handle the dragger
-# /sim/glider/towing/conf/rope_length_m         length of rope, set by config file or default
-# /sim/glider/towing/conf/nominal_towforce_lbs    nominal force at nominal distance
-# /sim/glider/towing/conf/breaking_towforce_lbs   max. force of tow
-# /sim/glider/towing/conf/rope_x1             describes relative starting point for force
-# /sim/glider/towing/conf/rope_characteristics   describes force/elongation ratio of rope
-# /sim/glider/towing/glob/rope_length_m         length of rope, set by config file or default
-# /sim/glider/towing/glob/nominal_towforce_lbs    nominal force at nominal distance
-# /sim/glider/towing/glob/breaking_towforce_lbs   max. force of tow
-# /sim/glider/towing/conf/rope_x1             describes relative starting point for force
-# /sim/glider/towing/glob/rope_characteristics   describes force/elongation ratio of rope
+# ## new properties to handle the dragger
+# /sim/glider/towing/conf/...                     property tree current configuration
+# /sim/glider/towing/glob/...                     property tree generic configuration
+# .../rope_length_m                                length of rope, 
+#                                                    set by config file or default
+# .../nominal_towforce_lbs                         nominal force at nominal distance
+# .../breaking_towforce_lbs                        max. force of tow
+# .../rope_x1                                      describes relative starting point
+#                                                    for force
+# .../rope_characteristics                         describes force/elongation ratio
+#                                                    of rope
 
-# /sim/glider/towing/dragid                  the ID of /ai/models/xyz[x]/id
-# /sim/glider/towing/hooked                 flag to control engaged tow
-#                                              1: rope hooked in
-#                                              0: rope not hooked in
-# /sim/glider/towing/list/candidate[x]        keeps possible draggers
-# /sim/glider/towing/list/candidate[x]/type        MP=multiplayer, AI=ai-plane, DR=drag roboter
-# /sim/glider/towing/list/candidate[x]/id          the id from /ai/models/xyz[x]/id
-# /sim/glider/towing/list/candidate[x]/callsign    the according callsign
-# /sim/glider/towing/list/candidate[x]/distance    the distance to the glider
-# /sim/glider/towing/list/candidate[x]/selected    boolean for choosen candidate
+# /sim/glider/towing/dragid                       the ID of /ai/models/xyz[x]/id
+# /sim/glider/towing/hooked                       flag to control engaged tow
+#                                                   1: rope hooked in
+#                                                   0: rope not hooked in
+# /sim/glider/towing/list/candidate[x]            keeps possible draggers
+# /sim/glider/towing/list/candidate[x]/type       keeps type of dragger
+#                                                   MP=multiplayer, 
+#                                                   AI=ai-plane, 
+#                                                   DR=drag roboter
+# /sim/glider/towing/list/candidate[x]/id         the id from /ai/models/xyz[x]/id
+# /sim/glider/towing/list/candidate[x]/callsign   the according callsign
+# /sim/glider/towing/list/candidate[x]/distance   the distance to the glider
+# /sim/glider/towing/list/candidate[x]/selected   boolean for choosen candidate
 
 
 
 
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # global variables in this module
 var towing_timeincrement = 0;                        # timer increment
 
 
 
-# ############################################################################################
-# ############################################################################################
-# set aerotowing parameters to global values, if not properly defined by plane setup-file
+# ####################################################################################
+# set aerotowing parameters to global values, if not properly defined by plane 
+#   setup-file
 # store global values or plane-specific values to prepare for reset option
 var globalsTowing = func {
   var glob_rope_length_m = 60;
@@ -85,111 +98,105 @@ var globalsTowing = func {
   var glob_rope_characteristics = 2;
   
   # set rope length X2, if not defined from "plane"-set.xml 
-  if ( getprop("/sim/glider/towing/conf/rope_length_m") == nil ) {
-    atc_msg("rope length not defined by plane");
-    atc_msg(" use default setting of ", glob_rope_length_m, "m");
-    setprop("/sim/glider/towing/conf/rope_initial_length_m", glob_rope_length_m);
-    setprop("/sim/glider/towing/glob/rope_initial_length_m", glob_rope_length_m);
+  if ( getprop("sim/glider/towing/conf/rope_length_m") == nil ) {
+    setprop("sim/glider/towing/conf/rope_initial_length_m", glob_rope_length_m);
+    setprop("sim/glider/towing/glob/rope_initial_length_m", glob_rope_length_m);
   }
   else { # if defined, set global to plane specific for reset option
-    setprop("/sim/glider/towing/glob/rope_length_m", 
-            getprop("/sim/glider/towing/conf/rope_length_m"));
+    setprop("sim/glider/towing/glob/rope_length_m", 
+            getprop("sim/glider/towing/conf/rope_length_m"));
   }
   
   # set nominal force for pulling F2, if not defined from "plane"-set.xml
-  if ( getprop("/sim/glider/towing/conf/nominal_towforce_lbs") == nil ) {
-    atc_msg("nominal tow force not defined by plane");
-    atc_msg(" use default setting of ", glob_nominal_towforce_lbs, "lbs");
-    setprop("/sim/glider/towing/conf/nominal_towforce_lbs", glob_nominal_towforce_lbs);
-    setprop("/sim/glider/towing/glob/nominal_towforce_lbs", glob_nominal_towforce_lbs);
+  if ( getprop("sim/glider/towing/conf/nominal_towforce_lbs") == nil ) {
+    setprop("sim/glider/towing/conf/nominal_towforce_lbs", glob_nominal_towforce_lbs);
+    setprop("sim/glider/towing/glob/nominal_towforce_lbs", glob_nominal_towforce_lbs);
   }
   else { # if defined, set global to plane specific for reset option
-    setprop("/sim/glider/towing/glob/nominal_towforce_lbs", 
-            getprop("/sim/glider/towing/conf/nominal_towforce_lbs"));
+    setprop("sim/glider/towing/glob/nominal_towforce_lbs", 
+            getprop("sim/glider/towing/conf/nominal_towforce_lbs"));
   }
   
   # set breaking force for pulling Fmax, if not defined from "plane"-set.xml
-  if ( getprop("/sim/glider/towing/conf/breaking_towforce_lbs") == nil ) {
-    atc_msg("breaking tow force not defined by plane");
-    atc_msg(" use default setting of ", glob_breaking_towforce_lbs, "lbs");
-    setprop("/sim/glider/towing/conf/breaking_towforce_lbs", glob_breaking_towforce_lbs);
-    setprop("/sim/glider/towing/glob/breaking_towforce_lbs", glob_breaking_towforce_lbs);
+  if ( getprop("sim/glider/towing/conf/breaking_towforce_lbs") == nil ) {
+    setprop("sim/glider/towing/conf/breaking_towforce_lbs", glob_breaking_towforce_lbs);
+    setprop("sim/glider/towing/glob/breaking_towforce_lbs", glob_breaking_towforce_lbs);
   }
   else { # if defined, set global to plane specific for reset option
-    setprop("/sim/glider/towing/glob/breaking_towforce_lbs", 
-            getprop("/sim/glider/towing/conf/breaking_towforce_lbs"));
+    setprop("sim/glider/towing/glob/breaking_towforce_lbs", 
+            getprop("sim/glider/towing/conf/breaking_towforce_lbs"));
   }
   
   # set relative rope length X1, if not defined from "plane"-set.xml 
-  if ( getprop("/sim/glider/towing/conf/rope_x1") == nil ) {
-    setprop("/sim/glider/towing/conf/rope_x1", glob_rope_x1);
-    setprop("/sim/glider/towing/glob/rope_x1", glob_rope_x1);
+  if ( getprop("sim/glider/towing/conf/rope_x1") == nil ) {
+    setprop("sim/glider/towing/conf/rope_x1", glob_rope_x1);
+    setprop("sim/glider/towing/glob/rope_x1", glob_rope_x1);
   }
   else { # if defined, set global to plane specific for reset option
-    setprop("/sim/glider/towing/glob/rope_x1", 
-            getprop("/sim/glider/towing/conf/rope_x1"));
+    setprop("sim/glider/towing/glob/rope_x1", 
+            getprop("sim/glider/towing/conf/rope_x1"));
   }
   
   # set relative rope characteristics, if not defined from "plane"-set.xml 
-  if ( getprop("/sim/glider/towing/conf/rope_characteristics") == nil ) {
-    setprop("/sim/glider/towing/conf/rope_characteristics", glob_rope_characteristics);
-    setprop("/sim/glider/towing/glob/rope_characteristics", glob_rope_characteristics);
+  if ( getprop("sim/glider/towing/conf/rope_characteristics") == nil ) {
+    setprop("sim/glider/towing/conf/rope_characteristics", glob_rope_characteristics);
+    setprop("sim/glider/towing/glob/rope_characteristics", glob_rope_characteristics);
   }
   else { # if defined, set global to plane specific for reset option
-    setprop("/sim/glider/towing/glob/rope_characteristics", 
-            getprop("/sim/glider/towing/conf/rope_characteristics"));
+    setprop("sim/glider/towing/glob/rope_characteristics", 
+            getprop("sim/glider/towing/conf/rope_characteristics"));
   }
   
-} # End Function globalsWinch
+} # End Function globalsTowing
 
 
-# ############################################################################################
-# ############################################################################################
+
+# ####################################################################################
 # reset aerotowing parameters to global values
 var resetTowing = func {
   # set rope length to global
-  setprop("/sim/glider/towing/conf/rope_length_m", 
-            getprop("/sim/glider/towing/glob/rope_length_m"));
+  setprop("sim/glider/towing/conf/rope_length_m", 
+            getprop("sim/glider/towing/glob/rope_length_m"));
   
   # set nominal force for pulling to global
-  setprop("/sim/glider/towing/conf/nominal_towforce_lbs", 
-            getprop("/sim/glider/towing/glob/nominal_towforce_lbs"));
+  setprop("sim/glider/towing/conf/nominal_towforce_lbs", 
+            getprop("sim/glider/towing/glob/nominal_towforce_lbs"));
   
   # set breaking force for pulling to global
-  setprop("/sim/glider/towing/conf/breaking_towforce_lbs", 
-            getprop("/sim/glider/towing/glob/breaking_towforce_lbs"));
+  setprop("sim/glider/towing/conf/breaking_towforce_lbs", 
+            getprop("sim/glider/towing/glob/breaking_towforce_lbs"));
   
   # set rope length X1 to global
-  setprop("/sim/glider/towing/conf/rope_x1", 
-            getprop("/sim/glider/towing/glob/rope_x1"));
+  setprop("sim/glider/towing/conf/rope_x1", 
+            getprop("sim/glider/towing/glob/rope_x1"));
   
   
   # set rope characteristics to global
-  setprop("/sim/glider/towing/conf/rope_characteristics", 
-            getprop("/sim/glider/towing/glob/rope_characteristics"));
+  setprop("sim/glider/towing/conf/rope_characteristics", 
+            getprop("sim/glider/towing/glob/rope_characteristics"));
   
-} # End Function resetWinch
+} # End Function resetTowing
 
 
 
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # restore position to location before towing dialog
+# used by gui, when aborting selection of dragger
 var restorePosition = func {
-  # set rope length to global
+  # reset to temporarily stored initial position (before calling gui)
   setprop("position/latitude-deg", getprop("sim/glider/towing/list/init_lat_deg"));
   setprop("position/longitude-deg", getprop("sim/glider/towing/list/init_lon_deg"));
   setprop("position/altitude-ft", getprop("sim/glider/towing/list/init_alt_ft"));
   setprop("orientation/heading-deg", getprop("sim/glider/towing/list/init_head_deg"));
   setprop("orientation/pitch-deg", 0);
   setprop("orientation/roll-deg", 0);
-} # End Function resetWinch
+} # End Function restorePosition
 
 
 
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # listCandidates
+# used by gui, for setting up an selection list of possible candidates
 var listCandidates = func {
   
   # first check for available multiplayer and ai-planes 
@@ -204,21 +211,24 @@ var listCandidates = func {
   #       print details to the console
   
   # local variables
-  var aiobjects = [];                            # keeps the ai-objects from the property tree
+  var aiobjects = [];                            # keeps the ai-objects from the 
+                                                 #   property tree
   var candidates_id = [];                        # keeps all found candidates
   var candidates_dst_m = [];                     # keeps the distance to the glider
   var candidates_callsign = [];                  # keeps the callsigns
-  var candidates_type = [];                      # keeps the type of candidate MP, AI, DR
+  var candidates_type = [];                      # keeps the type of candidate
   var dragid = 0;                                # id of dragger
   var callsign = 0;                              # callsign of dragger
   var cur = geo.Coord.new();                     # current processed ai-object
-  var lat_deg = 0;                               # latitude of current processed aiobject
-  var lon_deg = 0;                               # longitude of current processed aiobject
-  var alt_m = 0;                                 # altitude of current processed aiobject
+                                                 # from the current aiobject
+  var lat_deg = 0;                               #   latitude
+  var lon_deg = 0;                               #   longitude
+  var alt_m = 0;                                 #   altitude
   var glider = geo.Coord.new();                  # coordinates of glider
   var distance_m = 0;                            # distance to ai-plane
   var counter = 0;                               # temporary counter
-  var listbasis = "/sim/glider/towing/list/";    # string keeping basis of drag candidates list
+  var listbasis = "/sim/glider/towing/list/";    # string keeping basis of drag 
+                                                 #   candidates list
   
   
   glider = geo.aircraft_position(); 
@@ -263,25 +273,6 @@ var listCandidates = func {
     }
   }
   
-  # third scan for drag roboter
-#  aiobjects = props.globals.getNode("ai/models").getChildren("dragger"); 
-#  
-#  print("found robot: ", size(aiobjects));
-#  
-#  if (size(aiobjects) > 0 ) {
-#    foreach (var aimember; aiobjects) { 
-#      lat_deg = aimember.getNode("position/latitude-deg").getValue(); 
-#      lon_deg = aimember.getNode("position/longitude-deg").getValue(); 
-#      alt_m = aimember.getNode("position/altitude-ft").getValue() * FT2M; 
-#      cur = geo.Coord.set_latlon( lat_deg, lon_deg, alt_m );
-#      distance_m = (glider.distance_to(cur)); 
-#      
-#      append( candidates_id, aimember.getNode("id").getValue() );
-#      append( candidates_callsign, aimember.getNode("callsign").getValue() );
-#      append( candidates_dst_m, distance_m );
-#      append( candidates_type, "DR" );
-#    }
-#  }
   
   # some kind of sorting, criteria is distance, 
   # but only if there are more than 1 candidate
@@ -417,7 +408,8 @@ var listCandidates = func {
       }
     }
   }
-  # and write the initial position of the glider to the property tree for cancel posibility
+  # and write the initial position of the glider to the property tree for 
+  # cancel possibility
   setprop("sim/glider/towing/list/init_lat_deg", 
            getprop("position/latitude-deg"));
   setprop("sim/glider/towing/list/init_lon_deg", 
@@ -431,10 +423,9 @@ var listCandidates = func {
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # selectCandidates
+# used by gui, for selection of dragger and putting the glider behind dragger
 var selectCandidates = func (select) {
   var candidates = [];
   var aiobjects = [];
@@ -485,77 +476,58 @@ var selectCandidates = func (select) {
   setprop("position/longitude-deg", initpos_geo.lon());
   setprop("position/altitude-ft", initelevation_m * M2FT);
   setprop("orientation/heading-deg", drhed);
-  setprop("/orientation/roll-deg", 0);
+  setprop("orientation/roll-deg", 0);
   
 } # End Function selectCandidates
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # clearredoutCandidates
+# used by gui to clear red-out
+# sometimes it happens, that the glider drops off a dragger, if a huge dragger has
+# been selected. in that case you can get a red-out. and this function allows to 
+# clear this.
 var clearredoutCandidates = func {
   # remove redout blackout caused by selectCandidates()
-  setprop("/sim/rendering/redout/enabled", "false");
-  setprop("/sim/rendering/redout/alpha",0);
+  setprop("sim/rendering/redout/enabled", "false");
+  setprop("sim/rendering/redout/alpha",0);
   
 } # End Function clearredoutCandidates
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # removeCandidates
+# used by gui to remove list of candidates, after selecting or aborting
 var removeCandidates = func {
   # and finally remove the list of candidates
-  props.globals.getNode("/sim/glider/towing/list").remove();
+  props.globals.getNode("sim/glider/towing/list").remove();
   
 } # End Function removeCandidates
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # findDragger
+# used by key 
+# used by gui, when dealing with drag roboter
+# the first found plane, that is close enough and has callsign "dragger" will be used
 var findDragger = func {
   
-  # first check for available ai-planes
-  # if ai-planes are available 
-  #   store them in an array
-  #   get the glider position
-  #   for every ai-plane
-  #     calculate the distance to the glider
-  #     if the distance is lower than max. tow length
-  #       get id
-  #       get callsign
-  #       if callsign = dragger
-  #         send message
-  #         set property dragid
-  #         leave loop
-  
   # local variables
-  var aiobjects = [];                            # keeps the ai-planes from the property tree
-  var dragid = 0;                                # id of dragger
-  var callsign = 0;                              # callsign of dragger
-  var cur = geo.Coord.new();                     # current processed ai-plane
-  var lat_deg = 0;                               # latitude of current processed aiobject
-  var lon_deg = 0;                               # longitude of current processed aiobject
-  var alt_m = 0;                                 # altitude of current processed aiobject
-  var glider = geo.Coord.new();                  # coordinates of glider
-  var distance_m = 0;                            # distance to ai-plane
+  var aiobjects = [];                     # keeps the ai-planes from the property tree
+  var dragid = 0;                         # id of dragger
+  var callsign = 0;                       # callsign of dragger
+  var cur = geo.Coord.new();              # current processed ai-plane
+  var lat_deg = 0;                        # latitude of current processed aiobject
+  var lon_deg = 0;                        # longitude of current processed aiobject
+  var alt_m = 0;                          # altitude of current processed aiobject
+  var glider = geo.Coord.new();           # coordinates of glider
+  var distance_m = 0;                     # distance to ai-plane
   
   
-  # set rope length if not defined from settings-file
-#  if ( getprop("/sim/glider/towing/conf/rope_length_m") == nil ) {
-#    atc_msg("rope length not defined by plane");
-#    atc_msg(" use default setting of 100m");
-#    setprop("/sim/glider/towing/conf/rope_length_m", 80.0);
-#  }
-
-  var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
+  var towlength_m = getprop("sim/glider/towing/conf/rope_length_m");
   
   
   aiobjects = props.globals.getNode("ai/models").getChildren(); 
@@ -574,12 +546,12 @@ var findDragger = func {
         distance_m = (glider.distance_to(cur)); 
         
         if ( distance_m < towlength_m ) { 
-          atc_msg("callsign %s with id %s nearby in %s m", callsign, dragid, distance_m);
-          setprop("/sim/glider/towing/dragid", dragid); 
+          atc_msg("dragger with id %s nearby in %s m", dragid, distance_m);
+          setprop("sim/glider/towing/dragid", dragid); 
           break; 
         }
         else {
-          atc_msg("callsign %s with id %s too far at %s m", callsign, dragid, distance_m);
+          atc_msg("dragger with id %s too far at %s m", dragid, distance_m);
         }
       }
     }
@@ -592,21 +564,21 @@ var findDragger = func {
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # hookDragger
+# used by key
+# used by gui
 var hookDragger = func {
   
   # if dragid > 0
   #  set property /fdm/jsbsim/fcs/dragger-cmd-norm
   #  level plane
   
-  if ( getprop("/sim/glider/towing/dragid") != nil ) { 
-    setprop("/fdm/jsbsim/fcs/dragger-cmd-norm", 1);                # closes the hook
-    setprop("/sim/glider/towing/hooked", 1); 
+  if ( getprop("sim/glider/towing/dragid") != nil ) { 
+    setprop("fdm/jsbsim/fcs/dragger-cmd-norm", 1);                # closes the hook
+    setprop("sim/glider/towing/hooked", 1); 
     atc_msg("hook closed"); 
-    setprop("/orientation/roll-deg", 0); 
+    setprop("orientation/roll-deg", 0); 
     atc_msg("glider leveled"); 
   }
   else { 
@@ -617,10 +589,9 @@ var hookDragger = func {
 
 
 
-
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # releaseDragger
+# used by key
 var releaseDragger = func {
   
   # first check for dragger is pulling
@@ -632,15 +603,15 @@ var releaseDragger = func {
   #   print a message
   # exit
   
-  if ( getprop ("/sim/glider/towing/hooked") ) {
-    setprop  ("/fdm/jsbsim/fcs/dragger-cmd-norm",0);                 # opens the hook
-    setprop("/fdm/jsbsim/external_reactions/dragx/magnitude", 0);    # set the forces to zero
-    setprop("/fdm/jsbsim/external_reactions/dragy/magnitude", 0);    # set the forces to zero
-    setprop("/fdm/jsbsim/external_reactions/dragz/magnitude", 0);    # set the forces to zero
-    setprop("/sim/glider/towing/hooked",0);                         # dragger is not pulling
+  if ( getprop ("sim/glider/towing/hooked") ) {
+    setprop  ("fdm/jsbsim/fcs/dragger-cmd-norm",0);                 # opens the hook
+    setprop("fdm/jsbsim/external_reactions/dragx/magnitude", 0);    # set the forces to zero
+    setprop("fdm/jsbsim/external_reactions/dragy/magnitude", 0);    # set the forces to zero
+    setprop("fdm/jsbsim/external_reactions/dragz/magnitude", 0);    # set the forces to zero
+    setprop("sim/glider/towing/hooked",0);                         # dragger is not pulling
     atc_msg("Hook opened, tow released");
   }
-  else {                                                       # failure: winch not working
+  else {                                                  # failure: winch not working
     atc_msg("Hook already opened");
   }
   
@@ -648,8 +619,7 @@ var releaseDragger = func {
 
 
 
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
 # let the dragger pull the plane up into the sky
 var runDragger = func {
   
@@ -681,23 +651,21 @@ var runDragger = func {
   var dragid = 0;                      # id of dragger
   var planeid = 0;                     # id of current processed plane
   
-  var nominaltowforce = getprop("/sim/glider/towing/conf/nominal_towforce_lbs");
-  var breakingtowforce = getprop("/sim/glider/towing/conf/breaking_towforce_lbs");
-  var towlength_m = getprop("/sim/glider/towing/conf/rope_length_m");
-  var tl0 = getprop("/sim/glider/towing/conf/rope_x1");
-  var ropetype = getprop("/sim/glider/towing/conf/rope_characteristics");
+  var nominaltowforce = getprop("sim/glider/towing/conf/nominal_towforce_lbs");
+  var breakingtowforce = getprop("sim/glider/towing/conf/breaking_towforce_lbs");
+  var towlength_m = getprop("sim/glider/towing/conf/rope_length_m");
+  var tl0 = getprop("sim/glider/towing/conf/rope_x1");
+  var ropetype = getprop("sim/glider/towing/conf/rope_characteristics");
   
   # do all the stuff
-  
-  
-  if ( getprop("/sim/glider/towing/hooked") == 1 ) {                   # is a dragger engaged
+  if ( getprop("sim/glider/towing/hooked") == 1 ) {            # is a dragger engaged
     
-    glider = geo.aircraft_position();                                # current glider position
-    gliderpitch = getprop("/orientation/pitch-deg");
-    gliderroll = getprop("/orientation/roll-deg");
-    gliderhead = getprop("/orientation/heading-deg");
+    glider = geo.aircraft_position();                        # current glider position
+    gliderpitch = getprop("orientation/pitch-deg");
+    gliderroll = getprop("orientation/roll-deg");
+    gliderhead = getprop("orientation/heading-deg");
     
-    dragid = getprop("/sim/glider/towing/dragid");               # id of former found dragger
+    dragid = getprop("sim/glider/towing/dragid");        # id of former found dragger
     
     aiobjects = props.globals.getNode("ai/models").getChildren(); 
     foreach (var aimember; aiobjects) { 
@@ -712,9 +680,9 @@ var runDragger = func {
       }
     }
     
-    dragger = geo.Coord.set_latlon( drlat, drlon, dralt );         # position of current plane
+    dragger = geo.Coord.set_latlon( drlat, drlon, dralt ); # position of current plane
     
-    distance = (glider.direct_distance_to(dragger));              # distance to plane in meter
+    distance = (glider.direct_distance_to(dragger));      # distance to plane in meter
     distancepr = (glider.distance_to(dragger));
     dragheadto = (glider.course_to(dragger));
     reldistance = distance / towlength_m;
@@ -723,7 +691,8 @@ var runDragger = func {
       forcetow = tf0;
     }
     else {
-      forcetow = math.pow((reldistance - tl0),ropetype) / math.pow((1-tl0),ropetype) * nominaltowforce;
+      forcetow = math.pow((reldistance - tl0),ropetype) 
+                 / math.pow((1-tl0),ropetype) * nominaltowforce;
     }
     
     if ( forcetow < breakingtowforce ) {
@@ -775,9 +744,15 @@ var runDragger = func {
       
       
       # do all the stuff
-      setprop("/fdm/jsbsim/external_reactions/dragx/magnitude",  forcex);
-      setprop("/fdm/jsbsim/external_reactions/dragy/magnitude",  forcey);
-      setprop("/fdm/jsbsim/external_reactions/dragz/magnitude",  forcez);
+      setprop("fdm/jsbsim/external_reactions/dragx/magnitude",  forcex);
+      setprop("fdm/jsbsim/external_reactions/dragy/magnitude",  forcey);
+      setprop("fdm/jsbsim/external_reactions/dragz/magnitude",  forcez);
+      
+      # and keep the glider leveled up to a certain speed
+      var spd_ground_mps = getprop("velocities/groundspeed-kt") * KT2MPS;
+      if (spd_ground_mps < 5 ) {
+        setprop("orientation/roll-deg", 0);
+      }
     }
     else {
       releaseDragger();
@@ -790,5 +765,8 @@ var runDragger = func {
   
 } # End Function runDragger
 
-var dragging = setlistener("/sim/glider/towing/hooked", runDragger); 
-var initialize_aerotowing = setlistener("/sim/signals/fdm-initialized", globalsTowing);
+
+
+# ####################################################################################
+var dragging = setlistener("sim/glider/towing/hooked", runDragger); 
+var initialize_aerotowing = setlistener("sim/signals/fdm-initialized", globalsTowing);

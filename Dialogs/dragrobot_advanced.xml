@@ -397,7 +397,7 @@
       <legend>Reset</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.resetRobot()</script>
+        <script>dg101g.resetRobotAttributes()</script>
       </binding>
     </button>
     <empty>
