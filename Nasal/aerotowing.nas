@@ -4,7 +4,7 @@
 #
 # ####################################################################################
 # Author: Klaus Kerner
-# Version: 2012-03-08
+# Version: 2012-03-16
 #
 # ####################################################################################
 # Concepts:
@@ -77,7 +77,34 @@
 # /sim/glider/towing/list/candidate[x]/distance   the distance to the glider
 # /sim/glider/towing/list/candidate[x]/selected   boolean for choosen candidate
 
-
+# ## new properties to handle animated towing rope
+# /ai/models/towrope/...
+# .../id
+# .../callsign
+# .../valid
+# .../position/latitude-deg
+# .../position/longitude-deg
+# .../position/altitude-ft
+# .../orientation/true-heading-deg
+# .../orientation/pitch-deg
+# .../orientation/roll-deg
+# /models/model[x]/...
+# .../path
+# .../longitude-deg-prop
+# .../latitude-deg-prop
+# .../elevation-ft-prop
+# .../heading-deg-prop
+# .../roll-deg-prop
+# .../pitch-deg-prop
+# /sim/glider/towrope/...
+# .../data/id_AI
+# .../data/id_model
+# .../data/rope_distance_m
+# .../data/xstretch_rel
+# .../data/rope_heading_deg
+# .../data/rope_pitch_deg
+# .../data/rope_roll_deg
+# .../flag/exist
 
 
 # ####################################################################################
@@ -471,7 +498,7 @@ var selectCandidates = func (select) {
   else {
     initpos_geo.apply_course_distance( (drhed + 180), install_distance_m );
   }
-  var initelevation_m = geo.elevation( initpos_geo.lat(), initpos_geo.lon() );
+  var initelevation_m = geo.elevation( initpos_geo.lat(), initpos_geo.lon() ) + 0.5;
   setprop("position/latitude-deg", initpos_geo.lat());
   setprop("position/longitude-deg", initpos_geo.lon());
   setprop("position/altitude-ft", initelevation_m * M2FT);
@@ -565,6 +592,215 @@ var findDragger = func {
 
 
 # ####################################################################################
+# get the next free id of models/model members
+# required for animation of towing rope
+# should be shifted to a generic module as same function exists in dragrobot.nas
+var getFreeModelID = func {
+  
+  #local variables
+  var modelid = 0;                                 # for the next unsused id
+  var modelobjects = {};                           # vector to keep all model objects
+  
+  modelobjects = props.globals.getNode("models", 1).getChildren(); # get model objects
+  foreach ( var member; modelobjects ) { 
+    # get data from member
+    if ( (var c = member.getNode("id")) != nil) {
+      var id = c.getValue();
+      if ( modelid <= id ) {
+        modelid = id +1;
+      } 
+    }
+  }
+  return(modelid);
+}
+
+
+
+# ####################################################################################
+# create the towing rope in the model property tree
+var createTowingRope = func {
+  # place towing rope at nose of glider and scale it to distance to dragger
+  var rope_length_m = getprop("sim/glider/towing/conf/rope_length_m");
+  var rope_distance_m = rope_length_m * (getprop("sim/glider/towing/conf/rope_x1") - 0.02);
+  var install_distance_m = 0.05; # 0.05m in front of ref-point of glider
+  
+  # local variables
+  var ac_pos = geo.aircraft_position();                   # get position of aircraft
+  var ac_hd  = getprop("orientation/heading-deg");        # get heading of aircraft
+  var ac_pt  = getprop("orientation/pitch-deg");          # get pitch of aircraft
+  var ac_alt_m = getprop("position/altitude-ft") * FT2M;  # get altitude of aircraft
+  
+  
+  var install_alt_m = -0.15; # 0.15m below of ref-point of glider
+  
+  var rope_pos    = ac_pos.apply_course_distance( ac_hd , install_distance_m );   
+                                                          # initial rope position, 
+                                                            # at nose of glider
+  rope_pos.set_alt(ac_pos.alt() + install_alt_m);               # correct hight by pitch
+  
+  # get the next free ai id and model id
+  var freeModelid = getFreeModelID();
+  
+  var towrope_ai  = props.globals.getNode("ai/models/towrope", 1);
+  var towrope_mod = props.globals.getNode("models", 1);
+  var towrope_sim = props.globals.getNode("sim/glider/towrope/data", 1);
+  var towrope_flg = props.globals.getNode("sim/glider/towrope/flags", 1);
+  
+  towrope_sim.getNode("id_AI", 1).setIntValue(9998);
+  towrope_sim.getNode("id_model", 1).setIntValue(freeModelid);
+  towrope_sim.getNode("rope_distance_m", 1).setValue(rope_distance_m);
+  towrope_sim.getNode("xstretch_rel", 1).setValue(rope_distance_m / rope_length_m);
+  towrope_sim.getNode("rope_heading_deg", 1).setValue(ac_hd);
+  towrope_sim.getNode("rope_pitch_deg", 1).setValue(0.0);
+  towrope_sim.getNode("hook_x_m", 1).setValue(install_distance_m);
+  towrope_sim.getNode("hook_z_m", 1).setValue(install_alt_m);
+  
+  towrope_flg.getNode("exist", 1).setIntValue(1);
+  
+  towrope_ai.getNode("id", 1).setIntValue(9998);
+  towrope_ai.getNode("callsign", 1).setValue("towrope");
+  towrope_ai.getNode("valid", 1).setBoolValue(1);
+  towrope_ai.getNode("position/latitude-deg", 1).setValue(rope_pos.lat());
+  towrope_ai.getNode("position/longitude-deg", 1).setValue(rope_pos.lon());
+  towrope_ai.getNode("position/altitude-ft", 1).setValue(rope_pos.alt() * M2FT);
+  towrope_ai.getNode("orientation/true-heading-deg", 1).setValue(ac_hd);
+  towrope_ai.getNode("orientation/pitch-deg", 1).setValue(0);
+  towrope_ai.getNode("orientation/roll-deg", 1).setValue(0);
+  
+  towrope_mod.model = towrope_mod.getChild("model", freeModelid, 1);
+  towrope_mod.model.getNode("path", 1).setValue("Aircraft/DG-101G/Models/Ropes/towingrope.xml");
+  towrope_mod.model.getNode("longitude-deg-prop", 1).setValue(
+        "ai/models/towrope/position/longitude-deg");
+  towrope_mod.model.getNode("latitude-deg-prop", 1).setValue(
+        "ai/models/towrope/position/latitude-deg");
+  towrope_mod.model.getNode("elevation-ft-prop", 1).setValue(
+        "ai/models/towrope/position/altitude-ft");
+  towrope_mod.model.getNode("heading-deg-prop", 1).setValue(
+        "ai/models/towrope/orientation/true-heading-deg");
+  towrope_mod.model.getNode("roll-deg-prop", 1).setValue(
+        "ai/models/towrope/orientation/roll-deg");
+  towrope_mod.model.getNode("pitch-deg-prop", 1).setValue(
+        "ai/models/towrope/orientation/pitch-deg");
+  towrope_mod.model.getNode("load", 1).remove();
+  
+}
+
+
+
+# ####################################################################################
+# update the towing rope in the model property tree
+var updateTowingRope = func {
+# functions from geo.nas
+#     .course_to(<coord>)         ... returns course to another geo.Coord instance (degree)
+#     .distance_to(<coord>)       ... returns distance in m along Earth curvature, ignoring altitudes
+#                                     useful for map distance
+#     .direct_distance_to(<coord>)      ...   distance in m direct, considers altitude,
+#                                             but cuts through Earth surface
+  
+  # local variables
+  var glider = geo.Coord.new();        # keeps the glider position
+  var glider_head_deg = 0;             # keeps heading of glider
+  var dragger = geo.Coord.new();       # keeps the dragger position
+  var drlat = 0;                       # temporary latitude of dragger
+  var drlon = 0;                       # temporary longitude of dragger
+  var dralt = 0;                       # temporary altitude of dragger
+  var distance = 0;                    # distance glider to dragger
+  var dragheadto = 0;                  # heading to dragger
+  var dragpitchto = 0;                 # pitch to dragger
+  var aiobjects = [];                  # keeps the ai-planes from the property tree
+  var dragid = 0;                      # id of dragger
+  var install_distance_m = 0.15;
+  var install_alt_m = -0.15;
+  
+  glider = geo.aircraft_position();
+  glider_head_deg = getprop("orientation/heading-deg");
+  var rope_pos    = glider.apply_course_distance( glider_head_deg , install_distance_m );   
+  rope_pos.set_alt(glider.alt() + install_alt_m); 
+  
+  dragid = getprop("sim/glider/towing/dragid");        # id of former found dragger
+  
+  aiobjects = props.globals.getNode("ai/models").getChildren(); 
+  foreach (var aimember; aiobjects) { 
+    if ( (var c = aimember.getNode("id") ) != nil ) { 
+      var testprop = c.getValue();
+      if ( testprop == dragid ) {
+        # get coordinates
+        drlat = aimember.getNode("position/latitude-deg").getValue(); 
+        drlon = aimember.getNode("position/longitude-deg").getValue(); 
+        dralt = (aimember.getNode("position/altitude-ft").getValue()) * FT2M; 
+      }
+    }
+  }
+  
+  dragger = geo.Coord.set_latlon( drlat, drlon, dralt ); # position of current plane
+  
+  distance = (glider.direct_distance_to(dragger));      # distance to plane in meter
+  dragheadto = (glider.course_to(dragger));
+  var height = glider.alt() - dragger.alt();
+#  print(" hoehe: ", height);
+  if ( glider.alt() > dragger.alt() ) {
+    dragpitchto = -math.asin((glider.alt()-dragger.alt())/distance) / 0.01745;
+  }
+  else {
+    dragpitchto =  math.asin((glider.alt()-dragger.alt())/distance) / 0.01745;
+  }
+#  print("  pitch: ", dragpitchto);
+  
+  # update position of rope
+  setprop("ai/models/towrope/position/latitude-deg", rope_pos.lat());
+  setprop("ai/models/towrope/position/longitude-deg", rope_pos.lon());
+  setprop("ai/models/towrope/position/altitude-ft", rope_pos.alt() * M2FT);
+  
+  # update length of rope
+  setprop("sim/glider/towrope/data/xstretch_rel", distance);
+  
+  # update pitch and heading of rope
+  setprop("sim/glider/towrope/data/rope_heading_deg", dragheadto);
+  setprop("sim/glider/towrope/data/rope_pitch_deg", 0);
+  setprop("ai/models/towrope/orientation/true-heading-deg", dragheadto);
+  setprop("ai/models/towrope/orientation/pitch-deg", dragpitchto);
+
+}
+
+
+
+# ####################################################################################
+# dummy function to delete the towing rope
+var removeTowingRope = func {
+  
+  # look for allready existing ai object with callsign "towrope"
+  # check for the towing rope is still existent
+  # if yes, 
+  #   remove the towing rope from the property tree ai/models
+  #   remove the towing rope from the property tree models/
+  #   remove the towing rope working properties
+  # if no, 
+  #   do nothing
+  
+  # local variables
+  var modelsNode = {};
+  
+  if ( getprop("/sim/glider/towrope/flags/exist") == 1 ) {   # does the towing rope exist?
+    # remove 3d model from scenery
+    # identification is /models/model[x] with x=id_model
+    var id_model = getprop("sim/glider/towrope/data/id_model");
+    modelsNode = "models/model[" ~ id_model ~ "]";
+    props.globals.getNode(modelsNode).remove();
+    props.globals.getNode("ai/models/towrope").remove();
+    props.globals.getNode("sim/glider/towrope/data").remove();
+    atc_msg("towing rope removed");
+    setprop("/sim/glider/towrope/flags/exist", 0);
+  }
+  else {                                                     # do nothing
+    atc_msg("towing rope does not exist");
+  }
+  
+}
+
+
+
+
+# ####################################################################################
 # hookDragger
 # used by key
 # used by gui
@@ -575,6 +811,7 @@ var hookDragger = func {
   #  level plane
   
   if ( getprop("sim/glider/towing/dragid") != nil ) { 
+    createTowingRope();                                           # create rope model
     setprop("fdm/jsbsim/fcs/dragger-cmd-norm", 1);                # closes the hook
     setprop("sim/glider/towing/hooked", 1); 
     atc_msg("hook closed"); 
@@ -604,6 +841,7 @@ var releaseDragger = func {
   # exit
   
   if ( getprop ("sim/glider/towing/hooked") ) {
+    removeTowingRope();                                         # remove towing model
     setprop  ("fdm/jsbsim/fcs/dragger-cmd-norm",0);                 # opens the hook
     setprop("fdm/jsbsim/external_reactions/dragx/magnitude", 0);    # set the forces to zero
     setprop("fdm/jsbsim/external_reactions/dragy/magnitude", 0);    # set the forces to zero
@@ -741,14 +979,13 @@ var runDragger = func {
       var forcey = flrolly;
       var forcez = flrollz;
       
-      
-      
-      # do all the stuff
+      # apply forces to clutch
       setprop("fdm/jsbsim/external_reactions/dragx/magnitude",  forcex);
       setprop("fdm/jsbsim/external_reactions/dragy/magnitude",  forcey);
       setprop("fdm/jsbsim/external_reactions/dragz/magnitude",  forcez);
       
-      # and keep the glider leveled up to a certain speed
+      # keep the glider leveled up to a certain speed
+      # thanks to the helper, who holds the left wing tip
       var spd_ground_mps = getprop("velocities/groundspeed-kt") * KT2MPS;
       if (spd_ground_mps < 5 ) {
         setprop("orientation/roll-deg", 0);
@@ -758,6 +995,9 @@ var runDragger = func {
       releaseDragger();
       atc_msg("TOWFORCE EXCEEDED");
     }
+      
+    # update animated towing rope
+    updateTowingRope();
     
     settimer(runDragger, towing_timeincrement);
     
