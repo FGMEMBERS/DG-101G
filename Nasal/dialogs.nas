@@ -1,45 +1,50 @@
-# ############################################################################################
-# ############################################################################################
+# ####################################################################################
+# ####################################################################################
 # Nasal script for dialogs
 #
-# ############################################################################################
+# ####################################################################################
 # Author: Klaus Kerner
-# Version: 2011-10-03
+# Version: 2012-06-05
 #
 
-# ############################################################################################
+# ####################################################################################
 # basic fucntions to create dialogs
 var config_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/config/dialog", 
                                    "Aircraft/DG-101G/Dialogs/config.xml");
 
-var aerotowing_ai_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/aerotowing_ai/dialog", 
+var aerotowing_ai_dialog = gui.Dialog.new(
+                                  "sim/gui/dialogs/dg101g/aerotowing_ai/dialog", 
                                   "Aircraft/DG-101G/Dialogs/aerotowing_ai.xml");
 
-var aerotowing_advanced_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/aerotowing_advanced/dialog",
+var aerotowing_advanced_dialog = gui.Dialog.new(
+                                  "sim/gui/dialogs/dg101g/aerotowing_advanced/dialog",
                                   "Aircraft/DG-101G/Dialogs/aerotowing_advanced.xml");
 
 
 var dragrobot_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/dragrobot/dialog", 
                                   "Aircraft/DG-101G/Dialogs/dragrobot.xml");
-var dragrobot_advanced_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/dragrobot_advanced/dialog",
+var dragrobot_advanced_dialog = gui.Dialog.new(
+                                  "sim/gui/dialogs/dg101g/dragrobot_advanced/dialog",
                                   "Aircraft/DG-101G/Dialogs/dragrobot_advanced.xml");
 
 var winch_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/winch/dialog", 
                                   "Aircraft/DG-101G/Dialogs/winch.xml");
 
-var winch_advanced_dialog = gui.Dialog.new("sim/gui/dialogs/dg101g/winch_advanced/dialog", 
+var winch_advanced_dialog = gui.Dialog.new(
+                                  "sim/gui/dialogs/dg101g/winch_advanced/dialog", 
                                   "Aircraft/DG-101G/Dialogs/winch_advanced.xml");
 
 
-# ############################################################################################
-# config dialog: helper function to display masses in SI units rather than imperial units
+# ####################################################################################
+# config dialog: helper function to display masses in SI units than imperial units
 var guiUpdateConfig = func {
     # pilot's mass 
     if ( getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs") == nil ) {
         var mass_pilot_kg = 80;
     }
     else {
-        var mass_pilot_kg = getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs") * 0.45359237;
+        var mass_pilot_kg = getprop(
+                             "/fdm/jsbsim/inertia/pointmass-weight-lbs") * 0.45359237;
     }
     setprop("sim/glider/gui/config/mass_pilot_kg", mass_pilot_kg);
     
@@ -48,7 +53,8 @@ var guiUpdateConfig = func {
         var mass_tank_kg = 0;
     }
     else {
-        var mass_tank_kg = getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[1]") * 0.45359237;
+        var mass_tank_kg = getprop(
+                          "/fdm/jsbsim/inertia/pointmass-weight-lbs[1]") * 0.45359237;
         # cleanup a bug as the gui slider does only update one property, not two
         setprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[2]", 
                 getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[1]") );
@@ -60,7 +66,8 @@ var guiUpdateConfig = func {
         var mass_payload_kg = 0;
     }
     else {
-        var mass_payload_kg = getprop("/fdm/jsbsim/inertia/pointmass-weight-lbs[3]") * 0.45359237;
+        var mass_payload_kg = getprop(
+                          "/fdm/jsbsim/inertia/pointmass-weight-lbs[3]") * 0.45359237;
     }
     setprop("sim/glider/gui/config/mass_payload_kg", mass_payload_kg);
 }
@@ -74,8 +81,18 @@ var guiconfig2    = setlistener("/fdm/jsbsim/inertia/pointmass-weight-lbs[1]",
 var guiconfig3    = setlistener("/fdm/jsbsim/inertia/pointmass-weight-lbs[3]", 
                                  guiUpdateConfig,,0);
 
+ 
+# ####################################################################################
+# winch dialog: helper function to cancel the winch, avoiding race conditions
+var guiWinchCancel = func {
+    dg101g.removeWinch();
+    dg101g.removeWinchRope();
+    dg101g.resetWinch();
+}
+ 
 
-# ############################################################################################
+
+# ####################################################################################
 # winch dialog: helper function to display winch operation points
 var guiUpdateWinch = func {
     if ( getprop("sim/glider/winch/conf/pull_max_lbs") == nil ) {
@@ -159,7 +176,7 @@ var guikangley2       = setlistener("sim/glider/winch/conf/k_angle_y2",
                                      guiUpdateWinch,,0);
 
 
-# ############################################################################################
+# ####################################################################################
 # drag-robot dialog: helper function to display properties in better readable SI units
 var guiUpdateDragRobot = func {
     # min. takeoff speed 
@@ -167,7 +184,8 @@ var guiUpdateDragRobot = func {
         var min_speed_takeoff = 20 * 3.6;
     }
     else {
-        var min_speed_takeoff = getprop("sim/glider/dragger/conf/glob_min_speed_takeoff_mps") * 3.6;
+        var min_speed_takeoff = getprop(
+                          "sim/glider/dragger/conf/glob_min_speed_takeoff_mps") * 3.6;
     }
     setprop("sim/glider/gui/dragrobot/min_speed_takeoff", min_speed_takeoff);
     
@@ -185,14 +203,15 @@ var guiUpdateDragRobot = func {
         var max_speed_tauten = 3 * 3.6;
     }
     else {
-        var max_speed_tauten = getprop("sim/glider/dragger/conf/glob_max_speed_tauten_mps") * 3.6;
+        var max_speed_tauten = getprop(
+                           "sim/glider/dragger/conf/glob_max_speed_tauten_mps") * 3.6;
     }
     setprop("sim/glider/gui/dragrobot/max_speed_tauten", max_speed_tauten);
     
 }
 
 
-# ############################################################################################
+# ####################################################################################
 # drag-robot dialog: helper function to run the roboter, avoiding race conditions
 var guiRunDragRobot = func {
     dg101g.findDragger();
@@ -200,7 +219,17 @@ var guiRunDragRobot = func {
     dg101g.startDragRobot();
 }
 
-var guidragrobotinit = setlistener("sim/sginals/fdm-initialized", 
+
+# ####################################################################################
+# drag-robot dialog: helper function to cancel the roboter, avoiding race conditions
+var guiCancelDragRobot = func {
+    dg101g.removeDragRobot();
+    dg101g.resetRobotAttributes();
+    dg101g.removeTowingRope();
+}
+
+
+var guidragrobotinit = setlistener("sim/signals/fdm-initialized", 
                                      guiUpdateDragRobot,,0);
 var guidragrobot_1   = setlistener("sim/glider/dragger/conf/glob_min_speed_takeoff_mps", 
                                      guiUpdateDragRobot,,0);

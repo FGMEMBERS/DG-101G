@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!--
+  Version: 2012-06-04
+-->
+
+<PropertyList>
+
+  <path>winchrope.ac</path>
+  
+  <offsets>
+          <x-m>0.0</x-m>
+          <y-m>0.0</y-m>
+          <z-m>0.0</z-m>
+    <pitch-deg>0</pitch-deg>
+    
+  </offsets>
+  
+  
+  
+  
+<!-- animations -->
+<!-- order of animation matters
+     It seems that the animations are pushed on a stack and then they are executed
+     one after another down from the stack. So, the first one listed in this 
+     configuration file will be executed as the last one.
+-->
+  
+  <animation>
+    <type>translate</type>
+    <object-name>parachute</object-name>
+    <property>sim/glider/winch/work/placed</property>
+    <factor>-5</factor>
+    <axis>
+      <x>1</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+  
+  <animation>
+    <type>scale</type>
+    <object-name>parachute</object-name>
+    <property>sim/glider/winch/work/placed</property>
+    <x-factor>2</x-factor>
+    <y-factor>0.5</y-factor>
+    <z-factor>0.5</z-factor>
+  </animation>
+  
+  
+  
+  <animation>
+    <type>scale</type>
+    <object-name>winchrope</object-name>
+    <property>sim/glider/winch/work/placed</property>
+    <x-factor>200</x-factor>
+  </animation>
+
+
+</PropertyList>

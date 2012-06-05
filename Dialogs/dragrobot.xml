@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2012-03-07 -->
+<!-- version: 2012-06-05 -->
 
 <PropertyList>
   <name>dragrobot_dialog</name>
@@ -229,11 +229,7 @@
       <legend>Cancel</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.removeDragRobot()</script>
-      </binding>
-      <binding>
-        <command>nasal</command>
-        <script>dg101g.resetRobotAttributes()</script>
+        <script>dg101g.guiCancelDragRobot()</script>
       </binding>
       <binding>
         <command>dialog-close</command>

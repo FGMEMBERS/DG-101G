@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- version: 2011-09-26 -->
+<!-- version: 2012-05-23 -->
 
 <PropertyList>
   <name>winch_dialog</name>
@@ -258,11 +258,7 @@
       <legend>Cancel</legend>
       <binding>
         <command>nasal</command>
-        <script>dg101g.removeWinch()</script>
-      </binding>
-      <binding>
-        <command>nasal</command>
-        <script>dg101g.resetWinch()</script>
+        <script>dg101g.guiWinchCancel()</script>
       </binding>
       <binding>
         <command>dialog-close</command>
