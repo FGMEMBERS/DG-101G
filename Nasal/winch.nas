@@ -4,7 +4,7 @@
 #
 # ####################################################################################
 # Author: Klaus Kerner
-# Version: 2012-06-05
+# Version: 2012-07-11
 #
 # ####################################################################################
 # To Do's
@@ -81,16 +81,29 @@
 # /sim/glider/winch/work/wp-alti-m                       storing winch position
 # /sim/glider/winch/work/speed                           current speed of rope
 # /sim/glider/winch/work/rope_m                          current length of rope
-# /sim/glider/winch/work/placed                          flag for existence of winch
+# /sim/glider/winch/flags/placed                          flag for existence of winch
 #                                                          1: winch placed
 #                                                          0: winch not placed
-# /sim/glider/winch/work/used                            bool storing allready used 
+# /sim/glider/winch/flags/used                            bool storing allready used 
 #                                                          winch to prevent against
 #                                                          reconnecting
-# /sim/glider/winch/flag/pull                            bool storing working of winch
+# /sim/glider/winch/flags/pull                            bool storing working of winch
 #                                                          1: winch is working
 #                                                          0: winch is not working
-
+# /sim/glider/winch/flags/hooked                          bool storing release from tow
+#                                                          5: tow allready released
+#                                                          1. tow not released
+# /sim/glider/winchrope/flags/exist                       bool storing existence of rope
+#
+#
+# flags matrix
+#  function()      placed used  pull  hooked  exist
+#  at startup      0      -     -     -       - 
+#  createWinch()   1      0     -     1       1 
+#  startWinch()   (1)     1     1    (1)     (1) 
+#  runWinch()     (1)    (1)   (1)   (1)     (1) 
+#  releaseWinch() (1)    (1)   (1)    0      (1)      
+#  removeWinch()   0     (1)    0    (0)      0
 
 
 # ####################################################################################
@@ -287,7 +300,7 @@ var placeWinch = func {
   #     else: (plane is too far away from initial position)
   #       calculate position of winch relative to current position of plane
   #     place model
-  #     set properties winch/work/placed and jsbsim/fcs/winch-cmd-norm
+  #     set properties winch/flags/placed and jsbsim/fcs/winch-cmd-norm
   #     print message
   #   else: (plane is in air)
   #     print message and exit
@@ -295,50 +308,136 @@ var placeWinch = func {
   var rope_initial_length_m = getprop("sim/glider/winch/conf/rope_initial_length_m");
   
   
-  if ( getprop("sim/glider/winch/work/placed") == 1 ) {
+  if ( getprop("sim/glider/winch/flags/placed") == 1 ) {
     atc_msg("Winch allready placed"); 
   }
   else {
-    if ( getprop("gear/gear/wow") ) {
+    if ( getprop("gear/gear/wow") ) { 
+     # common variables
+      var ac_pos = geo.aircraft_position(); 
+      var ac_hd  = getprop("orientation/heading-deg");       # get heading of aircraft
+      
+     # setup winch
+      # set pathes to relevant nodes in the property tree
+      var winch_ai  = props.globals.getNode("ai/models/winch", 1);
+      var winch_mod = props.globals.getNode("models", 1);
+      var winch_sim = props.globals.getNode("sim/glider/winch/work", 1);
+      var winch_flg = props.globals.getNode("sim/glider/winch/flags", 1);
+      # get initial runway position
       var ipos_lat_deg = getprop("sim/presets/latitude-deg");
       var ipos_lon_deg = getprop("sim/presets/longitude-deg");
       var ipos_hd_deg  = getprop("sim/presets/heading-deg");
       var ipos_alt_m = geo.elevation(ipos_lat_deg,ipos_lon_deg);
-      # get initial runway position
       var ipos_geo = geo.Coord.new().set_latlon( 
                       ipos_lat_deg, ipos_lon_deg, ipos_alt_m); 
-      # get position and heading of aircraft
-      var glider_geo = geo.aircraft_position(); 
-      var glider_hd_deg  = getprop("orientation/heading-deg"); 
       # offset to initial position
-      var deviation = (glider_geo.distance_to(ipos_geo)); 
       # if deviation is too much, locate winch in front of glider, otherwise locate 
       # winch to end of runway
+      var deviation = (ac_pos.distance_to(ipos_geo)); 
       if ( deviation > 200) { 
-        var wp = glider_geo.apply_course_distance( glider_hd_deg , 
+        var wpos_geo = ac_pos.apply_course_distance( ac_hd , 
                    rope_initial_length_m ); 
-        var wpalt = geo.elevation(wp.lat(), wp.lon()); 
       }
       else {
-        var wp = ipos_geo.apply_course_distance( ipos_hd_deg , 
+        var wpos_geo = ipos_geo.apply_course_distance( ipos_hd_deg , 
                    rope_initial_length_m ); 
-        var wpalt = geo.elevation(wp.lat(), wp.lon()); 
       }
-      # set winch location
-      setprop("sim/glider/winch/work/wp-lat-deg", wp.lat()); 
-      setprop("sim/glider/winch/work/wp-lon-deg", wp.lon()); 
-      setprop("sim/glider/winch/work/wp-alti-m", wpalt); 
-      # place model for winch
-      geo.put_model("/Models/Airport/supacat_winch.ac", 
-                      wp.lat(), wp.lon(), wpalt, glider_hd_deg);
+      var wpalt = geo.elevation(wpos_geo.lat(), wpos_geo.lon()); 
+      wpos_geo.set_alt(wpalt);
+      # get the next free ai id and model id
+      var freeModelid = getFreeModelID();
+      freeModelid = 9997;
+      # setup working properties
+      winch_sim.getNode("id_AI", 1).setIntValue(9997);
+      winch_sim.getNode("id_model", 1).setIntValue(freeModelid);
+      winch_sim.getNode("wp-lat-deg", 1).setValue(wpos_geo.lat());
+      winch_sim.getNode("wp-lon-deg", 1).setValue(wpos_geo.lon());
+      winch_sim.getNode("wp-alti-m", 1).setValue(wpos_geo.alt());
+      # setup ai properties
+      winch_ai.getNode("id", 1).setIntValue(9997);
+      winch_ai.getNode("callsign", 1).setValue("winch");
+      winch_ai.getNode("valid", 1).setBoolValue(1);
+      winch_ai.getNode("position/latitude-deg", 1).setValue(wpos_geo.lat());
+      winch_ai.getNode("position/longitude-deg", 1).setValue(wpos_geo.lon());
+      winch_ai.getNode("position/altitude-ft", 1).setValue(wpos_geo.alt() * M2FT);
+      winch_ai.getNode("orientation/true-heading-deg", 1).setValue(ac_hd);
+      winch_ai.getNode("orientation/pitch-deg", 1).setValue(0);
+      # setup model properties
+      winch_mod.model = winch_mod.getChild("model", freeModelid, 1);
+      winch_mod.model.getNode("path", 1).setValue(
+            "/Models/Airport/supacat_winch.ac");
+      winch_mod.model.getNode("longitude-deg-prop", 1).setValue(
+            "ai/models/winch/position/longitude-deg");
+      winch_mod.model.getNode("latitude-deg-prop", 1).setValue(
+            "ai/models/winch/position/latitude-deg");
+      winch_mod.model.getNode("elevation-ft-prop", 1).setValue(
+            "ai/models/winch/position/altitude-ft");
+      winch_mod.model.getNode("heading-deg-prop", 1).setValue(
+            "ai/models/winch/orientation/true-heading-deg");
+      winch_mod.model.getNode("pitch-deg-prop", 1).setValue(
+            "ai/models/winch/orientation/pitch-deg");
+      winch_mod.model.getNode("load", 1).remove();
       # set flags for placed winch and prevent against additional winches
-      setprop("sim/glider/winch/work/placed",1);       # winch is placed
-      setprop("sim/glider/winch/work/used",0);         # prepare for 1 use only
+      winch_flg.getNode("placed", 1).setIntValue(1);
+      winch_flg.getNode("used", 1).setIntValue(0);
+      winch_flg.getNode("hooked", 1).setIntValue(1);
       
+     # setup rope and parachute for animation
+      # set pathes to relevant nodes in the property tree
+      var winchrope_ai  = props.globals.getNode("ai/models/winchrope", 1);
+      var winchrope_mod = props.globals.getNode("models", 1);
+      var winchrope_sim = props.globals.getNode("sim/glider/winchrope/work", 1);
+      var winchrope_flg = props.globals.getNode("sim/glider/winchrope/flags", 1);
+      # initial rope position, at nose of glider
+      var rope_length_m = (ac_pos.direct_distance_to(wpos_geo));
+      var rope_heading_deg = (ac_pos.course_to(wpos_geo));
+      var rope_pitch_deg = 10; # must be corrected by arcsin function for glider to winch height relation
+      var install_distance_m = 0.05; # 0.05m in front of ref-point of glider, must be tuned
+      var install_alt_m = -1; # 1m below ref-point of glider, must be tuned
+      var rope_pos    = ac_pos.apply_course_distance( ac_hd , install_distance_m );   
+      rope_pos.set_alt(ac_pos.alt() + install_alt_m);       # correct hight by pitch
+      # get the next free ai id and model id
+      var freeModelid = getFreeModelID();
+      freeModelid = 9996;
+      # setup working properties
+      winchrope_sim.getNode("id_AI", 1).setIntValue(9996);
+      winchrope_sim.getNode("id_model", 1).setIntValue(freeModelid);
+      winchrope_sim.getNode("rope_length_m", 1).setValue(rope_length_m);
+      winchrope_sim.getNode("rope_heading_deg", 1).setValue(rope_heading_deg);
+      winchrope_sim.getNode("rope_pitch_deg", 1).setValue(rope_pitch_deg);
+      winchrope_sim.getNode("hook_x_m", 1).setValue(install_distance_m);
+      winchrope_sim.getNode("hook_z_m", 1).setValue(install_alt_m);
+      winchrope_sim.getNode("scale_x", 1).setValue(1);
+      winchrope_sim.getNode("scale_yz", 1).setValue(1);
+      # setup ai properties
+      winchrope_ai.getNode("id", 1).setIntValue(9996);
+      winchrope_ai.getNode("callsign", 1).setValue("winchrope");
+      winchrope_ai.getNode("valid", 1).setBoolValue(1);
+      winchrope_ai.getNode("position/latitude-deg", 1).setValue(rope_pos.lat());
+      winchrope_ai.getNode("position/longitude-deg", 1).setValue(rope_pos.lon());
+      winchrope_ai.getNode("position/altitude-ft", 1).setValue(rope_pos.alt() * M2FT);
+      winchrope_ai.getNode("orientation/true-heading-deg", 1).setValue(rope_heading_deg);
+      winchrope_ai.getNode("orientation/pitch-deg", 1).setValue(0);
+      # setup model properties
+      winchrope_mod.model = winchrope_mod.getChild("model", freeModelid, 1);
+      winchrope_mod.model.getNode("path", 1).setValue(
+            "Aircraft/DG-101G/Models/Ropes/winchrope.xml");
+      winchrope_mod.model.getNode("longitude-deg-prop", 1).setValue(
+            "ai/models/winchrope/position/longitude-deg");
+      winchrope_mod.model.getNode("latitude-deg-prop", 1).setValue(
+            "ai/models/winchrope/position/latitude-deg");
+      winchrope_mod.model.getNode("elevation-ft-prop", 1).setValue(
+            "ai/models/winchrope/position/altitude-ft");
+      winchrope_mod.model.getNode("heading-deg-prop", 1).setValue(
+            "ai/models/winchrope/orientation/true-heading-deg");
+      winchrope_mod.model.getNode("pitch-deg-prop", 1).setValue(
+            "ai/models/winchrope/orientation/pitch-deg");
+      winchrope_mod.model.getNode("load", 1).remove();
+      # setup flags
+      winchrope_flg.getNode("exist", 1).setIntValue(1);
+      
+     # finally send message
       atc_msg("Winch placed in front of you");
-      
-      # and creat rope and parachute for animation
-      createWinchRope();
     }
     else { 
       atc_msg("winch in air useless, no winch placed"); 
@@ -376,186 +475,6 @@ var getFreeModelID = func {
 
 
 # ####################################################################################
-# create the towing rope in the model property tree
-var createWinchRope = func {
-  # place towing rope at gravity clinch of glider and scale it to distance to winch
-  
-  # local variables
-  var ac_pos = geo.aircraft_position();                   # get position of aircraft
-  var ac_hd  = getprop("orientation/heading-deg");        # get heading of aircraft
-  var ac_pt  = getprop("orientation/pitch-deg");          # get pitch of aircraft
-  var ac_alt_m = getprop("position/altitude-ft") * FT2M;  # get altitude of aircraft
-  
-  # get initial winch position
-  var winch_geo = geo.Coord.new().set_latlon( 
-                      getprop("sim/glider/winch/work/wp-lat-deg"),
-                      getprop("sim/glider/winch/work/wp-lon-deg"), 
-                      getprop("sim/glider/winch/work/wp-alti-m") );
-  var rope_length_m = (ac_pos.direct_distance_to(winch_geo));
-  var rope_heading_deg = (ac_pos.course_to(winch_geo));
-  var rope_pitch_deg = 10; # must be corrected by arcsin function for glider to winch height relation
-  var install_distance_m = 0.05; # 0.05m in front of ref-point of glider, must be tuned
-  var install_alt_m = -1; # 1m below ref-point of glider, must be tuned
-  
-  var winchrope_ai  = props.globals.getNode("ai/models/winchrope", 1);
-  var winchrope_mod = props.globals.getNode("models", 1);
-  var winchrope_sim = props.globals.getNode("sim/glider/winchrope/data", 1);
-  var winchrope_flg = props.globals.getNode("sim/glider/winchrope/flags", 1);
-  
-  var rope_pos    = ac_pos.apply_course_distance( ac_hd , install_distance_m );   
-                                                          # initial rope position, 
-                                                            # at nose of glider
-  rope_pos.set_alt(ac_pos.alt() + install_alt_m);               # correct hight by pitch
-  
-  # get the next free ai id and model id
-  var freeModelid = getFreeModelID();
-
-  winchrope_sim.getNode("id_AI", 1).setIntValue(9997);
-  winchrope_sim.getNode("id_model", 1).setIntValue(freeModelid);
-  winchrope_sim.getNode("rope_length_m", 1).setValue(rope_length_m);
-  winchrope_sim.getNode("rope_heading_deg", 1).setValue(rope_heading_deg);
-  winchrope_sim.getNode("rope_pitch_deg", 1).setValue(rope_pitch_deg);
-  winchrope_sim.getNode("hook_x_m", 1).setValue(install_distance_m);
-  winchrope_sim.getNode("hook_z_m", 1).setValue(install_alt_m);
-  
-  winchrope_flg.getNode("exist", 1).setIntValue(1);
-  
-  winchrope_ai.getNode("id", 1).setIntValue(9997);
-  winchrope_ai.getNode("callsign", 1).setValue("winchrope");
-  winchrope_ai.getNode("valid", 1).setBoolValue(1);
-  winchrope_ai.getNode("position/latitude-deg", 1).setValue(rope_pos.lat());
-  winchrope_ai.getNode("position/longitude-deg", 1).setValue(rope_pos.lon());
-  winchrope_ai.getNode("position/altitude-ft", 1).setValue(rope_pos.alt() * M2FT);
-  winchrope_ai.getNode("orientation/true-heading-deg", 1).setValue(rope_heading_deg);
-  winchrope_ai.getNode("orientation/pitch-deg", 1).setValue(0);
-  
-  winchrope_mod.model = winchrope_mod.getChild("model", freeModelid, 1);
-  winchrope_mod.model.getNode("path", 1).setValue("Aircraft/DG-101G/Models/Ropes/winchrope.xml");
-  winchrope_mod.model.getNode("longitude-deg-prop", 1).setValue(
-        "ai/models/winchrope/position/longitude-deg");
-  winchrope_mod.model.getNode("latitude-deg-prop", 1).setValue(
-        "ai/models/winchrope/position/latitude-deg");
-  winchrope_mod.model.getNode("elevation-ft-prop", 1).setValue(
-        "ai/models/winchrope/position/altitude-ft");
-  winchrope_mod.model.getNode("heading-deg-prop", 1).setValue(
-        "ai/models/winchrope/orientation/true-heading-deg");
-  winchrope_mod.model.getNode("pitch-deg-prop", 1).setValue(
-        "ai/models/winchrope/orientation/pitch-deg");
-  winchrope_mod.model.getNode("load", 1).remove();
-
-
-
-
-}
-
-
-
-
-# ####################################################################################
-# dummy function to delete the winch rope
-var removeWinchRope = func {
-  
-  # look for allready existing ai object with callsign "winchrope"
-  # check for the winch rope is still existent
-  # if yes, 
-  #   remove the winch rope from the property tree ai/models
-  #   remove the winch rope from the property tree models/
-  #   remove the winch rope working properties
-  # if no, 
-  #   do nothing
-  
-  # local variables
-  var modelsNode = {};
-  
-  if ( getprop("/sim/glider/winchrope/flags/exist") == 1 ) {   # does the winch rope exist?
-    # remove 3d model from scenery
-    # identification is /models/model[x] with x=id_model
-    var id_model = getprop("sim/glider/winchrope/data/id_model");
-    modelsNode = "models/model[" ~ id_model ~ "]";
-    props.globals.getNode(modelsNode).remove();
-    props.globals.getNode("ai/models/winchrope").remove();
-    props.globals.getNode("sim/glider/winchrope/data").remove();
-    atc_msg("winch rope removed");
-    setprop("/sim/glider/winchrope/flags/exist", 0);
-  }
-  else {                                                     # do nothing
-    atc_msg("winch rope does not exist");
-  }
-  
-}
-
-
-
-# ####################################################################################
-# dummy function to delete the winch rope
-var updateWinchRope = func {
-  
-  # get positions of aircraft and winch
-  # get direction from aircraft to winch
-  # update property tree
-  
-    # local variables
-  var glider = geo.Coord.new();        # keeps the glider position
-  var glider_head_deg = 0;             # keeps heading of glider
-  var winch = geo.Coord.new();       # keeps the winch position
-  var wnlat = 0;                       # temporary latitude of winch
-  var wnlon = 0;                       # temporary longitude of winch
-  var wnalt = 0;                       # temporary altitude of winch
-  var distance = 0;                    # distance glider to winch
-  var wnheadto = 0;                  # heading to winch
-  var wnpitchto = 0;                 # pitch to winch
-  var aiobjects = [];                  # keeps the ai-planes from the property tree
-  var install_distance_m = 0.15;
-  var install_alt_m = -0.15;
-  
-  glider = geo.aircraft_position();
-  glider_head_deg = getprop("orientation/heading-deg");
-  var rope_pos    = glider.apply_course_distance( glider_head_deg , install_distance_m );   
-  rope_pos.set_alt(glider.alt() + install_alt_m); 
-  
-  
-  wnlat = getprop("sim/glider/winch/work/wp-lat-deg"); 
-  wnlon = getprop("sim/glider/winch/work/wp-lon-deg"); 
-  wnalt = getprop("sim/glider/winch/work/wp-alti-m"); 
-  
-  
-  
-  winch = geo.Coord.set_latlon( wnlat, wnlon, wnalt ); # position of current plane
-  
-  distance = (glider.direct_distance_to(winch));      # distance to plane in meter
-  wnheadto = (glider.course_to(winch));
-  var height = glider.alt() - winch.alt();
-#  print(" hoehe: ", height);
-  if ( glider.alt() > winch.alt() ) {
-    wnpitchto = -math.asin((glider.alt()-winch.alt())/distance) / 0.01745;
-  }
-  else {
-    wnpitchto =  math.asin((glider.alt()-winch.alt())/distance) / 0.01745;
-  }
-#  print("  pitch: ", wnpitchto);
-  
-  # update position of rope
-  setprop("ai/models/winchrope/position/latitude-deg", rope_pos.lat());
-  setprop("ai/models/winchrope/position/longitude-deg", rope_pos.lon());
-  setprop("ai/models/winchrope/position/altitude-ft", rope_pos.alt() * M2FT);
-  
-  # update length of rope
-  setprop("sim/glider/winchrope/data/xstretch_rel", distance);
-  
-  # update pitch and heading of rope
-  setprop("sim/glider/winchrope/data/rope_heading_deg", wnheadto);
-  setprop("sim/glider/winchrope/data/rope_pitch_deg", 0);
-  setprop("ai/models/winchrope/orientation/true-heading-deg", wnheadto);
-  setprop("ai/models/winchrope/orientation/pitch-deg", wnpitchto);
-
-
-}
-
-
-
-
-
-# ####################################################################################
 # ####################################################################################
 # starts the winch
 var startWinch = func {
@@ -571,8 +490,8 @@ var startWinch = func {
   #   if used exit
   # if not exit
   
-  if ( getprop("sim/glider/winch/work/placed") == 1 ) {     # check for placed winch
-    if ( getprop("sim/glider/winch/work/used") == 0 ) {     # check for unused winch
+  if ( getprop("sim/glider/winch/flags/placed") == 1 ) {     # check for placed winch
+    if ( getprop("sim/glider/winch/flags/used") == 0 ) {     # check for unused winch
       setprop("fdm/jsbsim/fcs/winch-cmd-norm",1);           # closes the hook
       atc_msg("hook closed"); 
       setprop("orientation/roll-deg",0);                    # level the plane
@@ -586,9 +505,9 @@ var startWinch = func {
       var dd_m = (ac.direct_distance_to(wp));               # gets distance 
       setprop("sim/glider/winch/work/rope_m", dd_m );       # set the rope length
       setprop("sim/glider/winch/work/speed",0);             # winch has speed 0
-      setprop("sim/glider/winch/work/used", 1);             # one time hooked, never 
+      setprop("sim/glider/winch/flags/used", 1);             # one time hooked, never 
                                                             # hook again
-      setprop("sim/glider/winch/flag/pull",1);              # winch is pulling
+      setprop("sim/glider/winch/flags/pull",1);              # winch is pulling
     }
     else {
       atc_msg("Sorry, only one time hooking");
@@ -614,22 +533,20 @@ var releaseWinch = func {
   # if no, 
   #   print a message and exit
   
-  if ( getprop("sim/glider/winch/flag/pull") == 1 ) {           # is the winch pulling
+  if ( getprop("sim/glider/winch/flags/pull") ) {           # is the winch pulling
     setprop("fdm/jsbsim/fcs/winch-cmd-norm",0);                 # opens the hook
     setprop("fdm/jsbsim/external_reactions/winchx/magnitude", 0);  # set the
     setprop("fdm/jsbsim/external_reactions/winchy/magnitude", 0);  # forces 
     setprop("fdm/jsbsim/external_reactions/winchz/magnitude", 0);  # to zero
-    setprop("sim/glider/winch/flag/pull",0);                    # winch is not pulling
-    setprop("sim/glider/winch/work/speed",0);                   # winch has speed 0
+    setprop("sim/glider/winchrope/work/scale_x", 0.5);
+    setprop("sim/glider/winchrope/work/scale_yz", 2);
+    setprop("sim/glider/winch/flags/hooked",0);
     atc_msg("Hook opened, tow released");
+    print("Hook opened, tow released");
   }
   else {                                                        # winch not working
     atc_msg("not hooked to a winch");
   }
-  
-  settimer(removeWinch, 5.0);                                   # remove winch
-  settimer(removeWinchRope, 5.0);                               # remove winch rope
-  atc_msg("Removing winch in 5sec");
   
 } # End Function releaseWinch
 
@@ -639,37 +556,57 @@ var releaseWinch = func {
 # ####################################################################################
 # remove the winch
 var removeWinch = func {
-  # first check for the winch is still existent
-  # if yes, 
-  #   remove the winch from the property tree
-  #   remove the model from the scenery
-  # if no, 
-  #   do nothing
-  
   # local variables
   var modelsNode = {};
   
-  if ( getprop("sim/glider/winch/work/placed") == 1 ) {         # is the winch placed?
+  # look for allready existing ai object with callsign "winchrope"
+  # check for the winch rope is still existent
+  # if yes, 
+  #   remove the winch rope from the property tree ai/models
+  #   remove the winch rope from the property tree models/
+  #   remove the winch rope working properties
+  # if no, 
+  #   do nothing
+  
+  if ( getprop("/sim/glider/winchrope/flags/exist") == 1 ) {   # does the winch rope exist?
     # remove 3d model from scenery
-    # identification is /models/model[x]/path = supacat_winch.ac
-    modelsNode = props.globals.getNode("models", 1).getChildren();
-    foreach (var modelsmember; modelsNode)  {
-      if ( (var iswinch = modelsmember.getNode("path")) != nil) {
-        var modelpath = iswinch.getValue();
-        if (modelpath == "/Models/Airport/supacat_winch.ac")  {
-          atc_msg("Winch model found");
-          modelsmember.remove();
-        }
-      }
-    }
-    # remove winch working properties
-    # node is /sim/glider/winch/work
-    props.globals.getNode("sim/glider/winch/work").remove();
-    atc_msg("Winch removed");
-    
+    # identification is /models/model[x] with x=id_model
+    var id_model = getprop("sim/glider/winchrope/work/id_model");
+    modelsNode = "models/model[" ~ id_model ~ "]";
+    props.globals.getNode(modelsNode).remove();
+    props.globals.getNode("ai/models/winchrope").remove();
+    props.globals.getNode("sim/glider/winchrope/work").remove();
+    atc_msg("winch rope removed");
+    setprop("/sim/glider/winchrope/flags/exist", 0);
   }
-  else {                                                         # do nothing
-    atc_msg("Winch does not exist");
+  else {                                                     # do nothing
+    atc_msg("winch rope does not exist");
+  }
+  
+  
+  # look for allready existing ai object with callsign "winch"
+  # check for the winch is still existent
+  # if yes, 
+  #   remove the winch from the property tree ai/models
+  #   remove the winch from the property tree models/
+  #   remove the winch working properties
+  # if no, 
+  #   do nothing
+  
+  if ( getprop("/sim/glider/winch/flags/placed") == 1 ) {   # does the winch exist?
+    # remove 3d model from scenery
+    # identification is /models/model[x] with x=id_model
+    var id_model = getprop("sim/glider/winch/work/id_model");
+    modelsNode = "models/model[" ~ id_model ~ "]";
+    props.globals.getNode(modelsNode).remove();
+    props.globals.getNode("ai/models/winch").remove();
+    props.globals.getNode("sim/glider/winch/work").remove();
+    atc_msg("winch rope removed");
+    setprop("/sim/glider/winch/flags/pull", 0);
+    setprop("/sim/glider/winch/flags/placed", 0);
+  }
+  else {                                                     # do nothing
+    atc_msg("winch does not exist");
   }
 
 } # End Function removeWinch
@@ -707,6 +644,8 @@ var runWinch = func {
   
   
   var roperelease_deg = 70;  # release winch automatically
+  var install_distance_m = 0.05; # 0.05m in front of ref-point of glider, must be tuned
+  var install_alt_m = -1; # 1m below ref-point of glider, must be tuned
 
   var pullmax = getprop("sim/glider/winch/conf/pull_max_lbs");
   var speedmax = getprop("sim/glider/winch/conf/pull_max_speed_mps");
@@ -728,89 +667,133 @@ var runWinch = func {
     var deltatime_s = winch_timeincrement_s;
   }
   
-  if (getprop ("sim/glider/winch/flag/pull")) {        # is a winch placed and working
+  if (getprop ("sim/glider/winch/flags/pull")) {        # is a winch placed and working
     var wp = geo.Coord.new().set_latlon( 
         (getprop("sim/glider/winch/work/wp-lat-deg")),
         (getprop("sim/glider/winch/work/wp-lon-deg")),
         (getprop("sim/glider/winch/work/wp-alti-m"))); # gets winch position
-    var ac = geo.aircraft_position();                  # aircraft position
-    var hd_deg = getprop("orientation/heading-deg");   # heading of aircraft
-    var hw_deg = (ac.course_to(wp));                   # heading to winch
-    var dd_m = (ac.direct_distance_to(wp));            # the actual rope length
-    var dp_m = (ac.distance_to(wp));                   # projected distance to winch
-    var pt_deg = getprop("orientation/pitch-deg");     # pitch of aircraft
-    var rt_deg = getprop("orientation/roll-deg");      # roll of aircraft
-    var dd_old_m = getprop("sim/glider/winch/work/rope_m");  # last rope length
-    var ropespeed = (dd_old_m - dd_m)/deltatime_s;     # the speed of the rope
-    
-    # correct a failure, if the projected length is larger than direct length
-    if (dp_m > dd_m) { dp_m = dd_m;}                   
-    
-    var alpha = math.acos( (dp_m / dd_m) );
-    var beta = ( hw_deg - hd_deg ) * 0.01745;
-    var gamma = pt_deg * 0.01745;
-    var delta = rt_deg * 0.01745;
-    
-    var sina = math.sin(alpha);
-    var cosa = math.cos(alpha);
-    var sinb = math.sin(beta);
-    var cosb = math.cos(beta);
-    var sing = math.sin(gamma);
-    var cosg = math.cos(gamma);
-    var sind = math.sin(delta);
-    var cosd = math.cos(delta);
-    
-    var k_force_speed = k_speed_y1 + (k_speed_y2 - k_speed_y1)/
-                                     (k_speed_x2 - k_speed_x1)*
-                                     (ropespeed/speedmax - k_speed_x1);
-    var k_force_angle = k_angle_y1 + (k_angle_y2 - k_angle_y1)/
-                                     (k_angle_x2 - k_angle_x1)*
-                                     (alpha / 0.01745 / roperelease_deg - k_angle_x1);
-    if ( k_force_speed > k_speed_y1 ) { k_force_speed = k_speed_y1; }
-    if ( k_force_speed < k_speed_y2 ) { k_force_speed = k_speed_y2; }
-    if ( k_force_angle > k_angle_y1 ) { k_force_angle = k_angle_y1; }
-    if ( k_force_angle < k_angle_y2 ) { k_force_angle = k_angle_y2; }
-    
-    # global forces: alpha beta
-    var fglobalx = pullmax * cosa * cosb;
-    var fglobaly = pullmax * cosa * sinb;
-    var fglobalz = pullmax * sina;
-    # local forces by pitch: gamma
-    var flpitchx = fglobalx * cosg - fglobalz * sing;
-    var flpitchy = fglobaly;
-    var flpitchz = fglobalx * sing + fglobalz * cosg;
-    # local forces by roll: delta
-    var flrollx  = flpitchx;
-    var flrolly  = flpitchy * cosd + flpitchz * sind;
-    var flrollz  = flpitchy * sind + flpitchz * cosd;
-    # asigning to LOCAL coord of plane
-    var forcex = flrollx;
-    var forcey = flrolly;
-    var forcez = flrollz;
-    
-    # calculates the force angle
-    var force_deg = math.asin( math.sqrt(forcey * forcey + forcez * forcez) 
-      / math.sqrt(forcex * forcex + forcey * forcey + forcez * forcez) ) 
-      / 0.01745; 
-    # automatic release if criteria is reached
-    if (force_deg > roperelease_deg) { 
-      releaseWinch(); 
-    } 
-    # otherwise set the current forces
-    else  { 
-      forcex = forcex * k_force_speed * k_force_angle;
-      forcey = forcey * k_force_speed * k_force_angle;
-      forcez = forcez * k_force_speed * k_force_angle;
-      setprop("fdm/jsbsim/external_reactions/winchx/magnitude",  forcex );
-      setprop("fdm/jsbsim/external_reactions/winchy/magnitude",  forcey );
-      setprop("fdm/jsbsim/external_reactions/winchz/magnitude",  forcez );
-      setprop("sim/glider/winch/work/speed", ropespeed); 
-      setprop("sim/glider/winch/work/rope_m", dd_m ); 
+    # if hooked, calculate forces and update rope animation
+    if (getprop("sim/glider/winch/flags/hooked")) {
+        var ac = geo.aircraft_position();                  # aircraft position
+        var hd_deg = getprop("orientation/heading-deg");   # heading of aircraft
+        var hw_deg = (ac.course_to(wp));                   # heading to winch
+        var dd_m = (ac.direct_distance_to(wp));            # the actual rope length
+      # calculate forces
+        var dp_m = (ac.distance_to(wp));                   # projected distance to winch
+        var pt_deg = getprop("orientation/pitch-deg");     # pitch of aircraft
+        var rt_deg = getprop("orientation/roll-deg");      # roll of aircraft
+        var dd_old_m = getprop("sim/glider/winch/work/rope_m");  # last rope length
+        var ropespeed = (dd_old_m - dd_m)/deltatime_s;     # the speed of the rope
+        # correct a failure, if the projected length is larger than direct length
+        if (dp_m > dd_m) { dp_m = dd_m;}                   
+        # calculate main angles
+        var alpha = math.acos( (dp_m / dd_m) );
+        var beta = ( hw_deg - hd_deg ) * 0.01745;
+        var gamma = pt_deg * 0.01745;
+        var delta = rt_deg * 0.01745;
+        # get trigonometric values from angles
+        var sina = math.sin(alpha);
+        var cosa = math.cos(alpha);
+        var sinb = math.sin(beta);
+        var cosb = math.cos(beta);
+        var sing = math.sin(gamma);
+        var cosg = math.cos(gamma);
+        var sind = math.sin(delta);
+        var cosd = math.cos(delta);
+        # calculate force correction factors due to speed and rope angle
+        var k_force_speed = k_speed_y1 + (k_speed_y2 - k_speed_y1)/
+                                         (k_speed_x2 - k_speed_x1)*
+                                         (ropespeed/speedmax - k_speed_x1);
+        var k_force_angle = k_angle_y1 + (k_angle_y2 - k_angle_y1)/
+                                         (k_angle_x2 - k_angle_x1)*
+                                         (alpha / 0.01745 / roperelease_deg - k_angle_x1);
+        if ( k_force_speed > k_speed_y1 ) { k_force_speed = k_speed_y1; }
+        if ( k_force_speed < k_speed_y2 ) { k_force_speed = k_speed_y2; }
+        if ( k_force_angle > k_angle_y1 ) { k_force_angle = k_angle_y1; }
+        if ( k_force_angle < k_angle_y2 ) { k_force_angle = k_angle_y2; }
+        # global forces dependent on: alpha beta
+        var fglobalx = pullmax * cosa * cosb;
+        var fglobaly = pullmax * cosa * sinb;
+        var fglobalz = pullmax * sina;
+        # local forces dependent on pitch: gamma
+        var flpitchx = fglobalx * cosg - fglobalz * sing;
+        var flpitchy = fglobaly;
+        var flpitchz = fglobalx * sing + fglobalz * cosg;
+        # local forces dependent on roll: delta
+        var flrollx  = flpitchx;
+        var flrolly  = flpitchy * cosd + flpitchz * sind;
+        var flrollz  = flpitchy * sind + flpitchz * cosd;
+        # asigning to LOCAL coord of plane
+        var forcex = flrollx;
+        var forcey = flrolly;
+        var forcez = flrollz;
+        # calculates the force angle, used for automatic release
+        var force_deg = math.asin( math.sqrt(forcey * forcey + forcez * forcez) 
+          / math.sqrt(forcex * forcex + forcey * forcey + forcez * forcez) ) 
+          / 0.01745; 
+        # automatic release if criteria is reached
+        if (force_deg > roperelease_deg) { 
+          releaseWinch(); 
+        } 
+        # otherwise set the current forces
+        else  { 
+          forcex = forcex * k_force_speed * k_force_angle;
+          forcey = forcey * k_force_speed * k_force_angle;
+          forcez = forcez * k_force_speed * k_force_angle;
+          setprop("fdm/jsbsim/external_reactions/winchx/magnitude",  forcex );
+          setprop("fdm/jsbsim/external_reactions/winchy/magnitude",  forcey );
+          setprop("fdm/jsbsim/external_reactions/winchz/magnitude",  forcez );
+          setprop("sim/glider/winch/work/speed", ropespeed); 
+          setprop("sim/glider/winch/work/rope_m", dd_m ); 
+        }
+      # update rope animation
+        var hook_pos    = ac.apply_course_distance( hd_deg , install_distance_m );   
+        hook_pos.set_alt(ac.alt() + install_alt_m); 
+        var height = ac.alt() - wp.alt();
+        if ( ac.alt() > wp.alt() ) {
+          var wnpitchto = -math.asin((ac.alt()-wp.alt())/dd_m) / 0.01745;
+        }
+        else {
+          var wnpitchto =  math.asin((ac.alt()-wp.alt())/dd_m) / 0.01745;
+        }
+        # update position of rope
+        setprop("ai/models/winchrope/position/latitude-deg", hook_pos.lat());
+        setprop("ai/models/winchrope/position/longitude-deg", hook_pos.lon());
+        setprop("ai/models/winchrope/position/altitude-ft", hook_pos.alt() * M2FT);
+        setprop("sim/glider/winchrope/work/latitude-deg", hook_pos.lat());
+        setprop("sim/glider/winchrope/work/longitude-deg", hook_pos.lon());
+        setprop("sim/glider/winchrope/work/altitude-m", hook_pos.alt());
+        # update length of rope
+        setprop("sim/glider/winchrope/work/xstretch_rel", dd_m);
+        # update pitch and heading of rope
+        setprop("sim/glider/winchrope/work/rope_heading_deg", hw_deg);
+        setprop("sim/glider/winchrope/work/rope_pitch_deg", wnpitchto);
+        setprop("ai/models/winchrope/orientation/true-heading-deg", hw_deg);
+        setprop("ai/models/winchrope/orientation/pitch-deg", wnpitchto);
+print("hook: ", hook_pos.lat(), " ", hook_pos.lon(), " ", hook_pos.alt() );
     }
-    
-    # and finally update the rope
-    updateWinchRope();
-    
+    else {
+      # and finally update the rope
+      var para = geo.Coord.new().set_latlon( 
+          (getprop("sim/glider/winchrope/work/latitude-deg")),
+          (getprop("sim/glider/winchrope/work/longitude-deg")),
+          (getprop("sim/glider/winchrope/work/altitude-m"))); # gets parachute position
+print("para: ", para.lat(), " ", para.lon(), " ", para.alt() );
+      var lati = para.lat();
+	  var long = para.lon();
+      var ground = geo.elevation(lati, long);
+print(" elev: ", ground);
+      if ( para.alt() > 0.0) { # at the moment only dirty workaround as elevation() seems to report elevation of parachute, and not the elevation above ground
+        # update position of rope
+        var sink = para.alt() - deltatime_s * 5.0;
+        setprop("ai/models/winchrope/position/altitude-ft", sink * M2FT);
+        setprop("sim/glider/winchrope/work/altitude-m", sink);
+      }
+      else {
+        # remove winch
+        removeWinch();
+      }
+    }
     
     settimer(runWinch, winch_timeincrement_s);
     
@@ -818,5 +801,8 @@ var runWinch = func {
 
 } # End Function runWinch
 
-var pulling = setlistener("sim/glider/winch/flag/pull", runWinch);
+
+
+
+var pulling = setlistener("sim/glider/winch/flags/pull", runWinch);
 var initializing_winch = setlistener("sim/signals/fdm-initialized", globalsWinch);

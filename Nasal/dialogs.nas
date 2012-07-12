@@ -4,7 +4,7 @@
 #
 # ####################################################################################
 # Author: Klaus Kerner
-# Version: 2012-06-05
+# Version: 2012-07-09
 #
 
 # ####################################################################################
@@ -86,7 +86,6 @@ var guiconfig3    = setlistener("/fdm/jsbsim/inertia/pointmass-weight-lbs[3]",
 # winch dialog: helper function to cancel the winch, avoiding race conditions
 var guiWinchCancel = func {
     dg101g.removeWinch();
-    dg101g.removeWinchRope();
     dg101g.resetWinch();
 }
  

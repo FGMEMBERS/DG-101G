@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-  Version: 2012-06-04
+  Version: 2012-07-12
 -->
 
 <PropertyList>
@@ -29,7 +29,7 @@
   <animation>
     <type>translate</type>
     <object-name>parachute</object-name>
-    <property>sim/glider/winch/work/placed</property>
+    <property>sim/glider/winchrope/flags/exist</property>
     <factor>-5</factor>
     <axis>
       <x>1</x>
@@ -41,7 +41,19 @@
   <animation>
     <type>scale</type>
     <object-name>parachute</object-name>
-    <property>sim/glider/winch/work/placed</property>
+    <property>sim/glider/winchrope/work/scale_x</property>
+    <factor>-5</factor>
+    <axis>
+      <x>-0.5</x>
+      <y>0</y>
+      <z>0</z>
+    </axis>
+  </animation>
+  
+  <animation>
+    <type>scale</type>
+    <object-name>parachute</object-name>
+    <property>sim/glider/winchrope/work/scale_yz</property>
     <x-factor>2</x-factor>
     <y-factor>0.5</y-factor>
     <z-factor>0.5</z-factor>
@@ -52,7 +64,7 @@
   <animation>
     <type>scale</type>
     <object-name>winchrope</object-name>
-    <property>sim/glider/winch/work/placed</property>
+    <property>sim/glider/winchrope/work/scale_x</property>
     <x-factor>200</x-factor>
   </animation>
 
