@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-  Version: 2012-07-12
+  Version: 2012-07-13
 -->
 
 <PropertyList>
@@ -28,7 +28,8 @@
   
   <animation>
     <type>translate</type>
-    <object-name>parachute</object-name>
+    <object-name>paraopen</object-name>
+    <object-name>paraclosed</object-name>
     <property>sim/glider/winchrope/flags/exist</property>
     <factor>-5</factor>
     <axis>
@@ -39,24 +40,25 @@
   </animation>
   
   <animation>
-    <type>scale</type>
-    <object-name>parachute</object-name>
-    <property>sim/glider/winchrope/work/scale_x</property>
-    <factor>-5</factor>
-    <axis>
-      <x>-0.5</x>
-      <y>0</y>
-      <z>0</z>
-    </axis>
+    <type>select</type>
+    <object-name>paraopen</object-name>
+    <condition>
+      <equals>
+        <property>sim/glider/winch/flags/hooked</property>
+        <value>0</value>
+      </equals>
+    </condition>
   </animation>
   
   <animation>
-    <type>scale</type>
-    <object-name>parachute</object-name>
-    <property>sim/glider/winchrope/work/scale_yz</property>
-    <x-factor>2</x-factor>
-    <y-factor>0.5</y-factor>
-    <z-factor>0.5</z-factor>
+    <type>select</type>
+    <object-name>paraclosed</object-name>
+    <condition>
+      <equals>
+        <property>sim/glider/winch/flags/hooked</property>
+        <value>1</value>
+      </equals>
+    </condition>
   </animation>
   
   

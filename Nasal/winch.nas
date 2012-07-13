@@ -770,7 +770,6 @@ var runWinch = func {
         setprop("sim/glider/winchrope/work/rope_pitch_deg", wnpitchto);
         setprop("ai/models/winchrope/orientation/true-heading-deg", hw_deg);
         setprop("ai/models/winchrope/orientation/pitch-deg", wnpitchto);
-print("hook: ", hook_pos.lat(), " ", hook_pos.lon(), " ", hook_pos.alt() );
     }
     else {
       # and finally update the rope
@@ -778,12 +777,16 @@ print("hook: ", hook_pos.lat(), " ", hook_pos.lon(), " ", hook_pos.alt() );
           (getprop("sim/glider/winchrope/work/latitude-deg")),
           (getprop("sim/glider/winchrope/work/longitude-deg")),
           (getprop("sim/glider/winchrope/work/altitude-m"))); # gets parachute position
-print("para: ", para.lat(), " ", para.lon(), " ", para.alt() );
-      var lati = para.lat();
-	  var long = para.lon();
-      var ground = geo.elevation(lati, long);
-print(" elev: ", ground);
-      if ( para.alt() > 0.0) { # at the moment only dirty workaround as elevation() seems to report elevation of parachute, and not the elevation above ground
+      var lati1 = para.lat();
+      var long1 = para.lon();
+      var ground1 = geo.elevation(lati1, long1);
+      var lati2 = getprop("sim/glider/winchrope/work/latitude-deg");
+      var long2 = getprop("sim/glider/winchrope/work/longitude-deg");
+      var ground2 = geo.elevation(lati2, long2);
+print(" elev1: ", ground1, "   elev2: ", ground2, "   alt: ", para.alt());
+      # at the moment only dirty workaround as elevation() seems to report elevation 
+      #  of parachute, and not the elevation above ground
+      if ( para.alt() > 0.0) { 
         # update position of rope
         var sink = para.alt() - deltatime_s * 5.0;
         setprop("ai/models/winchrope/position/altitude-ft", sink * M2FT);
