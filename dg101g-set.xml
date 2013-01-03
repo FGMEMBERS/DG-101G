@@ -4,7 +4,7 @@
 JSBSim DG-101 G glider with 3D cockpit.
 
 Started 2008-06-19 by Nikolaus Kerner, 
-Current 2011-09-28
+Current 2013-01-01
 ************************************************************************
 -->
 
@@ -12,16 +12,16 @@ Current 2011-09-28
 
   <sim>
 
-    <description>Glaser-Dirks DG-101G glider (JSBSIM)</description>
+    <description>Glaser-Dirks DG-101G (JSBSIM)</description>
     <author>Nikolaus Kerner</author>
-    <status>early production</status>
+    <status>development</status>
     <rating>
       <FDM     type="int">3</FDM>
       <systems type="int">4</systems>
       <cockpit type="int">3</cockpit>
       <model   type="int">4</model>
     </rating>
-    <aircraft-version>2011-06-15</aircraft-version>
+    <aircraft-version>2013-01-01</aircraft-version>
     <startup>
       <splash-texture>Aircraft/DG-101G/splash.png</splash-texture>
     </startup>
@@ -100,9 +100,9 @@ Current 2011-09-28
       <config>
         <from-model type="bool">true</from-model>
         <from-model-idx type="int">0</from-model-idx>
-        <x-offset-m archive="y">0.00</x-offset-m>
-        <y-offset-m archive="y">0.15</y-offset-m>
-        <z-offset-m archive="y">1.65</z-offset-m>
+        <x-offset-m archive="y"> 0.00</x-offset-m>
+        <y-offset-m archive="y"> 0.15</y-offset-m>
+        <z-offset-m archive="y">-0.56</z-offset-m>              <!-- 1.65 - 2.21 = -0.56 -->
         <pitch-offset-deg>-10</pitch-offset-deg>
       </config>
     </view>
@@ -122,9 +122,9 @@ Current 2011-09-28
       <config>
         <from-model type="bool">true</from-model>
         <from-model-idx type="int">0</from-model-idx>
-        <x-offset-m archive="y">0.00</x-offset-m>
-        <y-offset-m archive="y">0.00</y-offset-m>
-        <z-offset-m archive="y">1.35</z-offset-m>
+        <x-offset-m archive="y"> 0.00</x-offset-m>
+        <y-offset-m archive="y"> 0.00</y-offset-m>
+        <z-offset-m archive="y">-0.86</z-offset-m>               <!-- 1.35 - 2.21 = -0.86 -->
         <pitch-offset-deg>-5</pitch-offset-deg>
       </config>
     </view>
@@ -137,9 +137,9 @@ Current 2011-09-28
       <config>
         <from-model type="bool">true</from-model>
         <from-model-idx type="int">0</from-model-idx>
-        <x-offset-m archive="y">0.00</x-offset-m>
-        <y-offset-m archive="y">0.50</y-offset-m>
-        <z-offset-m archive="y">1.45</z-offset-m>
+        <x-offset-m archive="y"> 0.00</x-offset-m>
+        <y-offset-m archive="y"> 0.50</y-offset-m>
+        <z-offset-m archive="y">-0.76</z-offset-m>               <!-- 1.45 - 2.21 = -0.76 -->
         <pitch-offset-deg>-5</pitch-offset-deg>
       </config>
     </view>

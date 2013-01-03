@@ -4,14 +4,12 @@
 #
 # ####################################################################################
 # Author: Klaus Kerner
-# Version: 2012-07-11
+# Version: 2013-01-01
 #
 # ####################################################################################
 # To Do's
 #
-# - animation of winch rope with parachute
-# - currently the winch and rope are removed after a certain time after release,
-#   for the future the removal should be done when the rope is completely fed in
+# - behaviour of winch not realistic enough (feedback from users)
 #
 # ####################################################################################
 # Concepts:
@@ -407,8 +405,6 @@ var placeWinch = func {
       winchrope_sim.getNode("rope_pitch_deg", 1).setValue(rope_pitch_deg);
       winchrope_sim.getNode("hook_x_m", 1).setValue(install_distance_m);
       winchrope_sim.getNode("hook_z_m", 1).setValue(install_alt_m);
-      winchrope_sim.getNode("scale_x", 1).setValue(1);
-      winchrope_sim.getNode("scale_yz", 1).setValue(1);
       # setup ai properties
       winchrope_ai.getNode("id", 1).setIntValue(9996);
       winchrope_ai.getNode("callsign", 1).setValue("winchrope");
@@ -538,8 +534,6 @@ var releaseWinch = func {
     setprop("fdm/jsbsim/external_reactions/winchx/magnitude", 0);  # set the
     setprop("fdm/jsbsim/external_reactions/winchy/magnitude", 0);  # forces 
     setprop("fdm/jsbsim/external_reactions/winchz/magnitude", 0);  # to zero
-    setprop("sim/glider/winchrope/work/scale_x", 0.5);
-    setprop("sim/glider/winchrope/work/scale_yz", 2);
     setprop("sim/glider/winch/flags/hooked",0);
     atc_msg("Hook opened, tow released");
     print("Hook opened, tow released");
@@ -777,16 +771,10 @@ var runWinch = func {
           (getprop("sim/glider/winchrope/work/latitude-deg")),
           (getprop("sim/glider/winchrope/work/longitude-deg")),
           (getprop("sim/glider/winchrope/work/altitude-m"))); # gets parachute position
-      var lati1 = para.lat();
-      var long1 = para.lon();
-      var ground1 = geo.elevation(lati1, long1);
-      var lati2 = getprop("sim/glider/winchrope/work/latitude-deg");
-      var long2 = getprop("sim/glider/winchrope/work/longitude-deg");
-      var ground2 = geo.elevation(lati2, long2);
-print(" elev1: ", ground1, "   elev2: ", ground2, "   alt: ", para.alt());
-      # at the moment only dirty workaround as elevation() seems to report elevation 
-      #  of parachute, and not the elevation above ground
-      if ( para.alt() > 0.0) { 
+      var lati = para.lat();
+      var long = para.lon();
+      var ground = geo.elevation(lati, long);
+      if ( para.alt() > 0.0) { # at the moment only dirty workaround as elevation() seems to report elevation of parachute, and not the elevation above ground
         # update position of rope
         var sink = para.alt() - deltatime_s * 5.0;
         setprop("ai/models/winchrope/position/altitude-ft", sink * M2FT);

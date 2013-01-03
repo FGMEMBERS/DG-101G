@@ -1,12 +1,22 @@
 <?xml version="1.0"?>
 
 <!-- climb/sink indicator -->
+<!-- author:  Nikolaus Kerner -->
+<!-- version: 2012-08-04      -->
 
 <PropertyList>
 
   <path>80mm_vsi_5stv5.ac</path>
   <texture-path>Textures</texture-path>
 
+  
+  <effect>
+    <inherits-from>Effects/model-transparent</inherits-from>
+    <object-name>glas</object-name>
+  </effect>
+  
+  
+  
   <animation>
     <type>rotate</type>
     <object-name>needle</object-name>

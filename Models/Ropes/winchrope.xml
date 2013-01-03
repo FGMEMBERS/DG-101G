@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-  Version: 2012-07-13
+  Version: 2012-12-27
 -->
 
 <PropertyList>
@@ -9,27 +9,18 @@
   <path>winchrope.ac</path>
   
   <offsets>
-          <x-m>0.0</x-m>
-          <y-m>0.0</y-m>
-          <z-m>0.0</z-m>
+    <x-m>0.0</x-m>
+    <y-m>0.0</y-m>
+    <z-m>0.0</z-m>
     <pitch-deg>0</pitch-deg>
-    
   </offsets>
   
   
-  
-  
 <!-- animations -->
-<!-- order of animation matters
-     It seems that the animations are pushed on a stack and then they are executed
-     one after another down from the stack. So, the first one listed in this 
-     configuration file will be executed as the last one.
--->
-  
   <animation>
     <type>translate</type>
-    <object-name>paraopen</object-name>
-    <object-name>paraclosed</object-name>
+    <object-name>parachute_open</object-name>
+    <object-name>parachute_closed</object-name>
     <property>sim/glider/winchrope/flags/exist</property>
     <factor>-5</factor>
     <axis>
@@ -41,32 +32,27 @@
   
   <animation>
     <type>select</type>
-    <object-name>paraopen</object-name>
+    <object-name>parachute_open</object-name>
     <condition>
-      <equals>
+      <not>
         <property>sim/glider/winch/flags/hooked</property>
-        <value>0</value>
-      </equals>
+      </not>
     </condition>
   </animation>
   
   <animation>
     <type>select</type>
-    <object-name>paraclosed</object-name>
+    <object-name>parachute_closed</object-name>
     <condition>
-      <equals>
         <property>sim/glider/winch/flags/hooked</property>
-        <value>1</value>
-      </equals>
     </condition>
   </animation>
-  
   
   
   <animation>
     <type>scale</type>
     <object-name>winchrope</object-name>
-    <property>sim/glider/winchrope/work/scale_x</property>
+    <property>sim/glider/winchrope/flags/exist</property>
     <x-factor>200</x-factor>
   </animation>
 

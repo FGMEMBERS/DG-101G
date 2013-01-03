@@ -7,7 +7,7 @@
   <fileheader>
     <author> Nikolaus Kerner </author>
     <filecreationdate> 2009-03-23 </filecreationdate>
-    <version> $Revison: 2011-09-20 $ </version>
+    <version> $Revison: 2013-01-01 $ </version>
     <description>Models a Glaser-Dirks DG-101G standard class glider</description>
     <note> some kind of remarks</note>
     <limitation> ground effects not included</limitation>
@@ -17,49 +17,23 @@
   </fileheader>
 
 
-<!--
-  File:     dg101g_jsbsim.xml
-  Inputs:
-    name:          DG-101G
-    type:          glider
-    max weight:    1102.5 lb          500.0 kg
-    wing span:     49.215 ft          15.0 m
-    length:        16.405 ft          5.0 m
-    wing area:     107.65 sq-ft       10.0 sq-m
-    gear type:     tricycle
-    retractable?:  yes
-    # engines:     0
-    engine type:   piston
-    engine layout: forward fuselage
-    yaw damper?    no
-  
-  Outputs:
-    wing loading:  10.24 lb/sq-ft
-    CL-alpha:      5.5 per radian
-    CL-0:          0.25
-    CL-max:        1.4
-    CD-0:          0.01
-    K:             0.023
--->
-
-
   <metrics>
-    <wingarea unit="M2"> 10.00 </wingarea>
-    <wingspan unit="M"> 15.00 </wingspan>
-    <chord unit="M"> 0.6675 </chord>
-    <wing_incidence unit=""> 2 </wing_incidence>
-    <htailarea unit="M2"> 3.938 </htailarea>
-    <htailarm unit="M"> 3.00 </htailarm>
-    <vtailarea unit="M2"> 1.00 </vtailarea>
-    <vtailarm unit="M"> 3.00 </vtailarm>
+    <wingarea       unit="M2"> 11.07  </wingarea>
+    <wingspan       unit="M">  15.00  </wingspan>
+    <chord          unit="M">   0.774 </chord>
+    <wing_incidence unit="">    2     </wing_incidence>
+    <htailarea      unit="M2">  0.830 </htailarea>
+    <htailarm       unit="M">   3.90  </htailarm>
+    <vtailarea      unit="M2">  1.02  </vtailarea>
+    <vtailarm       unit="M">   4.00  </vtailarm>
     <location name="AERORP" unit="M">
-      <x> 2.000 </x>
+      <x>-0.210 </x>
       <y> 0 </y>
       <z> 0 </z>
     </location>
     <location name="EYEPOINT" unit="M">
-      <x> 1.700 </x>
-      <y> 0 </y>
+      <x>-0.51 </x>
+      <y> 0.00 </y>
       <z> 0.15 </z>
     </location>
     <!-- VRP, the virtual reverence point, typically the nose of the plane 
@@ -73,15 +47,15 @@
 
 
   <mass_balance>
-    <ixx unit="KG*M2">1950</ixx>
-    <iyy unit="KG*M2">205</iyy>
-    <izz unit="KG*M2">1655</izz>
+    <ixx unit="KG*M2">1087</ixx>
+    <iyy unit="KG*M2">1340</iyy>
+    <izz unit="KG*M2">2368</izz>
     <ixz unit="KG*M2">0</ixz>
     <iyz unit="KG*M2">0</iyz>
     <ixy unit="KG*M2">0</ixy>
     <emptywt unit="KG">230</emptywt>
     <location name="CG" unit="M">
-      <x> 2.000</x>
+      <x>-0.210</x>   <!-- 2.0 - 2.21 = -0.21 -->
       <y> 0.000</y>
       <z>-0.125</z>
     </location>
@@ -90,7 +64,7 @@
     <pointmass name="pilot">
       <weight unit="KG">80</weight>
       <location name="POINTMASS" unit="M">
-        <x> 1.600</x>
+        <x>-0.610</x>  <!-- 1.6 - 2.21 = -0,61 -->
         <y> 0.000</y>
         <z> 0.000</z>
       </location>
@@ -99,7 +73,7 @@
     <pointmass name="tank1">
       <weight unit="KG">0</weight>
       <location name="POINTMASS" unit="M">
-        <x> 2.000</x>
+        <x>-0.210</x>  <!-- 2.0 - 2.21 = -0.21 -->
         <y> 1.500</y>
         <z> 0.000</z>
       </location>
@@ -108,7 +82,7 @@
     <pointmass name="tank2">
       <weight unit="KG">0</weight>
       <location name="POINTMASS" unit="M">
-        <x> 2.000</x>
+        <x>-0.210</x>  <!-- 2.0 - 2.21 = -0.21 -->
         <y>-1.500</y>
         <z> 0.000</z>
       </location>
@@ -117,7 +91,7 @@
     <pointmass name="balancing">
       <weight unit="KG">20</weight>
       <location name="POINTMASS" unit="M">
-        <x> 4.000</x>
+        <x> 1.790</x>  <!-- 4.0 - 2.21 = 1.79 -->
         <y> 0.000</y>
         <z> 0.000</z>
       </location>
@@ -131,7 +105,7 @@
     
     <contact type="BOGEY" name="MAIN">
       <location unit="M">
-        <x> 1.949 </x>
+        <x>-0.261 </x>  <!-- 1.949 - 2.21 0 = -0.261 -->
         <y> 0 </y>
         <z> -0.679 </z>
       </location>
@@ -147,7 +121,7 @@
     
     <contact type="BOGEY" name="TAIL">
       <location unit="M">
-        <x> 6.33 </x>
+        <x> 4.12 </x>  <!-- 6.33 - 2.21 = 4.12 --> 
         <y> 0 </y>
         <z> -0.17 </z>
       </location>
@@ -165,7 +139,7 @@
     
     <contact type="BOGEY" name="LEFT_WING">
       <location unit="M">
-        <x>  2.296 </x>
+        <x>  0.086 </x>  <!-- 2.296 - 2.21 = 0.086 -->
         <y> -7.486 </y>
         <z>  0.403 </z>
       </location>
@@ -181,7 +155,7 @@
     
     <contact type="BOGEY" name="RIGHT_WING">
       <location unit="M">
-        <x>  2.296 </x>
+        <x>  0.086 </x>  <!-- 2.296 - 2.21 = 0.086 -->
         <y>  7.486 </y>
         <z>  0.403 </z>
       </location>
@@ -199,9 +173,9 @@
     
     <contact type="STRUCTURE" name="BODY_1"> <!-- at the nose -->
       <location unit="M">
-        <x> 0 </x>
-        <y> 0 </y>
-        <z> -0.21 </z>
+        <x>-2.21 </x>  <!-- 0 - 2.21 = -2.21 -->
+        <y> 0.00 </y>
+        <z>-0.21 </z>
       </location>
       <static_friction> 0.8 </static_friction>
       <dynamic_friction> 0.5 </dynamic_friction>
@@ -211,9 +185,9 @@
     
     <contact type="STRUCTURE" name="BODY_2"> <!-- at the bottom -->
       <location unit="M">
-        <x> 1.295 </x>
-        <y> 0 </y>
-        <z> -0.48 </z>
+        <x>-0.915 </x>  <!-- 1.295 - 2.21 = -0.915 -->
+        <y> 0.000 </y>
+        <z>-0.480 </z>
       </location>
       <static_friction> 0.8 </static_friction>
       <dynamic_friction> 0.5 </dynamic_friction>
@@ -223,9 +197,33 @@
     
     <contact type="STRUCTURE" name="BODY_3"> <!-- at the canopy -->
       <location unit="M">
-        <x> 1.105 </x>
-        <y> 0 </y>
+        <x>-1.105 </x>  <!-- 1.105 - 2.21 = -1.105 -->
+        <y> 0.000 </y>
         <z> 0.273 </z>
+      </location>
+      <static_friction> 0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 80000.0 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 4000.0 </damping_coeff>
+    </contact>
+    
+    <contact type="STRUCTURE" name="WING_L"> <!-- at the left wing -->
+      <location unit="M">
+        <x> 0.000 </x>
+        <y>-7.486 </y>
+        <z> 0.500 </z>
+      </location>
+      <static_friction> 0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 80000.0 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 4000.0 </damping_coeff>
+    </contact>
+    
+    <contact type="STRUCTURE" name="WING_R"> <!-- at the right wing -->
+      <location unit="M">
+        <x> 0.000 </x>
+        <y> 7.486 </y>
+        <z> 0.500 </z>
       </location>
       <static_friction> 0.8 </static_friction>
       <dynamic_friction> 0.5 </dynamic_friction>
@@ -235,8 +233,8 @@
     
     <contact type="STRUCTURE" name="RUDDER_1"> <!-- at the bottom of the rudder -->
       <location unit="M">
-        <x> 7 </x>
-        <y> 0 </y>
+        <x> 4.79 </x>  <!-- 7 - 2.21 = 4.79 -->
+        <y> 0.00 </y>
         <z> 0.02 </z>
       </location>
       <static_friction> 0.8 </static_friction>
@@ -247,9 +245,9 @@
     
     <contact type="STRUCTURE" name="ELEV_1"> <!-- at the right elevator tip -->
       <location unit="M">
-        <x> 6.617 </x>
-        <y> 1.12 </y>
-        <z> 1.2 </z>
+        <x> 4.407 </x>  <!-- 6.617 - 2.21 = 4.407 -->
+        <y> 1.120 </y>
+        <z> 1.200 </z>
       </location>
       <static_friction> 0.8 </static_friction>
       <dynamic_friction> 0.5 </dynamic_friction>
@@ -259,9 +257,9 @@
     
     <contact type="STRUCTURE" name="ELEV_2"> <!-- at the left elevator tip -->
       <location unit="M">
-        <x> 6.617 </x>
-        <y> -1.12 </y>
-        <z> 1.2 </z>
+        <x> 4.407 </x>  <!-- 6.617 - 2.21 = 4.407 -->
+        <y>-1.120 </y>
+        <z> 1.200 </z>
       </location>
       <static_friction> 0.8 </static_friction>
       <dynamic_friction> 0.5 </dynamic_friction>
@@ -278,9 +276,9 @@
     
     <force name="winchx" frame="BODY" >
       <location unit="M">
-        <x>  1.8</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -0.41</x>  <!-- 1.8 - 2.21 = -0.41 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 1.0</x>
@@ -291,9 +289,9 @@
     
     <force name="winchy" frame="BODY" >
       <location unit="M">
-        <x>  1.8</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -0.41</x>  <!-- 1.8 - 2.21 = -0.41 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 0.0</x>
@@ -304,9 +302,9 @@
     
     <force name="winchz" frame="BODY" >
       <location unit="M">
-        <x>  1.8</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -0.41</x>  <!-- 1.8 - 2.21 = -0.41 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 0.0</x>
@@ -320,9 +318,9 @@
     
     <force name="dragx" frame="BODY" >
       <location unit="M">
-        <x>  0.0</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -2.21</x>  <!-- 0 - 2.21 = -2.21 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 1.0</x>
@@ -333,9 +331,9 @@
     
     <force name="dragy" frame="BODY" >
       <location unit="M">
-        <x>  0.0</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -2.21</x>  <!-- 0 - 2.21 = -2.21 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 0.0</x>
@@ -346,9 +344,9 @@
     
     <force name="dragz" frame="BODY" >
       <location unit="M">
-        <x>  0.0</x>
-        <y>  0.0</y>
-        <z> -0.5</z>
+        <x> -2.21</x>  <!-- 0 - 2.21 = -2.21 -->
+        <y>  0.00</y>
+        <z> -0.50</z>
       </location>
       <direction>
         <x> 0.0</x>
