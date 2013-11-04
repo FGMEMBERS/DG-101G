@@ -20,13 +20,9 @@
   <animation>
     <type>rotate</type>
     <object-name>needle</object-name>
-    <!-- old property without Total Energy compensation
-      <property>instrumentation/vertical-speed-indicator/indicated-speed-fpm</property>  
-    -->
-    <property>instrumentation/te-vario/te-reading-mps</property>
+    <property>instrumentation/te-vario/te-reading1-mps</property>
     <interpolation>
       <entry><ind> -5.00</ind><dep>-125</dep></entry> <!-- - 5m/s -->
-      <entry><ind>  0   </ind><dep>   0</dep></entry> <!--   0    -->
       <entry><ind>  5.00</ind><dep> 125</dep></entry> <!--   5m/s -->
     </interpolation>
     <center>

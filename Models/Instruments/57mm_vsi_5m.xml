@@ -10,14 +10,10 @@
   <animation>
     <type>rotate</type>
     <object-name>needle</object-name>
-    <property>instrumentation/vertical-speed-indicator/indicated-speed-fpm</property>
-    <!-- conversion from feet/min to m/sec 
-         1 foot = 0.3048 m
-         1 f/m  = 0.00508 m/s -->
+    <property>instrumentation/te-vario/te-reading2-mps</property>
     <interpolation>
-      <entry><ind> -984.25</ind><dep>-150</dep></entry> <!-- - 5m/s -->
-      <entry><ind>    0   </ind><dep>   0</dep></entry> <!--   0    -->
-      <entry><ind>  984.25</ind><dep> 150</dep></entry> <!--   5m/s -->
+      <entry><ind> -5</ind><dep>-150</dep></entry> <!-- - 5m/s -->
+      <entry><ind>  5</ind><dep> 150</dep></entry> <!--   5m/s -->
     </interpolation>
     <center>
       <x-m>0</x-m>
