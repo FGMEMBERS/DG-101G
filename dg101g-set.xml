@@ -21,6 +21,7 @@ Current 2013-01-01
       <cockpit type="int">3</cockpit>
       <model   type="int">4</model>
     </rating>
+
     <tags>
       <tag>glider</tag>
       <tag>1970s</tag>
@@ -31,6 +32,30 @@ Current 2013-01-01
       <tag>retractable-gear</tag>
       <tag>t-tail</tag>
     </tags>
+
+    <previews>
+      <preview>
+        <type>exterior</type>
+        <splash type="bool">true</splash>
+        <path>Pics/exterior01.jpg</path>
+      </preview>
+      <preview>
+        <type>exterior</type>
+        <splash type="bool">true</splash>
+        <path>Pics/exterior02.jpg</path>
+      </preview>
+      <preview>
+        <type>exterior</type>
+        <splash type="bool">true</splash>
+        <path>Pics/exterior03.jpg</path>
+      </preview>
+	  <preview>
+        <type>panel</type>
+        <splash type="bool">false</splash>
+        <path>Pics/interior01.jpg</path>
+      </preview>
+    </previews>
+
     <aircraft-version>2013-01-01</aircraft-version>
     <startup>
       <splash-texture>Aircraft/DG-101G/splash.png</splash-texture>
